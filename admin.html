@@ -6,15 +6,131 @@
 	<title>Admin - Dumbbo</title>
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 	<style>
-		#admin-login, #admin-panel { max-width: 500px; margin: 60px auto; padding: 20px; }
-		#admin-panel { max-width: 900px; }
-		.producto-admin-row { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #ddd; }
-		.producto-admin-row img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
-		.producto-admin-row input[type="number"] { width: 100px; padding: 5px; }
-		.producto-admin-info { flex: 1; }
-		.hidden { display: none; }
-		#login-error { color: red; margin-top: 10px; }
-	</style>
+    /* ===== COLORES DUMBBO ===== */
+    :root {
+        --rosa-dumbbo: #F0AEC9;
+        --rosa-claro: #FCE8F1;
+        --rosa-oscuro: #7A294D;
+        --texto: #3A2630;
+        --blanco: #FFFFFF;
+    }
+
+    /* ===== FONDO GENERAL ===== */
+    body {
+        background-color: var(--rosa-claro);
+        color: var(--texto);
+    }
+
+    /* ===== LOGIN ===== */
+    #admin-login {
+        max-width: 500px;
+        margin: 60px auto;
+        padding: 30px;
+        background-color: var(--blanco);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
+    }
+
+    /* ===== PANEL ADMIN ===== */
+    #admin-panel {
+        max-width: 900px;
+        margin: 60px auto;
+        padding: 30px;
+        background-color: var(--blanco);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
+    }
+
+    /* ===== TÍTULOS ===== */
+    #admin-login h2,
+    #admin-panel h2 {
+        color: var(--rosa-oscuro);
+    }
+
+    /* ===== PRODUCTOS ===== */
+    .producto-admin-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px;
+        margin-bottom: 8px;
+        border: 1px solid #F1D3DF;
+        border-radius: 10px;
+        background-color: #FFF9FB;
+    }
+
+    .producto-admin-row img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .producto-admin-row input[type="number"] {
+        width: 100px;
+        padding: 7px;
+        border: 1px solid #DFA5BB;
+        border-radius: 6px;
+    }
+
+    .producto-admin-info {
+        flex: 1;
+    }
+
+    /* ===== BOTONES ===== */
+    .tm-btn {
+        border-radius: 8px;
+    }
+
+    .tm-btn-default {
+        background-color: var(--rosa-dumbbo);
+        border-color: var(--rosa-dumbbo);
+        color: var(--rosa-oscuro);
+    }
+
+    .tm-btn-default:hover {
+        background-color: var(--rosa-oscuro);
+        border-color: var(--rosa-oscuro);
+        color: white;
+    }
+
+    /* ===== CATEGORÍAS ===== */
+    #admin-categoria-nav button {
+        background-color: var(--rosa-claro);
+        color: var(--rosa-oscuro);
+        border: 1px solid var(--rosa-dumbbo);
+        border-radius: 8px;
+        padding: 7px 12px;
+        cursor: pointer;
+    }
+
+    #admin-categoria-nav button:hover {
+        background-color: var(--rosa-dumbbo);
+    }
+
+    /* ===== CAMPOS DE LOGIN ===== */
+    #admin-login input {
+        box-sizing: border-box;
+        border: 1px solid #DFA5BB;
+        border-radius: 7px;
+        outline: none;
+    }
+
+    #admin-login input:focus {
+        border-color: var(--rosa-dumbbo);
+        box-shadow: 0 0 0 2px rgba(240, 174, 201, 0.25);
+    }
+
+    /* ===== ERROR ===== */
+    #login-error {
+        color: #C62828;
+        margin-top: 10px;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
 </head>
 <body>
 
