@@ -1,115 +1,320 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="es">
 <head>
 	<meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Simple House Template</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400" rel="stylesheet" />    
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Menú - Dumbbo Café</title>
 	<link href="css/templatemo-style.css" rel="stylesheet" />
+	<style>
+    /* ===== COLORES DUMBBO ===== */
+    :root {
+        --rosa-dumbbo: #F0AEC9;
+        --rosa-claro: #FCE8F1;
+        --rosa-oscuro: #7A294D;
+        --texto: #3A2630;
+        --blanco: #FFFFFF;
+        --precio-rojo: #E53935;
+    }
+
+    /* ===== FONDO GENERAL CON LOGO SUTIL ===== */
+    body {
+        background-color: var(--rosa-claro);
+        color: var(--texto);
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        
+        /* Marca de agua del logo al fondo */
+        background-image: url('img/logo.png'); /* Asegúrate de guardar la imagen del logo aquí */
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        background-size: 450px auto;
+    }
+
+    /* ===== CONTENEDOR PRINCIPAL ===== */
+    .menu-container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 25px;
+        background-color: rgba(255, 255, 255, 0.92); /* Fondo translúcido para ver el logo */
+        backdrop-filter: blur(5px);
+        border-radius: 18px;
+        box-shadow: 0 5px 25px rgba(122, 41, 77, 0.12);
+    }
+
+    /* ===== HEADER Y TÍTULO ===== */
+    .menu-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .menu-header h1 {
+        color: var(--rosa-oscuro);
+        margin: 0 0 5px 0;
+        font-size: 2rem;
+    }
+
+    .menu-header p {
+        margin: 0;
+        color: #777;
+        font-size: 0.95rem;
+    }
+
+    /* ===== NAV DE CATEGORÍAS (TIPO CARTA TOTEAT) ===== */
+    #cliente-categoria-nav {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        margin-bottom: 25px;
+        border-bottom: 1px solid #F1D3DF;
+    }
+
+    #cliente-categoria-nav::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    #cliente-categoria-nav::-webkit-scrollbar-thumb {
+        background-color: var(--rosa-dumbbo);
+        border-radius: 4px;
+    }
+
+    .filtro-cliente-btn {
+        background-color: var(--rosa-claro);
+        color: var(--rosa-oscuro);
+        border: 1px solid var(--rosa-dumbbo);
+        border-radius: 20px;
+        padding: 8px 16px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .filtro-cliente-btn:hover,
+    .filtro-cliente-btn.active {
+        background-color: var(--rosa-oscuro);
+        color: var(--blanco);
+        border-color: var(--rosa-oscuro);
+    }
+
+    /* ===== SECCIONES Y TARJETAS DE PRODUCTOS (GRILLA) ===== */
+    .categoria-seccion {
+        margin-bottom: 30px;
+    }
+
+    .categoria-titulo {
+        color: var(--rosa-oscuro);
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid var(--rosa-dumbbo);
+    }
+
+    .productos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 15px;
+    }
+
+    /* Tarjeta individual del producto */
+    .producto-card {
+        background-color: var(--blanco);
+        border: 1px solid #F1D3DF;
+        border-radius: 12px;
+        padding: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(122, 41, 77, 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .producto-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(122, 41, 77, 0.12);
+    }
+
+    .producto-detalles {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .producto-nombre {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--texto);
+        margin-bottom: 4px;
+    }
+
+    .producto-descripcion {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 12px;
+        line-height: 1.35;
+    }
+
+    .producto-precio {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--precio-rojo);
+        margin-top: auto;
+    }
+
+    .producto-imagen {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #FCE8F1;
+        flex-shrink: 0;
+    }
+
+    /* BADGE PROMOCIÓN */
+    .badge-promocion {
+        display: inline-block;
+        background-color: var(--rosa-dumbbo);
+        color: var(--rosa-oscuro);
+        font-size: 0.7rem;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    /* Responsivo para celulares */
+    @media (max-width: 600px) {
+        .productos-grid {
+            grid-template-columns: 1fr;
+        }
+        .menu-container {
+            margin: 10px;
+            padding: 15px;
+        }
+    }
+</style>
 </head>
-<!--
+<body>
 
-Simple House
-
-https://templatemo.com/tm-539-simple-house
-
--->
-<body> 
-
-	<div class="container">
-	<!-- Top box -->
-		<!-- Logo & Site Name -->
-		<div class="placeholder">
-			<div class="parallax-window" data-parallax="scroll" data-image-src="img/simple-house-01.jpg">
-				<div class="tm-header">
-					<div class="row tm-header-inner">
-						<div class="col-md-6 col-12">
-							<img src="img/simple-house-logo.png" alt="Logo" class="tm-site-logo" /> 
-							<div class="tm-site-text-box">
-								<h1 class="tm-site-title">Simple House</h1>
-								<h6 class="tm-site-description">new restaurant template</h6>	
-							</div>
-						</div>
-						<nav class="col-md-6 col-12 tm-nav">
-							<ul class="tm-nav-ul">
-								<li class="tm-nav-li"><a href="index.html" class="tm-nav-link active">Home</a></li>
-								<li class="tm-nav-li"><a href="about.html" class="tm-nav-link">About</a></li>
-								<li class="tm-nav-li"><a href="contact.html" class="tm-nav-link">Contact</a></li>
-							</ul>
-						</nav>	
-					</div>
-				</div>
-			</div>
+	<div class="menu-container">
+		<div class="menu-header">
+			<h1>Dumbbo Café</h1>
+			<p>Menú digital</p>
 		</div>
 
-		<main>
-			<header class="row tm-welcome-section">
-				<h2 class="col-12 text-center tm-section-title">Welcome to Simple House</h2>
-				<p class="col-12 text-center">Total 3 HTML pages are included in this template. Header image has a parallax effect. You can feel free to download, edit and use this TemplateMo layout for your commercial or non-commercial websites.</p>
-			</header>
+		<div id="cliente-categoria-nav"></div>
 
-			<div class="tm-paging-links">
-	<nav>
-		<ul id="categoria-nav">
-			<!-- Los botones de categoría se generan automáticamente aquí -->
-		</ul>
-	</nav>
-</div>
-
-<div class="row tm-gallery" id="menu-container">
-	<!-- Las cards se generan automáticamente aquí -->
-</div>
-
-			<!-- Gallery -->
-<div class="row tm-gallery" id="menu-container">
-	<!-- Las cards se generan automáticamente aquí con JS -->
-</div>
-
-			
-			</div>
-			<div class="tm-section tm-container-inner">
-				<div class="row">
-					<div class="col-md-6">
-						<figure class="tm-description-figure">
-							<img src="img/img-01.jpg" alt="Image" class="img-fluid" />
-						</figure>
-					</div>
-					<div class="col-md-6">
-						<div class="tm-description-box"> 
-							<h4 class="tm-gallery-title">Maecenas nulla neque</h4>
-							<p class="tm-mb-45">Redistributing this template as a downloadable ZIP file on any template collection site is strictly prohibited. You will need to <a rel="nofollow" href="https://templatemo.com/contact">talk to us</a> for additional permissions about our templates. Thank you.</p>
-							<a href="about.html" class="tm-btn tm-btn-default tm-right">Read More</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</main>
-
-		<footer class="tm-footer text-center">
-			<p>Copyright &copy; 2020 Simple House 
-            
-            | Design: <a rel="nofollow" href="https://templatemo.com">TemplateMo</a></p>
-		</footer>
+		<div id="menu-contenedor"></div>
 	</div>
-	<script src="js/jquery.min.js"></script>
-	<script src="js/parallax.min.js"></script>
-	<script>
-		$(document).ready(function(){
-			// Handle click on paging links
-			$('.tm-paging-link').click(function(e){
-				e.preventDefault();
-				
-				var page = $(this).text().toLowerCase();
-				$('.tm-gallery-page').addClass('hidden');
-				$('#tm-gallery-page-' + page).removeClass('hidden');
-				$('.tm-paging-link').removeClass('active');
-				$(this).addClass("active");
-			});
-		});
-	</script>
-	<script type="module" src="js/firebase-config.js"></script>
 
+	<script type="module">
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+		import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+		const firebaseConfig = {
+		  apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
+		  authDomain: "dumbbo-menu.firebaseapp.com",
+		  projectId: "dumbbo-menu",
+		  storageBucket: "dumbbo-menu.firebasestorage.app",
+		  messagingSenderId: "875230670130",
+		  appId: "1:875230670130:web:63ad4fb93cb7bf2c8bbb2b"
+		};
+
+		const app = initializeApp(firebaseConfig);
+		const db = getFirestore(app);
+
+		let todosLosProductos = [];
+
+		// Obtener productos disponibles en tiempo real
+		onSnapshot(collection(db, "productos"), (snapshot) => {
+		  todosLosProductos = [];
+		  snapshot.forEach((docSnap) => {
+		    const data = docSnap.data();
+		    // Solo tomamos los productos que NO estén ocultos (disponible === true)
+		    if (data.disponible) {
+		      todosLosProductos.push({ id: docSnap.id, ...data });
+		    }
+		  });
+		  crearFiltrosCliente(todosLosProductos);
+		  renderizarMenuCliente(todosLosProductos);
+		});
+
+		function renderizarMenuCliente(productos) {
+		  const contenedor = document.getElementById("menu-contenedor");
+		  const categorias = [...new Set(productos.map(p => p.categoria))];
+		  
+		  if (productos.length === 0) {
+		    contenedor.innerHTML = "<p style='text-align:center;'>No hay productos disponibles por el momento.</p>";
+		    return;
+		  }
+
+		  let html = "";
+		  categorias.forEach(cat => {
+		    const productosCat = productos.filter(p => p.categoria === cat);
+		    
+		    if (productosCat.length > 0) {
+		      html += `
+		        <div class="categoria-seccion" id="cat-${cat.replace(/\s+/g, '-')}">
+		          <h2 class="categoria-titulo">${cat}</h2>
+		          <div class="productos-grid">
+		      `;
+		      
+		      productosCat.forEach(p => {
+		        html += `
+		          <div class="producto-card">
+		            <div class="producto-detalles">
+		              <div class="producto-nombre">
+		                ${p.nombre}
+		                ${p.promocion ? '<span class="badge-promocion">Promo</span>' : ''}
+		              </div>
+		              <div class="producto-descripcion">${p.descripcion || ''}</div>
+		              <div class="producto-precio">$${Number(p.precio).toLocaleString('es-CL')}</div>
+		            </div>
+		            ${p.imagenUrl ? `<img src="${p.imagenUrl}" alt="${p.nombre}" class="producto-imagen">` : ''}
+		          </div>
+		        `;
+		      });
+		      
+		      html += `
+		          </div>
+		        </div>
+		      `;
+		    }
+		  });
+		  
+		  contenedor.innerHTML = html;
+		}
+
+		function crearFiltrosCliente(productos) {
+		  const categorias = [...new Set(productos.map(p => p.categoria))];
+		  const nav = document.getElementById("cliente-categoria-nav");
+
+		  let html = `<button class="filtro-cliente-btn active" data-cat="todos">Todos</button>`;
+		  categorias.forEach(cat => {
+		    html += `<button class="filtro-cliente-btn" data-cat="${cat}">${cat}</button>`;
+		  });
+		  nav.innerHTML = html;
+
+		  document.querySelectorAll(".filtro-cliente-btn").forEach(btn => {
+		    btn.addEventListener("click", () => {
+		      document.querySelectorAll(".filtro-cliente-btn").forEach(b => b.classList.remove("active"));
+		      btn.classList.add("active");
+		      
+		      const categoriaSel = btn.dataset.cat;
+		      if (categoriaSel === "todos") {
+		        renderizarMenuCliente(todosLosProductos);
+		      } else {
+		        const filtrados = todosLosProductos.filter(p => p.categoria === categoriaSel);
+		        renderizarMenuCliente(filtrados);
+		      }
+		    });
+		  });
+		}
+	</script>
 </body>
 </html>
