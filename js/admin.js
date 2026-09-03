@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -21,6 +21,7 @@ const loginBox = document.getElementById("admin-login");
 const panelBox = document.getElementById("admin-panel");
 const loginError = document.getElementById("login-error");
 
+// AUTHENTICATION
 document.getElementById("btn-login").addEventListener("click", () => {
   const email = document.getElementById("admin-email").value;
   const password = document.getElementById("admin-password").value;
@@ -41,43 +42,88 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+// AGREGAR NUEVO PRODUCTO A FIREBASE
+document.getElementById("form-crear-producto").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const nuevoProducto = {
+    nombre: document.getElementById("nuevo-nombre").value.trim(),
+    categoria: document.getElementById("nuevo-categoria").value.trim(),
+    precio: Number(document.getElementById("nuevo-precio").value),
+    imagenUrl: document.getElementById("nuevo-imagen").value.trim(),
+    descripcion: document.getElementById("nuevo-descripcion").value.trim(),
+    disponible: document.getElementById("nuevo-disponible").checked,
+    promocion: document.getElementById("nuevo-promocion").checked
+  };
+
+  try {
+    await addDoc(collection(db, "productos"), nuevoProducto);
+    document.getElementById("form-crear-producto").reset();
+    document.getElementById("nuevo-disponible").checked = true;
+    alert("¡Producto agregado exitosamente a Firebase!");
+  } catch (error) {
+    alert("Error al guardar el producto: " + error.message);
+  }
+});
+
+// RENDERIZAR LISTA EN EL PANEL ADMIN
 function renderizarListaAdmin(lista) {
   const contenedor = document.getElementById("productos-admin-list");
   let html = "";
   lista.forEach((p) => {
     html += `
       <div class="producto-admin-row">
-        <img src="${p.imagenUrl}" alt="${p.nombre}">
+        <img src="${p.imagenUrl || 'https://via.placeholder.com/60'}" alt="${p.nombre}">
         <div class="producto-admin-info">
           <strong>${p.nombre}</strong> (${p.categoria})
+          ${p.descripcion ? `<small>${p.descripcion}</small>` : ''}
         </div>
         <label>Precio: <input type="number" value="${p.precio}" data-id="${p.id}" class="input-precio" /></label>
         <label><input type="checkbox" ${p.disponible ? "checked" : ""} data-id="${p.id}" class="input-disponible" /> Disponible</label>
         <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Promoción</label>
-
+        <button data-id="${p.id}" data-nombre="${p.nombre}" class="btn-eliminar">Eliminar</button>
       </div>
     `;
   });
   contenedor.innerHTML = html;
 
+  // EVENTOS DE ACTUALIZACIÓN EN TIEMPO REAL
   document.querySelectorAll(".input-precio").forEach(input => {
     input.addEventListener("change", async (e) => {
       await updateDoc(doc(db, "productos", e.target.dataset.id), { precio: Number(e.target.value) });
     });
   });
+
   document.querySelectorAll(".input-disponible").forEach(input => {
     input.addEventListener("change", async (e) => {
       await updateDoc(doc(db, "productos", e.target.dataset.id), { disponible: e.target.checked });
     });
   });
+
   document.querySelectorAll(".input-promocion").forEach(input => {
     input.addEventListener("change", async (e) => {
       await updateDoc(doc(db, "productos", e.target.dataset.id), { promocion: e.target.checked });
     });
-});
+  });
 
+  // EVENTO DE ELIMINACIÓN
+  document.querySelectorAll(".btn-eliminar").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const id = e.target.dataset.id;
+      const nombre = e.target.dataset.nombre;
+
+      if (confirm(`¿Estás seguro de que deseas eliminar "${nombre}"?`)) {
+        try {
+          await deleteDoc(doc(db, "productos", id));
+        } catch (error) {
+          alert("Error al eliminar: " + error.message);
+        }
+      }
+    });
+  });
 }
 
+// FILTROS DE NAVEGACIÓN
 function crearFiltrosAdmin(productos) {
   const categorias = [...new Set(productos.map(p => p.categoria))];
   const nav = document.getElementById("admin-categoria-nav");
@@ -100,6 +146,7 @@ function crearFiltrosAdmin(productos) {
   });
 }
 
+// OBTIENE PRODUCTOS EN TIEMPO REAL DESDE FIREBASE
 function cargarProductosAdmin() {
   onSnapshot(collection(db, "productos"), (snapshot) => {
     todosLosProductosAdmin = [];
