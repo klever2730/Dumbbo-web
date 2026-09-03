@@ -6,6 +6,25 @@
 	<title>Admin - Dumbbo</title>
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 	<style>
+
+		body {
+    background-color: var(--rosa-claro);
+    color: var(--texto);
+    /* Imagen de logo en el fondo centrado */
+    background-image: url('img/logo.png'); /* Asegúrate de guardar la imagen del logo en tu carpeta img */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: 450px auto; /* Ajusta el tamaño según tu preferencia */
+}
+
+/* Fondo translúcido en los contenedores para que el logo se perciba sutilmente */
+#admin-login,
+#admin-panel {
+    background-color: rgba(255, 255, 255, 0.92); /* Blanco ligeramente transparente */
+    backdrop-filter: blur(5px); /* Difumina suavemente el fondo detrás de la tarjeta */
+}
+
     /* ===== COLORES DUMBBO ===== */
     :root {
         --rosa-dumbbo: #F0AEC9;
