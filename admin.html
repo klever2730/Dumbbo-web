@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Admin - Dumbbo</title>
+	<link href="css/templatemo-style.css" rel="stylesheet" />
+	<style>
+		#admin-login, #admin-panel { max-width: 500px; margin: 60px auto; padding: 20px; }
+		#admin-panel { max-width: 900px; }
+		.producto-admin-row { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #ddd; }
+		.producto-admin-row img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+		.producto-admin-row input[type="number"] { width: 100px; padding: 5px; }
+		.producto-admin-info { flex: 1; }
+		.hidden { display: none; }
+		#login-error { color: red; margin-top: 10px; }
+	</style>
+</head>
+<body>
+
+	<div id="admin-login">
+		<h2>Panel Administrador - Dumbbo</h2>
+		<input type="email" id="admin-email" placeholder="Correo" style="width:100%; padding:8px; margin-bottom:10px;" />
+		<input type="password" id="admin-password" placeholder="Contraseña" style="width:100%; padding:8px; margin-bottom:10px;" />
+		<button id="btn-login" class="tm-btn tm-btn-default">Iniciar sesión</button>
+		<p id="login-error"></p>
+	</div>
+
+	<div id="admin-panel" class="hidden">
+		<h2>Editar productos</h2>
+		<button id="btn-logout" class="tm-btn tm-btn-default">Cerrar sesión</button>
+		<div id="productos-admin-list"></div>
+	</div>
+
+	<script type="module" src="js/admin.js"></script>
+</body>
+</html>
