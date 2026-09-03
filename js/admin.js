@@ -53,6 +53,8 @@ function renderizarListaAdmin(lista) {
         </div>
         <label>Precio: <input type="number" value="${p.precio}" data-id="${p.id}" class="input-precio" /></label>
         <label><input type="checkbox" ${p.disponible ? "checked" : ""} data-id="${p.id}" class="input-disponible" /> Disponible</label>
+        <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Promoción</label>
+
       </div>
     `;
   });
@@ -68,6 +70,12 @@ function renderizarListaAdmin(lista) {
       await updateDoc(doc(db, "productos", e.target.dataset.id), { disponible: e.target.checked });
     });
   });
+  document.querySelectorAll(".input-promocion").forEach(input => {
+    input.addEventListener("change", async (e) => {
+      await updateDoc(doc(db, "productos", e.target.dataset.id), { promocion: e.target.checked });
+    });
+});
+
 }
 
 function crearFiltrosAdmin(productos) {
