@@ -13,6 +13,7 @@
         --rosa-oscuro: #7A294D;
         --texto: #3A2630;
         --blanco: #FFFFFF;
+        --rojo: #E53935;
     }
 
     /* ===== FONDO GENERAL ===== */
@@ -33,7 +34,7 @@
 
     /* ===== PANEL ADMIN ===== */
     #admin-panel {
-        max-width: 900px;
+        max-width: 950px;
         margin: 60px auto;
         padding: 30px;
         background-color: var(--blanco);
@@ -41,7 +42,7 @@
         box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
     }
 
-		/* ===== CABECERA PANEL ADMIN (NUEVO) ===== */
+    /* ===== CABECERA PANEL ADMIN ===== */
     .admin-header {
         display: flex;
         justify-content: space-between;
@@ -51,58 +52,129 @@
 
     .admin-header h2 {
         margin: 0;
+        color: var(--rosa-oscuro);
     }
 
-    /* ===== TÍTULOS ===== */
-    #admin-login h2,
-    #admin-panel h2 {
+    /* ===== FORMULARIO CREAR PRODUCTO ===== */
+    .form-crear-producto {
+        background-color: #FFF9FB;
+        border: 1px solid #F1D3DF;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 25px;
+    }
+
+    .form-crear-producto h3 {
+        margin-top: 0;
+        margin-bottom: 12px;
         color: var(--rosa-oscuro);
+        font-size: 1.1rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .form-crear-producto input[type="text"],
+    .form-crear-producto input[type="number"],
+    .form-crear-producto textarea {
+        padding: 8px;
+        border: 1px solid #DFA5BB;
+        border-radius: 6px;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .form-crear-producto textarea {
+        grid-column: 1 / -1;
+        resize: vertical;
+        height: 60px;
+    }
+
+    .form-checkboxes {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 12px;
     }
 
     /* ===== PRODUCTOS ===== */
     .producto-admin-row {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
         padding: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         border: 1px solid #F1D3DF;
         border-radius: 10px;
         background-color: #FFF9FB;
+        flex-wrap: wrap;
     }
 
     .producto-admin-row img {
-        width: 60px;
-        height: 60px;
+        width: 55px;
+        height: 55px;
         object-fit: cover;
         border-radius: 8px;
     }
 
     .producto-admin-row input[type="number"] {
-        width: 100px;
-        padding: 7px;
+        width: 85px;
+        padding: 6px;
         border: 1px solid #DFA5BB;
         border-radius: 6px;
     }
 
     .producto-admin-info {
         flex: 1;
+        min-width: 180px;
+    }
+
+    .producto-admin-info small {
+        display: block;
+        color: #666;
+        font-size: 0.85rem;
+        margin-top: 2px;
     }
 
     /* ===== BOTONES ===== */
     .tm-btn {
         border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        border: none;
     }
 
     .tm-btn-default {
         background-color: var(--rosa-dumbbo);
-        border-color: var(--rosa-dumbbo);
+        border: 1px solid var(--rosa-dumbbo);
         color: var(--rosa-oscuro);
+        font-weight: bold;
     }
 
     .tm-btn-default:hover {
         background-color: var(--rosa-oscuro);
         border-color: var(--rosa-oscuro);
+        color: white;
+    }
+
+    .btn-eliminar {
+        background-color: transparent;
+        color: var(--rojo);
+        border: 1px solid var(--rojo);
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .btn-eliminar:hover {
+        background-color: var(--rojo);
         color: white;
     }
 
@@ -116,8 +188,10 @@
         cursor: pointer;
     }
 
-    #admin-categoria-nav button:hover {
+    #admin-categoria-nav button:hover,
+    #admin-categoria-nav button.active {
         background-color: var(--rosa-dumbbo);
+        font-weight: bold;
     }
 
     /* ===== CAMPOS DE LOGIN ===== */
@@ -155,12 +229,28 @@
 	</div>
 
 	<div id="admin-panel" class="hidden">
-
-		<!-- NUEVA CABECERA QUE ALINEA EL TÍTULO Y EL BOTÓN A LOS EXTREMOS -->
 		<div class="admin-header">
-		<h2>Editar productos</h2>
-		<button id="btn-logout" class="tm-btn tm-btn-default">Cerrar sesión</button>
+			<h2>Editar productos</h2>
+			<button id="btn-logout" class="tm-btn tm-btn-default">Cerrar sesión</button>
 		</div>
+
+		<!-- FORMULARIO PARA AGREGAR NUEVO PRODUCTO -->
+		<form id="form-crear-producto" class="form-crear-producto">
+			<h3>+ Agregar Nuevo Producto</h3>
+			<div class="form-grid">
+				<input type="text" id="nuevo-nombre" placeholder="Nombre (ej. Brownie de chocolate)" required />
+				<input type="text" id="nuevo-categoria" placeholder="Categoría (ej. Dulces)" required />
+				<input type="number" id="nuevo-precio" placeholder="Precio ($)" required />
+				<input type="text" id="nuevo-imagen" placeholder="URL de la imagen (https://...)" required />
+				<textarea id="nuevo-descripcion" placeholder="Descripción corta del producto..."></textarea>
+			</div>
+			<div class="form-checkboxes">
+				<label><input type="checkbox" id="nuevo-disponible" checked /> Disponible (Visible)</label>
+				<label><input type="checkbox" id="nuevo-promocion" /> Promoción</label>
+			</div>
+			<button type="submit" class="tm-btn tm-btn-default">Guardar Producto en Firebase</button>
+		</form>
+
 		<div id="admin-categoria-nav" style="margin-bottom:15px; display:flex; gap:8px; flex-wrap:wrap;"></div>
 		<div id="productos-admin-list"></div>
 	</div>
