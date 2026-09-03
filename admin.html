@@ -41,6 +41,18 @@
         box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
     }
 
+		/* ===== CABECERA PANEL ADMIN (NUEVO) ===== */
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .admin-header h2 {
+        margin: 0;
+    }
+
     /* ===== TÍTULOS ===== */
     #admin-login h2,
     #admin-panel h2 {
@@ -143,8 +155,12 @@
 	</div>
 
 	<div id="admin-panel" class="hidden">
+
+		<!-- NUEVA CABECERA QUE ALINEA EL TÍTULO Y EL BOTÓN A LOS EXTREMOS -->
+		<div class="admin-header">
 		<h2>Editar productos</h2>
 		<button id="btn-logout" class="tm-btn tm-btn-default">Cerrar sesión</button>
+		</div>
 		<div id="admin-categoria-nav" style="margin-bottom:15px; display:flex; gap:8px; flex-wrap:wrap;"></div>
 		<div id="productos-admin-list"></div>
 	</div>
