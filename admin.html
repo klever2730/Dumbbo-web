@@ -1,241 +1,258 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Admin - Dumbbo</title>
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 	<style>
+		:root {
+			--rosa-dumbbo: #F0AEC9;
+			--rosa-claro: #FCE8F1;
+			--rosa-oscuro: #7A294D;
+			--texto: #3A2630;
+			--blanco: #FFFFFF;
+			--rojo: #E53935;
+		}
 
 		body {
-    background-color: var(--rosa-claro);
-    color: var(--texto);
-    /* Imagen de logo en el fondo centrado */
-    background-image: url('img/logo.png'); /* Asegúrate de guardar la imagen del logo en tu carpeta img */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-attachment: fixed;
-    background-size: 450px auto; /* Ajusta el tamaño según tu preferencia */
-}
+			background-color: var(--rosa-claro);
+			color: var(--texto);
+			background-image: url('img/logo.png');
+			background-repeat: no-repeat;
+			background-position: center center;
+			background-attachment: fixed;
+			background-size: 450px auto;
+		}
 
-/* Fondo translúcido en los contenedores para que el logo se perciba sutilmente */
-#admin-login,
-#admin-panel {
-    background-color: rgba(255, 255, 255, 0.92); /* Blanco ligeramente transparente */
-    backdrop-filter: blur(5px); /* Difumina suavemente el fondo detrás de la tarjeta */
-}
+		#admin-login,
+		#admin-panel {
+			background-color: rgba(255, 255, 255, 0.92);
+			backdrop-filter: blur(5px);
+		}
 
-    /* ===== COLORES DUMBBO ===== */
-    :root {
-        --rosa-dumbbo: #F0AEC9;
-        --rosa-claro: #FCE8F1;
-        --rosa-oscuro: #7A294D;
-        --texto: #3A2630;
-        --blanco: #FFFFFF;
-        --rojo: #E53935;
-    }
+		#admin-login {
+			max-width: 500px;
+			margin: 60px auto;
+			padding: 30px;
+			border-radius: 15px;
+			box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
+		}
 
-    /* ===== FONDO GENERAL ===== */
-    body {
-        background-color: var(--rosa-claro);
-        color: var(--texto);
-    }
+		#admin-panel {
+			max-width: 950px;
+			margin: 60px auto;
+			padding: 30px;
+			border-radius: 15px;
+			box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
+		}
 
-    /* ===== LOGIN ===== */
-    #admin-login {
-        max-width: 500px;
-        margin: 60px auto;
-        padding: 30px;
-        background-color: var(--blanco);
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
-    }
+		.admin-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
 
-    /* ===== PANEL ADMIN ===== */
-    #admin-panel {
-        max-width: 950px;
-        margin: 60px auto;
-        padding: 30px;
-        background-color: var(--blanco);
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
-    }
+		.admin-header h2 {
+			margin: 0;
+			color: var(--rosa-oscuro);
+		}
 
-    /* ===== CABECERA PANEL ADMIN ===== */
-    .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
+		.form-crear-producto {
+			background-color: #FFF9FB;
+			border: 1px solid #F1D3DF;
+			border-radius: 10px;
+			padding: 15px;
+			margin-bottom: 25px;
+		}
 
-    .admin-header h2 {
-        margin: 0;
-        color: var(--rosa-oscuro);
-    }
+		.form-crear-producto h3 {
+			margin-top: 0;
+			margin-bottom: 12px;
+			color: var(--rosa-oscuro);
+			font-size: 1.1rem;
+		}
 
-    /* ===== FORMULARIO CREAR PRODUCTO ===== */
-    .form-crear-producto {
-        background-color: #FFF9FB;
-        border: 1px solid #F1D3DF;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 25px;
-    }
+		.form-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 10px;
+			margin-bottom: 10px;
+		}
 
-    .form-crear-producto h3 {
-        margin-top: 0;
-        margin-bottom: 12px;
-        color: var(--rosa-oscuro);
-        font-size: 1.1rem;
-    }
+		.form-crear-producto input[type="text"],
+		.form-crear-producto input[type="number"],
+		.form-crear-producto textarea {
+			padding: 8px;
+			border: 1px solid #DFA5BB;
+			border-radius: 6px;
+			outline: none;
+			width: 100%;
+			box-sizing: border-box;
+			font-family: inherit;
+		}
 
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
-        margin-bottom: 10px;
-    }
+		/* Estilo adaptado para el selector de archivos de imagen */
+		.input-file-container {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
 
-    .form-crear-producto input[type="text"],
-    .form-crear-producto input[type="number"],
-    .form-crear-producto textarea {
-        padding: 8px;
-        border: 1px solid #DFA5BB;
-        border-radius: 6px;
-        outline: none;
-        width: 100%;
-        box-sizing: border-box;
-        font-family: inherit;
-    }
+		.input-file-container label {
+			font-size: 0.85rem;
+			color: var(--rosa-oscuro);
+			font-weight: bold;
+		}
 
-    .form-crear-producto textarea {
-        grid-column: 1 / -1;
-        resize: vertical;
-        height: 60px;
-    }
+		.form-crear-producto input[type="file"] {
+			padding: 6px;
+			border: 1px dashed #DFA5BB;
+			border-radius: 6px;
+			background-color: #FFF;
+			cursor: pointer;
+			width: 100%;
+			box-sizing: border-box;
+			font-size: 0.85rem;
+		}
 
-    .form-checkboxes {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        margin-bottom: 12px;
-    }
+		.form-crear-producto textarea {
+			grid-column: 1 / -1;
+			resize: vertical;
+			height: 60px;
+		}
 
-    /* ===== PRODUCTOS ===== */
-    .producto-admin-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        margin-bottom: 10px;
-        border: 1px solid #F1D3DF;
-        border-radius: 10px;
-        background-color: #FFF9FB;
-        flex-wrap: wrap;
-    }
+		.form-checkboxes {
+			display: flex;
+			gap: 15px;
+			align-items: center;
+			margin-bottom: 12px;
+		}
 
-    .producto-admin-row img {
-        width: 55px;
-        height: 55px;
-        object-fit: cover;
-        border-radius: 8px;
-    }
+		.producto-admin-row {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px;
+			margin-bottom: 10px;
+			border: 1px solid #F1D3DF;
+			border-radius: 10px;
+			background-color: #FFF9FB;
+			flex-wrap: wrap;
+		}
 
-    .producto-admin-row input[type="number"] {
-        width: 85px;
-        padding: 6px;
-        border: 1px solid #DFA5BB;
-        border-radius: 6px;
-    }
+		.producto-admin-row img {
+			width: 55px;
+			height: 55px;
+			object-fit: cover;
+			border-radius: 8px;
+		}
 
-    .producto-admin-info {
-        flex: 1;
-        min-width: 180px;
-    }
+		.producto-admin-row input[type="number"] {
+			width: 85px;
+			padding: 6px;
+			border: 1px solid #DFA5BB;
+			border-radius: 6px;
+		}
 
-    .producto-admin-info small {
-        display: block;
-        color: #666;
-        font-size: 0.85rem;
-        margin-top: 2px;
-    }
+		.producto-admin-info {
+			flex: 1;
+			min-width: 180px;
+		}
 
-    /* ===== BOTONES ===== */
-    .tm-btn {
-        border-radius: 8px;
-        padding: 8px 16px;
-        cursor: pointer;
-        border: none;
-    }
+		.producto-admin-info small {
+			display: block;
+			color: #666;
+			font-size: 0.85rem;
+			margin-top: 2px;
+		}
 
-    .tm-btn-default {
-        background-color: var(--rosa-dumbbo);
-        border: 1px solid var(--rosa-dumbbo);
-        color: var(--rosa-oscuro);
-        font-weight: bold;
-    }
+		.tm-btn {
+			border-radius: 8px;
+			padding: 8px 16px;
+			cursor: pointer;
+			border: none;
+		}
 
-    .tm-btn-default:hover {
-        background-color: var(--rosa-oscuro);
-        border-color: var(--rosa-oscuro);
-        color: white;
-    }
+		.tm-btn-default {
+			background-color: var(--rosa-dumbbo);
+			border: 1px solid var(--rosa-dumbbo);
+			color: var(--rosa-oscuro);
+			font-weight: bold;
+		}
 
-    .btn-eliminar {
-        background-color: transparent;
-        color: var(--rojo);
-        border: 1px solid var(--rojo);
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-    }
+		.tm-btn-default:hover {
+			background-color: var(--rosa-oscuro);
+			border-color: var(--rosa-oscuro);
+			color: white;
+		}
 
-    .btn-eliminar:hover {
-        background-color: var(--rojo);
-        color: white;
-    }
+		.tm-btn-default:disabled {
+			background-color: #ccc;
+			border-color: #ccc;
+			color: #666;
+			cursor: not-allowed;
+		}
 
-    /* ===== CATEGORÍAS ===== */
-    #admin-categoria-nav button {
-        background-color: var(--rosa-claro);
-        color: var(--rosa-oscuro);
-        border: 1px solid var(--rosa-dumbbo);
-        border-radius: 8px;
-        padding: 7px 12px;
-        cursor: pointer;
-    }
+		.btn-eliminar {
+			background-color: transparent;
+			color: var(--rojo);
+			border: 1px solid var(--rojo);
+			padding: 6px 12px;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: bold;
+		}
 
-    #admin-categoria-nav button:hover,
-    #admin-categoria-nav button.active {
-        background-color: var(--rosa-dumbbo);
-        font-weight: bold;
-    }
+		.btn-eliminar:hover {
+			background-color: var(--rojo);
+			color: white;
+		}
 
-    /* ===== CAMPOS DE LOGIN ===== */
-    #admin-login input {
-        box-sizing: border-box;
-        border: 1px solid #DFA5BB;
-        border-radius: 7px;
-        outline: none;
-    }
+		#admin-categoria-nav button {
+			background-color: var(--rosa-claro);
+			color: var(--rosa-oscuro);
+			border: 1px solid var(--rosa-dumbbo);
+			border-radius: 8px;
+			padding: 7px 12px;
+			cursor: pointer;
+		}
 
-    #admin-login input:focus {
-        border-color: var(--rosa-dumbbo);
-        box-shadow: 0 0 0 2px rgba(240, 174, 201, 0.25);
-    }
+		#admin-categoria-nav button:hover,
+		#admin-categoria-nav button.active {
+			background-color: var(--rosa-dumbbo);
+			font-weight: bold;
+		}
 
-    /* ===== ERROR ===== */
-    #login-error {
-        color: #C62828;
-        margin-top: 10px;
-    }
+		#admin-login input {
+			box-sizing: border-box;
+			border: 1px solid #DFA5BB;
+			border-radius: 7px;
+			outline: none;
+		}
 
-    .hidden {
-        display: none;
-    }
-</style>
+		#admin-login input:focus {
+			border-color: var(--rosa-dumbbo);
+			box-shadow: 0 0 0 2px rgba(240, 174, 201, 0.25);
+		}
+
+		#login-error {
+			color: #C62828;
+			margin-top: 10px;
+		}
+
+		.mensaje-estado {
+			font-size: 0.9rem;
+			color: var(--rosa-oscuro);
+			font-weight: bold;
+			margin-left: 10px;
+		}
+
+		.hidden {
+			display: none;
+		}
+	</style>
 </head>
 <body>
 
@@ -260,14 +277,23 @@
 				<input type="text" id="nuevo-nombre" placeholder="Nombre (ej. Brownie de chocolate)" required />
 				<input type="text" id="nuevo-categoria" placeholder="Categoría (ej. Dulces)" required />
 				<input type="number" id="nuevo-precio" placeholder="Precio ($)" required />
-				<input type="text" id="nuevo-imagen" placeholder="URL de la imagen (https://...)" required />
+				
+				<!-- CAMPO SELECTOR DE IMAGEN ARCHIVO EN LUGAR DE TEXTO/URL -->
+				<div class="input-file-container">
+					<label for="nuevo-imagen">Foto del producto:</label>
+					<input type="file" id="nuevo-imagen" accept="image/*" required />
+				</div>
+
 				<textarea id="nuevo-descripcion" placeholder="Descripción corta del producto..."></textarea>
 			</div>
 			<div class="form-checkboxes">
 				<label><input type="checkbox" id="nuevo-disponible" checked /> Disponible (Visible)</label>
 				<label><input type="checkbox" id="nuevo-promocion" /> Promoción</label>
 			</div>
-			<button type="submit" class="tm-btn tm-btn-default">Guardar Producto en Firebase</button>
+			
+			<!-- BOTÓN CON ID AGREGADO Y INDICADOR DE ESTADO -->
+			<button type="submit" id="btn-guardar" class="tm-btn tm-btn-default">Guardar Producto en Firebase</button>
+			<span id="mensaje-carga" class="mensaje-estado" style="display: none;">Subiendo imagen a Firebase...</span>
 		</form>
 
 		<div id="admin-categoria-nav" style="margin-bottom:15px; display:flex; gap:8px; flex-wrap:wrap;"></div>
