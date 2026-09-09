@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+// 1. IMPORTAR SERVICIOS DE FIREBASE STORAGE
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
@@ -14,6 +16,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+// 2. INICIALIZAR STORAGE
+const storage = getStorage(app);
 
 let todosLosProductosAdmin = [];
 
@@ -42,27 +46,54 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// AGREGAR NUEVO PRODUCTO A FIREBASE
+// AGREGAR NUEVO PRODUCTO A FIREBASE (CON CARGA DE IMAGEN EN STORAGE)
 document.getElementById("form-crear-producto").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nuevoProducto = {
-    nombre: document.getElementById("nuevo-nombre").value.trim(),
-    categoria: document.getElementById("nuevo-categoria").value.trim(),
-    precio: Number(document.getElementById("nuevo-precio").value),
-    imagenUrl: document.getElementById("nuevo-imagen").value.trim(),
-    descripcion: document.getElementById("nuevo-descripcion").value.trim(),
-    disponible: document.getElementById("nuevo-disponible").checked,
-    promocion: document.getElementById("nuevo-promocion").checked
-  };
+  const archivoImagen = document.getElementById("nuevo-imagen").files[0];
+  const btnGuardar = document.getElementById("btn-guardar");
+  const mensajeCarga = document.getElementById("mensaje-carga");
+
+  if (!archivoImagen) {
+    alert("Por favor selecciona una imagen.");
+    return;
+  }
 
   try {
+    // Deshabilitar botón para evitar múltiples envíos
+    if (btnGuardar) btnGuardar.disabled = true;
+    if (mensajeCarga) mensajeCarga.style.display = "inline";
+
+    // 1. Subir la imagen a Firebase Storage en la carpeta 'productos/'
+    const nombreArchivo = `${Date.now()}_${archivoImagen.name}`;
+    const storageRef = ref(storage, `productos/${nombreArchivo}`);
+    const snapshot = await uploadBytes(storageRef, archivoImagen);
+
+    // 2. Obtener la URL pública de la imagen
+    const imagenUrl = await getDownloadURL(snapshot.ref);
+
+    // 3. Crear el objeto del producto con la URL obtenida
+    const nuevoProducto = {
+      nombre: document.getElementById("nuevo-nombre").value.trim(),
+      categoria: document.getElementById("nuevo-categoria").value.trim(),
+      precio: Number(document.getElementById("nuevo-precio").value),
+      imagenUrl: imagenUrl,
+      descripcion: document.getElementById("nuevo-descripcion").value.trim(),
+      disponible: document.getElementById("nuevo-disponible").checked,
+      promocion: document.getElementById("nuevo-promocion").checked
+    };
+
+    // 4. Guardar en Firestore
     await addDoc(collection(db, "productos"), nuevoProducto);
+
     document.getElementById("form-crear-producto").reset();
     document.getElementById("nuevo-disponible").checked = true;
-    alert("¡Producto agregado exitosamente a Firebase!");
+    alert("¡Producto e imagen agregados exitosamente a Firebase!");
   } catch (error) {
     alert("Error al guardar el producto: " + error.message);
+  } finally {
+    if (btnGuardar) btnGuardar.disabled = false;
+    if (mensajeCarga) mensajeCarga.style.display = "none";
   }
 });
 
@@ -155,8 +186,11 @@ function cargarProductosAdmin() {
     });
     crearFiltrosAdmin(todosLosProductosAdmin);
     renderizarListaAdmin(todosLosProductosAdmin);
-    // Cierre de sesión automático por inactividad
-const TIEMPO_INACTIVIDAD_MS = 5 * 60 * 1000; // 5 minutos - ajusta este número si quieres más o menos tiempo
+  });
+}
+
+// CIERRE DE SESIÓN AUTOMÁTICO POR INACTIVIDAD
+const TIEMPO_INACTIVIDAD_MS = 5 * 60 * 1000; // 5 minutos
 let timerInactividad;
 
 function reiniciarTimerInactividad() {
@@ -169,13 +203,8 @@ function reiniciarTimerInactividad() {
   }, TIEMPO_INACTIVIDAD_MS);
 }
 
-// Detecta actividad del usuario
 ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evento => {
   document.addEventListener(evento, reiniciarTimerInactividad);
 });
 
-// Inicia el timer apenas carga la página
 reiniciarTimerInactividad();
-
-  });
-}
