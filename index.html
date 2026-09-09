@@ -24,12 +24,12 @@
         padding: 0;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         
-        /* Marca de agua del logo al fondo */
-        background-image: url('img/logo1.png'); /* Asegúrate de guardar la imagen del logo aquí */
+        /* Marca de agua del logo al fondo alineada con el Admin */
+        background-image: url('img/logo.png?v=2');
         background-repeat: no-repeat;
         background-position: center center;
         background-attachment: fixed;
-        background-size: 450px auto;
+        background-size: 85vw auto;
     }
 
     /* ===== CONTENEDOR PRINCIPAL ===== */
@@ -37,7 +37,7 @@
         max-width: 900px;
         margin: 30px auto;
         padding: 25px;
-        background-color: rgba(255, 255, 255, 0.92); /* Fondo translúcido para ver el logo */
+        background-color: rgba(255, 255, 255, 0.88);
         backdrop-filter: blur(5px);
         border-radius: 18px;
         box-shadow: 0 5px 25px rgba(122, 41, 77, 0.12);
@@ -61,7 +61,7 @@
         font-size: 0.95rem;
     }
 
-    /* ===== NAV DE CATEGORÍAS (TIPO CARTA TOTEAT) ===== */
+    /* ===== NAV DE CATEGORÍAS ===== */
     #cliente-categoria-nav {
         display: flex;
         gap: 10px;
@@ -99,7 +99,7 @@
         border-color: var(--rosa-oscuro);
     }
 
-    /* ===== SECCIONES Y TARJETAS DE PRODUCTOS (GRILLA) ===== */
+    /* ===== SECCIONES Y TARJETAS DE PRODUCTOS ===== */
     .categoria-seccion {
         margin-bottom: 30px;
     }
@@ -118,7 +118,6 @@
         gap: 15px;
     }
 
-    /* Tarjeta individual del producto */
     .producto-card {
         background-color: var(--blanco);
         border: 1px solid #F1D3DF;
@@ -174,7 +173,7 @@
         flex-shrink: 0;
     }
 
-    /* BADGE PROMOCIÓN */
+    /* BADGE OFERTA */
     .badge-promocion {
         display: inline-block;
         background-color: var(--rosa-dumbbo);
@@ -235,7 +234,6 @@
 		  todosLosProductos = [];
 		  snapshot.forEach((docSnap) => {
 		    const data = docSnap.data();
-		    // Solo tomamos los productos que NO estén ocultos (disponible === true)
 		    if (data.disponible) {
 		      todosLosProductos.push({ id: docSnap.id, ...data });
 		    }
@@ -270,7 +268,7 @@
 		            <div class="producto-detalles">
 		              <div class="producto-nombre">
 		                ${p.nombre}
-		                ${p.promocion ? '<span class="badge-promocion">Promo</span>' : ''}
+		                ${p.promocion ? '<span class="badge-promocion">Oferta</span>' : ''}
 		              </div>
 		              <div class="producto-descripcion">${p.descripcion || ''}</div>
 		              <div class="producto-precio">$${Number(p.precio).toLocaleString('es-CL')}</div>
