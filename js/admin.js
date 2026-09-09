@@ -101,30 +101,86 @@ document.getElementById("form-crear-producto").addEventListener("submit", async 
 function renderizarListaAdmin(lista) {
   const contenedor = document.getElementById("productos-admin-list");
   let html = "";
+  
   lista.forEach((p) => {
+    // Formatear precio para mejor lectura (ejemplo: $2.500)
+    const precioFormateado = p.precio ? p.precio.toLocaleString("es-CL") : "0";
+
     html += `
-      <div class="producto-admin-row">
+      <div class="producto-admin-row" id="producto-row-${p.id}">
         <img src="${p.imagenUrl || 'https://via.placeholder.com/60'}" alt="${p.nombre}">
+        
         <div class="producto-admin-info">
           <strong>${p.nombre}</strong> (${p.categoria})
           ${p.descripcion ? `<small>${p.descripcion}</small>` : ''}
+          
+          <!-- Vista normal del precio como texto estático -->
+          <div class="precio-contenedor">
+            <span class="precio-texto"><strong>Precio:</strong> $${precioFormateado}</span>
+            <div class="precio-editar-box hidden">
+              <input type="number" value="${p.precio}" data-id="${p.id}" class="input-precio-edit" />
+              <button data-id="${p.id}" class="btn-guardar-precio">Guardar</button>
+              <button data-id="${p.id}" class="btn-cancelar-precio">X</button>
+            </div>
+          </div>
         </div>
-        <label>Precio: <input type="number" value="${p.precio}" data-id="${p.id}" class="input-precio" /></label>
-        <label><input type="checkbox" ${p.disponible ? "checked" : ""} data-id="${p.id}" class="input-disponible" /> Disponible</label>
-        <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Promoción</label>
-        <button data-id="${p.id}" data-nombre="${p.nombre}" class="btn-eliminar">Eliminar</button>
+
+        <div class="producto-admin-controles">
+          <label><input type="checkbox" ${p.disponible ? "checked" : ""} data-id="${p.id}" class="input-disponible" /> Disponible</label>
+          <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Promoción</label>
+        </div>
+
+        <!-- Grupo de botones de acción -->
+        <div class="acciones-btn-group">
+          <button data-id="${p.id}" class="btn-editar-precio">Editar Precio</button>
+          <button data-id="${p.id}" data-nombre="${p.nombre}" class="btn-eliminar">Eliminar</button>
+        </div>
       </div>
     `;
   });
   contenedor.innerHTML = html;
 
-  // EVENTOS DE ACTUALIZACIÓN EN TIEMPO REAL
-  document.querySelectorAll(".input-precio").forEach(input => {
-    input.addEventListener("change", async (e) => {
-      await updateDoc(doc(db, "productos", e.target.dataset.id), { precio: Number(e.target.value) });
+  // EVENTO: Mostrar campo para editar precio
+  document.querySelectorAll(".btn-editar-precio").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      const row = document.getElementById(`producto-row-${id}`);
+      row.querySelector(".precio-texto").classList.add("hidden");
+      row.querySelector(".precio-editar-box").classList.remove("hidden");
     });
   });
 
+  // EVENTO: Cancelar edición de precio
+  document.querySelectorAll(".btn-cancelar-precio").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      const row = document.getElementById(`producto-row-${id}`);
+      row.querySelector(".precio-texto").classList.remove("hidden");
+      row.querySelector(".precio-editar-box").classList.add("hidden");
+    });
+  });
+
+  // EVENTO: Guardar nuevo precio en Firestore
+  document.querySelectorAll(".btn-guardar-precio").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const id = e.target.dataset.id;
+      const row = document.getElementById(`producto-row-${id}`);
+      const nuevoPrecio = Number(row.querySelector(".input-precio-edit").value);
+
+      if (isNaN(nuevoPrecio) || nuevoPrecio < 0) {
+        alert("Por favor ingresa un precio válido.");
+        return;
+      }
+
+      try {
+        await updateDoc(doc(db, "productos", id), { precio: nuevoPrecio });
+      } catch (error) {
+        alert("Error al actualizar el precio: " + error.message);
+      }
+    });
+  });
+
+  // EVENTOS DE DISPONIBLE Y PROMOCIÓN
   document.querySelectorAll(".input-disponible").forEach(input => {
     input.addEventListener("change", async (e) => {
       await updateDoc(doc(db, "productos", e.target.dataset.id), { disponible: e.target.checked });
@@ -153,6 +209,7 @@ function renderizarListaAdmin(lista) {
     });
   });
 }
+
 
 // FILTROS DE NAVEGACIÓN
 function crearFiltrosAdmin(productos) {
