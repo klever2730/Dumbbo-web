@@ -252,6 +252,67 @@
 		.hidden {
 			display: none;
 		}
+		/* Agrupación de botones a la derecha de cada producto */
+.acciones-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Botón Editar Precio */
+.btn-editar-precio {
+    background-color: var(--rosa-claro);
+    color: var(--rosa-oscuro);
+    border: 1px solid var(--rosa-dumbbo);
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.btn-editar-precio:hover {
+    background-color: var(--rosa-dumbbo);
+}
+
+/* Contenedor de edición rápida de precio */
+.precio-contenedor {
+    margin-top: 5px;
+}
+
+.precio-editar-box {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.input-precio-edit {
+    width: 80px;
+    padding: 4px;
+    border: 1px solid #DFA5BB;
+    border-radius: 4px;
+}
+
+.btn-guardar-precio {
+    background-color: var(--rosa-oscuro);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.btn-cancelar-precio {
+    background-color: #ccc;
+    color: #333;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
 	</style>
 </head>
 <body>
