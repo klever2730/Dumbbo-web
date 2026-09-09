@@ -155,5 +155,27 @@ function cargarProductosAdmin() {
     });
     crearFiltrosAdmin(todosLosProductosAdmin);
     renderizarListaAdmin(todosLosProductosAdmin);
+    // Cierre de sesión automático por inactividad
+const TIEMPO_INACTIVIDAD_MS = 5 * 60 * 1000; // 5 minutos - ajusta este número si quieres más o menos tiempo
+let timerInactividad;
+
+function reiniciarTimerInactividad() {
+  clearTimeout(timerInactividad);
+  timerInactividad = setTimeout(() => {
+    if (auth.currentUser) {
+      signOut(auth);
+      alert("Sesión cerrada por inactividad");
+    }
+  }, TIEMPO_INACTIVIDAD_MS);
+}
+
+// Detecta actividad del usuario
+["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evento => {
+  document.addEventListener(evento, reiniciarTimerInactividad);
+});
+
+// Inicia el timer apenas carga la página
+reiniciarTimerInactividad();
+
   });
 }
