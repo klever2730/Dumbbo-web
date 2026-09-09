@@ -103,12 +103,19 @@ function renderizarListaAdmin(lista) {
   let html = "";
   
   lista.forEach((p) => {
-    // Formatear precio para mejor lectura (ejemplo: $2.500)
     const precioFormateado = p.precio ? p.precio.toLocaleString("es-CL") : "0";
 
     html += `
       <div class="producto-admin-row" id="producto-row-${p.id}">
-        <img src="${p.imagenUrl || 'https://via.placeholder.com/60'}" alt="${p.nombre}">
+        
+        <!-- Columna Imagen + Botón para cambiar foto -->
+        <div class="producto-imagen-col">
+          <img src="${p.imagenUrl || 'https://via.placeholder.com/60'}" alt="${p.nombre}" id="img-preview-${p.id}">
+          <label class="btn-cambiar-foto">
+            Cambiar foto
+            <input type="file" class="input-cambiar-foto hidden" data-id="${p.id}" accept="image/*" />
+          </label>
+        </div>
         
         <div class="producto-admin-info">
           <strong>${p.nombre}</strong> (${p.categoria})
@@ -140,6 +147,50 @@ function renderizarListaAdmin(lista) {
   });
   contenedor.innerHTML = html;
 
+  // EVENTO: CAMBIAR FOTO DE UN PRODUCTO
+  document.querySelectorAll(".input-cambiar-foto").forEach(input => {
+    input.addEventListener("change", async (e) => {
+      const id = e.target.dataset.id;
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const imgPreview = document.getElementById(`img-preview-${id}`);
+      const parentLabel = e.target.parentElement;
+      const textoOriginal = parentLabel.textContent;
+
+      try {
+        parentLabel.textContent = "Subiendo...";
+        parentLabel.style.pointerEvents = "none";
+
+        // Subir a ImgBB
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const nuevaImagenUrl = data.data.url;
+          // Actualizar documento en Firestore
+          await updateDoc(doc(db, "productos", id), { imagenUrl: nuevaImagenUrl });
+          if (imgPreview) imgPreview.src = nuevaImagenUrl;
+          alert("¡Foto actualizada con éxito!");
+        } else {
+          alert("Error al subir la imagen.");
+        }
+      } catch (error) {
+        alert("Error al actualizar la foto: " + error.message);
+      } finally {
+        parentLabel.textContent = "Cambiar foto";
+        parentLabel.style.pointerEvents = "auto";
+      }
+    });
+  });
+
   // EVENTO: Mostrar campo para editar precio
   document.querySelectorAll(".btn-editar-precio").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -160,7 +211,7 @@ function renderizarListaAdmin(lista) {
     });
   });
 
-  // EVENTO: Guardar nuevo precio en Firestore
+  // EVENTO: Guardar nuevo precio
   document.querySelectorAll(".btn-guardar-precio").forEach(btn => {
     btn.addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
@@ -180,7 +231,7 @@ function renderizarListaAdmin(lista) {
     });
   });
 
-  // EVENTOS DE DISPONIBLE Y PROMOCIÓN
+  // EVENTOS DE DISPONIBLE Y OFERTA
   document.querySelectorAll(".input-disponible").forEach(input => {
     input.addEventListener("change", async (e) => {
       await updateDoc(doc(db, "productos", e.target.dataset.id), { disponible: e.target.checked });
@@ -209,6 +260,7 @@ function renderizarListaAdmin(lista) {
     });
   });
 }
+
 
 
 // FILTROS DE NAVEGACIÓN
