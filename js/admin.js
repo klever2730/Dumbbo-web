@@ -127,7 +127,7 @@ function renderizarListaAdmin(lista) {
 
         <div class="producto-admin-controles">
           <label><input type="checkbox" ${p.disponible ? "checked" : ""} data-id="${p.id}" class="input-disponible" /> Disponible</label>
-          <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Promoción</label>
+          <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Oferta</label>
         </div>
 
         <!-- Grupo de botones de acción -->
