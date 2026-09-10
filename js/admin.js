@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-// 1. IMPORTAR SERVICIOS DE FIREBASE STORAGE
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -16,7 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-// 2. INICIALIZAR STORAGE
 const storage = getStorage(app);
 
 let todosLosProductosAdmin = [];
@@ -25,7 +23,41 @@ const loginBox = document.getElementById("admin-login");
 const panelBox = document.getElementById("admin-panel");
 const loginError = document.getElementById("login-error");
 
-// AUTHENTICATION
+// ===== CIERRE DE SESIÓN POR INACTIVIDAD (persistente aunque cierres la pestaña) =====
+const TIEMPO_INACTIVIDAD_MS = 5 * 60 * 1000; // 5 minutos
+const CLAVE_ULTIMA_ACTIVIDAD = "dumbbo_admin_ultima_actividad";
+let timerInactividad;
+
+function marcarActividad() {
+  localStorage.setItem(CLAVE_ULTIMA_ACTIVIDAD, Date.now().toString());
+}
+
+function reiniciarTimerInactividad() {
+  marcarActividad();
+  clearTimeout(timerInactividad);
+  timerInactividad = setTimeout(() => {
+    if (auth.currentUser) {
+      signOut(auth);
+      alert("Sesión cerrada por inactividad");
+    }
+  }, TIEMPO_INACTIVIDAD_MS);
+}
+
+["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evento => {
+  document.addEventListener(evento, reiniciarTimerInactividad);
+});
+
+// Revisa, apenas carga la página, si ya pasó demasiado tiempo desde la última
+// actividad registrada (por ejemplo si cerraste la pestaña y volviste después).
+function revisarInactividadAlCargar() {
+  const ultima = Number(localStorage.getItem(CLAVE_ULTIMA_ACTIVIDAD) || 0);
+  const pasoDemasiadoTiempo = Date.now() - ultima > TIEMPO_INACTIVIDAD_MS;
+  if (pasoDemasiadoTiempo && auth.currentUser) {
+    signOut(auth);
+  }
+}
+
+// ===== AUTENTICACIÓN =====
 document.getElementById("btn-login").addEventListener("click", () => {
   const email = document.getElementById("admin-email").value;
   const password = document.getElementById("admin-password").value;
@@ -37,16 +69,22 @@ document.getElementById("btn-logout").addEventListener("click", () => signOut(au
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    // Antes de mostrar el panel, revisamos si venía de estar inactivo demasiado tiempo
+    revisarInactividadAlCargar();
+    if (!auth.currentUser) return; // se acaba de cerrar sesión por inactividad
+
     loginBox.classList.add("hidden");
     panelBox.classList.remove("hidden");
+    reiniciarTimerInactividad();
     cargarProductosAdmin();
   } else {
     loginBox.classList.remove("hidden");
     panelBox.classList.add("hidden");
+    clearTimeout(timerInactividad);
   }
 });
 
-// AGREGAR NUEVO PRODUCTO A FIREBASE (CON CARGA DE IMAGEN EN STORAGE)
+// ===== AGREGAR NUEVO PRODUCTO (con imagen a Firebase Storage) =====
 document.getElementById("form-crear-producto").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -60,19 +98,14 @@ document.getElementById("form-crear-producto").addEventListener("submit", async 
   }
 
   try {
-    // Deshabilitar botón para evitar múltiples envíos
     if (btnGuardar) btnGuardar.disabled = true;
     if (mensajeCarga) mensajeCarga.style.display = "inline";
 
-    // 1. Subir la imagen a Firebase Storage en la carpeta 'productos/'
     const nombreArchivo = `${Date.now()}_${archivoImagen.name}`;
     const storageRef = ref(storage, `productos/${nombreArchivo}`);
     const snapshot = await uploadBytes(storageRef, archivoImagen);
-
-    // 2. Obtener la URL pública de la imagen
     const imagenUrl = await getDownloadURL(snapshot.ref);
 
-    // 3. Crear el objeto del producto con la URL obtenida
     const nuevoProducto = {
       nombre: document.getElementById("nuevo-nombre").value.trim(),
       categoria: document.getElementById("nuevo-categoria").value.trim(),
@@ -83,7 +116,6 @@ document.getElementById("form-crear-producto").addEventListener("submit", async 
       promocion: document.getElementById("nuevo-promocion").checked
     };
 
-    // 4. Guardar en Firestore
     await addDoc(collection(db, "productos"), nuevoProducto);
 
     document.getElementById("form-crear-producto").reset();
@@ -97,18 +129,16 @@ document.getElementById("form-crear-producto").addEventListener("submit", async 
   }
 });
 
-// RENDERIZAR LISTA EN EL PANEL ADMIN
+// ===== RENDERIZAR LISTA EN EL PANEL ADMIN =====
 function renderizarListaAdmin(lista) {
   const contenedor = document.getElementById("productos-admin-list");
   let html = "";
-  
+
   lista.forEach((p) => {
     const precioFormateado = p.precio ? p.precio.toLocaleString("es-CL") : "0";
 
     html += `
       <div class="producto-admin-row" id="producto-row-${p.id}">
-        
-        <!-- Columna Imagen + Botón para cambiar foto -->
         <div class="producto-imagen-col">
           <img src="${p.imagenUrl || 'https://via.placeholder.com/60'}" alt="${p.nombre}" id="img-preview-${p.id}">
           <label class="btn-cambiar-foto">
@@ -116,12 +146,11 @@ function renderizarListaAdmin(lista) {
             <input type="file" class="input-cambiar-foto hidden" data-id="${p.id}" accept="image/*" />
           </label>
         </div>
-        
+
         <div class="producto-admin-info">
           <strong>${p.nombre}</strong> (${p.categoria})
           ${p.descripcion ? `<small>${p.descripcion}</small>` : ''}
-          
-          <!-- Vista normal del precio como texto estático -->
+
           <div class="precio-contenedor">
             <span class="precio-texto"><strong>Precio:</strong> $${precioFormateado}</span>
             <div class="precio-editar-box hidden">
@@ -137,7 +166,6 @@ function renderizarListaAdmin(lista) {
           <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Oferta</label>
         </div>
 
-        <!-- Grupo de botones de acción -->
         <div class="acciones-btn-group">
           <button data-id="${p.id}" class="btn-editar-precio">Editar Precio</button>
           <button data-id="${p.id}" data-nombre="${p.nombre}" class="btn-eliminar">Eliminar</button>
@@ -147,7 +175,6 @@ function renderizarListaAdmin(lista) {
   });
   contenedor.innerHTML = html;
 
-  // EVENTO: CAMBIAR FOTO DE UN PRODUCTO
   document.querySelectorAll(".input-cambiar-foto").forEach(input => {
     input.addEventListener("change", async (e) => {
       const id = e.target.dataset.id;
@@ -156,32 +183,19 @@ function renderizarListaAdmin(lista) {
 
       const imgPreview = document.getElementById(`img-preview-${id}`);
       const parentLabel = e.target.parentElement;
-      const textoOriginal = parentLabel.textContent;
 
       try {
         parentLabel.textContent = "Subiendo...";
         parentLabel.style.pointerEvents = "none";
 
-        // Subir a ImgBB
-        const formData = new FormData();
-        formData.append("image", file);
+        const nombreArchivo = `${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, `productos/${nombreArchivo}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const nuevaImagenUrl = await getDownloadURL(snapshot.ref);
 
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-          method: "POST",
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          const nuevaImagenUrl = data.data.url;
-          // Actualizar documento en Firestore
-          await updateDoc(doc(db, "productos", id), { imagenUrl: nuevaImagenUrl });
-          if (imgPreview) imgPreview.src = nuevaImagenUrl;
-          alert("¡Foto actualizada con éxito!");
-        } else {
-          alert("Error al subir la imagen.");
-        }
+        await updateDoc(doc(db, "productos", id), { imagenUrl: nuevaImagenUrl });
+        if (imgPreview) imgPreview.src = nuevaImagenUrl;
+        alert("¡Foto actualizada con éxito!");
       } catch (error) {
         alert("Error al actualizar la foto: " + error.message);
       } finally {
@@ -191,7 +205,6 @@ function renderizarListaAdmin(lista) {
     });
   });
 
-  // EVENTO: Mostrar campo para editar precio
   document.querySelectorAll(".btn-editar-precio").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const id = e.target.dataset.id;
@@ -201,7 +214,6 @@ function renderizarListaAdmin(lista) {
     });
   });
 
-  // EVENTO: Cancelar edición de precio
   document.querySelectorAll(".btn-cancelar-precio").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const id = e.target.dataset.id;
@@ -211,7 +223,6 @@ function renderizarListaAdmin(lista) {
     });
   });
 
-  // EVENTO: Guardar nuevo precio
   document.querySelectorAll(".btn-guardar-precio").forEach(btn => {
     btn.addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
@@ -231,7 +242,6 @@ function renderizarListaAdmin(lista) {
     });
   });
 
-  // EVENTOS DE DISPONIBLE Y OFERTA
   document.querySelectorAll(".input-disponible").forEach(input => {
     input.addEventListener("change", async (e) => {
       await updateDoc(doc(db, "productos", e.target.dataset.id), { disponible: e.target.checked });
@@ -244,7 +254,6 @@ function renderizarListaAdmin(lista) {
     });
   });
 
-  // EVENTO DE ELIMINACIÓN
   document.querySelectorAll(".btn-eliminar").forEach(btn => {
     btn.addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
@@ -261,9 +270,7 @@ function renderizarListaAdmin(lista) {
   });
 }
 
-
-
-// FILTROS DE NAVEGACIÓN
+// ===== FILTROS DE NAVEGACIÓN =====
 function crearFiltrosAdmin(productos) {
   const categorias = [...new Set(productos.map(p => p.categoria))];
   const nav = document.getElementById("admin-categoria-nav");
@@ -286,7 +293,7 @@ function crearFiltrosAdmin(productos) {
   });
 }
 
-// OBTIENE PRODUCTOS EN TIEMPO REAL DESDE FIREBASE
+// ===== OBTIENE PRODUCTOS EN TIEMPO REAL DESDE FIREBASE =====
 function cargarProductosAdmin() {
   onSnapshot(collection(db, "productos"), (snapshot) => {
     todosLosProductosAdmin = [];
@@ -297,23 +304,3 @@ function cargarProductosAdmin() {
     renderizarListaAdmin(todosLosProductosAdmin);
   });
 }
-
-// CIERRE DE SESIÓN AUTOMÁTICO POR INACTIVIDAD
-const TIEMPO_INACTIVIDAD_MS = 5 * 60 * 1000; // 5 minutos
-let timerInactividad;
-
-function reiniciarTimerInactividad() {
-  clearTimeout(timerInactividad);
-  timerInactividad = setTimeout(() => {
-    if (auth.currentUser) {
-      signOut(auth);
-      alert("Sesión cerrada por inactividad");
-    }
-  }, TIEMPO_INACTIVIDAD_MS);
-}
-
-["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evento => {
-  document.addEventListener(evento, reiniciarTimerInactividad);
-});
-
-reiniciarTimerInactividad();
