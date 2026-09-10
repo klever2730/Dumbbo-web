@@ -1,415 +1,390 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Dumbbo Café</title>
-  <style>
-    :root {
-      --rosa-dumbbo: #F0AEC9;
-      --rosa-claro: #FCE8F1;
-      --rosa-oscuro: #7A294D;
-      --texto: #3A2630;
-      --blanco: #FFFFFF;
-      --rojo-eliminar: #E53935;
-      --verde-exito: #4CAF50;
-    }
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Admin - Dumbbo</title>
+	<link href="css/templatemo-style.css" rel="stylesheet" />
+	<style>
+		:root {
+			--rosa-dumbbo: #F0AEC9;
+			--rosa-claro: #FCE8F1;
+			--rosa-oscuro: #7A294D;
+			--texto: #3A2630;
+			--blanco: #FFFFFF;
+			--rojo: #E53935;
+		}
 
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+		body {
+			background-color: var(--rosa-claro);
+			color: var(--texto);
+			background-image: url('img/logo1.png');
+			background-repeat: no-repeat;
+			background-position: center center;
+			background-attachment: fixed;
+			background-size: 85vw auto;
+		}
 
-    body {
-      background-color: var(--rosa-claro);
-      color: var(--texto);
-      margin: 0;
-      padding: 20px;
-    }
+		#admin-login,
+		#admin-panel {
+			background-color: rgba(255, 255, 255, 0.92);
+			backdrop-filter: blur(5px);
+		}
 
-    .admin-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: var(--blanco);
-      padding: 25px;
-      border-radius: 18px;
-      box-shadow: 0 8px 25px rgba(122, 41, 77, 0.12);
-    }
+		#admin-login {
+			max-width: 500px;
+			margin: 60px auto;
+			padding: 30px;
+			border-radius: 15px;
+			box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
+		}
 
-    .admin-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid var(--rosa-claro);
-      padding-bottom: 15px;
-      margin-bottom: 25px;
-    }
+		#admin-panel {
+			max-width: 950px;
+			margin: 60px auto;
+			padding: 30px;
+			border-radius: 15px;
+			box-shadow: 0 5px 20px rgba(122, 41, 77, 0.15);
+		}
 
-    h1, h2 {
-      color: var(--rosa-oscuro);
-      margin: 0;
-    }
+		.admin-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
 
-    /* FORMULARIO */
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
+		.admin-header h2 {
+			margin: 0;
+			color: var(--rosa-oscuro);
+		}
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
+		.form-crear-producto {
+			background-color: #FFF9FB;
+			border: 1px solid #F1D3DF;
+			border-radius: 10px;
+			padding: 15px;
+			margin-bottom: 25px;
+		}
 
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
+		.form-crear-producto h3 {
+			margin-top: 0;
+			margin-bottom: 12px;
+			color: var(--rosa-oscuro);
+			font-size: 1.1rem;
+		}
 
-    label {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: var(--rosa-oscuro);
-    }
+		.form-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 10px;
+			margin-bottom: 10px;
+		}
 
-    input, select, textarea {
-      padding: 10px 12px;
-      border: 1px solid var(--rosa-dumbbo);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      outline: none;
-    }
+		.form-crear-producto input[type="text"],
+		.form-crear-producto input[type="number"],
+		.form-crear-producto textarea {
+			padding: 8px;
+			border: 1px solid #DFA5BB;
+			border-radius: 6px;
+			outline: none;
+			width: 100%;
+			box-sizing: border-box;
+			font-family: inherit;
+		}
 
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--rosa-oscuro);
-    }
+		/* Estilo adaptado para el selector de archivos de imagen */
+		.input-file-container {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
 
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-    }
+		.input-file-container label {
+			font-size: 0.85rem;
+			color: var(--rosa-oscuro);
+			font-weight: bold;
+		}
 
-    .checkbox-group input {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
+		.form-crear-producto input[type="file"] {
+			padding: 6px;
+			border: 1px dashed #DFA5BB;
+			border-radius: 6px;
+			background-color: #FFF;
+			cursor: pointer;
+			width: 100%;
+			box-sizing: border-box;
+			font-size: 0.85rem;
+		}
 
-    .btn-submit {
-      background-color: var(--rosa-oscuro);
-      color: var(--blanco);
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
+		.form-crear-producto textarea {
+			grid-column: 1 / -1;
+			resize: vertical;
+			height: 60px;
+		}
 
-    .btn-submit:hover {
-      background-color: #5c1e3a;
-    }
+		.form-checkboxes {
+			display: flex;
+			gap: 15px;
+			align-items: center;
+			margin-bottom: 12px;
+		}
 
-    .btn-cancelar {
-      background-color: #888;
-      color: var(--blanco);
-      border: none;
-      padding: 12px 20px;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 25px;
-      cursor: pointer;
-      display: none;
-    }
+		.producto-admin-row {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px;
+			margin-bottom: 10px;
+			border: 1px solid #F1D3DF;
+			border-radius: 10px;
+			background-color: #FFF9FB;
+			flex-wrap: wrap;
+		}
 
-    /* TABLA DE PRODUCTOS */
-    .tabla-container {
-      overflow-x: auto;
-      margin-top: 30px;
-    }
+		.producto-admin-row img {
+			width: 55px;
+			height: 55px;
+			object-fit: cover;
+			border-radius: 8px;
+		}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
+		.producto-admin-row input[type="number"] {
+			width: 85px;
+			padding: 6px;
+			border: 1px solid #DFA5BB;
+			border-radius: 6px;
+		}
 
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid var(--rosa-claro);
-      font-size: 0.9rem;
-    }
+		.producto-admin-info {
+			flex: 1;
+			min-width: 180px;
+		}
 
-    th {
-      background-color: var(--rosa-claro);
-      color: var(--rosa-oscuro);
-    }
+		.producto-admin-info small {
+			display: block;
+			color: #666;
+			font-size: 0.85rem;
+			margin-top: 2px;
+		}
 
-    .img-tabla {
-      width: 45px;
-      height: 45px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
+		.tm-btn {
+			border-radius: 8px;
+			padding: 8px 16px;
+			cursor: pointer;
+			border: none;
+		}
 
-    .acciones-btn {
-      display: flex;
-      gap: 6px;
-    }
+		.tm-btn-default {
+			background-color: var(--rosa-dumbbo);
+			border: 1px solid var(--rosa-dumbbo);
+			color: var(--rosa-oscuro);
+			font-weight: bold;
+		}
 
-    .btn-editar {
-      background-color: var(--rosa-dumbbo);
-      color: var(--rosa-oscuro);
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-    }
+		.tm-btn-default:hover {
+			background-color: var(--rosa-oscuro);
+			border-color: var(--rosa-oscuro);
+			color: white;
+		}
 
-    .btn-eliminar {
-      background-color: var(--rojo-eliminar);
-      color: var(--blanco);
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-    }
+		.tm-btn-default:disabled {
+			background-color: #ccc;
+			border-color: #ccc;
+			color: #666;
+			cursor: not-allowed;
+		}
 
-    .badge-estado {
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: bold;
-    }
+		.btn-eliminar {
+			background-color: transparent;
+			color: var(--rojo);
+			border: 1px solid var(--rojo);
+			padding: 6px 12px;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: bold;
+		}
 
-    .badge-disponible {
-      background-color: #E8F5E9;
-      color: var(--verde-exito);
-    }
+		.btn-eliminar:hover {
+			background-color: var(--rojo);
+			color: white;
+		}
 
-    .badge-agotado {
-      background-color: #FFEBEE;
-      color: var(--rojo-eliminar);
-    }
-  </style>
+		#admin-categoria-nav button {
+			background-color: var(--rosa-claro);
+			color: var(--rosa-oscuro);
+			border: 1px solid var(--rosa-dumbbo);
+			border-radius: 8px;
+			padding: 7px 12px;
+			cursor: pointer;
+		}
+
+		#admin-categoria-nav button:hover,
+		#admin-categoria-nav button.active {
+			background-color: var(--rosa-dumbbo);
+			font-weight: bold;
+		}
+
+		#admin-login input {
+			box-sizing: border-box;
+			border: 1px solid #DFA5BB;
+			border-radius: 7px;
+			outline: none;
+		}
+
+		#admin-login input:focus {
+			border-color: var(--rosa-dumbbo);
+			box-shadow: 0 0 0 2px rgba(240, 174, 201, 0.25);
+		}
+
+		#login-error {
+			color: #C62828;
+			margin-top: 10px;
+		}
+
+		.mensaje-estado {
+			font-size: 0.9rem;
+			color: var(--rosa-oscuro);
+			font-weight: bold;
+			margin-left: 10px;
+		}
+
+		.hidden {
+			display: none;
+		}
+		/* Agrupación de botones a la derecha de cada producto */
+.acciones-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Botón Editar Precio */
+.btn-editar-precio {
+    background-color: var(--rosa-claro);
+    color: var(--rosa-oscuro);
+    border: 1px solid var(--rosa-dumbbo);
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.btn-editar-precio:hover {
+    background-color: var(--rosa-dumbbo);
+}
+
+/* Contenedor de edición rápida de precio */
+.precio-contenedor {
+    margin-top: 5px;
+}
+
+.precio-editar-box {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.input-precio-edit {
+    width: 80px;
+    padding: 4px;
+    border: 1px solid #DFA5BB;
+    border-radius: 4px;
+}
+
+.btn-guardar-precio {
+    background-color: var(--rosa-oscuro);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.btn-cancelar-precio {
+    background-color: #ccc;
+    color: #333;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+		/* Columna de la imagen y botón de cambio de foto */
+.producto-imagen-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-cambiar-foto {
+    font-size: 0.72rem;
+    color: var(--rosa-oscuro);
+    background-color: var(--rosa-claro);
+    border: 1px solid var(--rosa-dumbbo);
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    text-align: center;
+}
+
+.btn-cambiar-foto:hover {
+    background-color: var(--rosa-dumbbo);
+}
+
+
+	</style>
 </head>
 <body>
 
-  <div class="admin-container">
-    <div class="admin-header">
-      <h1>Panel Administrador</h1>
-      <span style="font-weight: 600; color: var(--rosa-oscuro);">Dumbbo Café 🐘</span>
-    </div>
+	<div id="admin-login">
+		<h2>Panel Administrador - Dumbbo</h2>
+		<input type="email" id="admin-email" placeholder="Correo" style="width:100%; padding:8px; margin-bottom:10px;" />
+		<input type="password" id="admin-password" placeholder="Contraseña" style="width:100%; padding:8px; margin-bottom:10px;" />
+		<button id="btn-login" class="tm-btn tm-btn-default">Iniciar sesión</button>
+		<p id="login-error"></p>
+	</div>
 
-    <!-- FORMULARIO DE PRODUCTO -->
-    <h2 id="form-titulo">Agregar Nuevo Producto</h2>
-    <form id="producto-form" style="margin-top: 15px;">
-      <input type="hidden" id="producto-id" />
+	<div id="admin-panel" class="hidden">
+		<div class="admin-header">
+			<h2>Editar productos</h2>
+			<button id="btn-logout" class="tm-btn tm-btn-default">Cerrar sesión</button>
+		</div>
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="nombre">Nombre del Producto</label>
-          <input type="text" id="nombre" placeholder="Ej: Cafe Latte / Torta Amor" required />
-        </div>
+		<!-- FORMULARIO PARA AGREGAR NUEVO PRODUCTO -->
+		<form id="form-crear-producto" class="form-crear-producto">
+			<h3>+ Agregar Nuevo Producto</h3>
+			<div class="form-grid">
+				<input type="text" id="nuevo-nombre" placeholder="Nombre (ej. Brownie de chocolate)" required />
+				<input type="text" id="nuevo-categoria" placeholder="Categoría (ej. Dulces)" required />
+				<input type="number" id="nuevo-precio" placeholder="Precio ($)" required />
 
-        <div class="form-group">
-          <label for="categoria">Categoría</label>
-          <select id="categoria" required>
-            <option value="">-- Seleccionar --</option>
-            <option value="Bebestibles">Bebestibles</option>
-            <option value="Cafetería">Cafetería</option>
-            <option value="Dulces">Dulces</option>
-            <option value="Pasteles">Pasteles</option>
-            <option value="Snacks">Snacks</option>
-            <option value="Sandwich">Sandwich</option>
-            <option value="Promociones">Promociones</option>
-          </select>
-        </div>
+				<!-- CAMPO SELECTOR DE IMAGEN ARCHIVO EN LUGAR DE TEXTO/URL -->
+				<div class="input-file-container">
+					<label for="nuevo-imagen">Foto del producto:</label>
+					<input type="file" id="nuevo-imagen" accept="image/*" required />
+				</div>
 
-        <div class="form-group">
-          <label for="precio">Precio ($)</label>
-          <input type="number" id="precio" placeholder="Ej: 2500" min="0" required />
-        </div>
+				<textarea id="nuevo-descripcion" placeholder="Descripción corta del producto..."></textarea>
+			</div>
+			<div class="form-checkboxes">
+				<label><input type="checkbox" id="nuevo-disponible" checked /> Disponible (Visible)</label>
+				<label><input type="checkbox" id="nuevo-promocion" /> Oferta</label>
+			</div>
 
-        <div class="form-group">
-          <label for="imagenUrl">URL de Imagen</label>
-          <input type="url" id="imagenUrl" placeholder="https://..." />
-        </div>
+			<!-- BOTÓN CON ID AGREGADO Y INDICADOR DE ESTADO -->
+			<button type="submit" id="btn-guardar" class="tm-btn tm-btn-default">Guardar Producto en Firebase</button>
+			<span id="mensaje-carga" class="mensaje-estado" style="display: none;">Subiendo imagen a Firebase...</span>
+		</form>
 
-        <div class="form-group full-width">
-          <label for="descripcion">Descripción</label>
-          <textarea id="descripcion" rows="2" placeholder="Detalles de los ingredientes o preparación..."></textarea>
-        </div>
-      </div>
+		<div id="admin-categoria-nav" style="margin-bottom:15px; display:flex; gap:8px; flex-wrap:wrap;"></div>
+		<div id="productos-admin-list"></div>
+	</div>
 
-      <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
-        <div class="checkbox-group">
-          <input type="checkbox" id="disponible" checked />
-          <label for="disponible">Disponible para venta</label>
-        </div>
-
-        <div class="checkbox-group">
-          <input type="checkbox" id="promocion" />
-          <label for="promocion">¿Es Promoción / Oferta?</label>
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 10px;">
-        <button type="submit" class="btn-submit" id="btn-guardar">Guardar Producto</button>
-        <button type="button" class="btn-cancelar" id="btn-cancelar" onclick="limpiarFormulario()">Cancelar</button>
-      </div>
-    </form>
-
-    <!-- LISTADO Y EDICIÓN -->
-    <h2 style="margin-top: 40px;">Lista de Productos</h2>
-    <div class="tabla-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Imagen</th>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th>Estado</th>
-            <th>Promoción</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="tabla-productos-body">
-          <!-- Se completa automáticamente desde Firebase -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { 
-      getFirestore, 
-      collection, 
-      addDoc, 
-      onSnapshot, 
-      doc, 
-      updateDoc, 
-      deleteDoc 
-    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
-      authDomain: "dumbbo-menu.firebaseapp.com",
-      projectId: "dumbbo-menu",
-      storageBucket: "dumbbo-menu.firebasestorage.app",
-      messagingSenderId: "875230670130",
-      appId: "1:875230670130:web:63ad4fb93cb7bf2c8bbb2b"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const form = document.getElementById("producto-form");
-    const tablaBody = document.getElementById("tabla-productos-body");
-
-    // LEER PRODUCTOS EN TIEMPO REAL
-    onSnapshot(collection(db, "productos"), (snapshot) => {
-      tablaBody.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const p = docSnap.data();
-        const id = docSnap.id;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><img src="${p.imagenUrl || 'img/logo.png'}" class="img-tabla" alt="${p.nombre}"></td>
-          <td><strong>${p.nombre}</strong></td>
-          <td>${p.categoria}</td>
-          <td>$${Number(p.precio).toLocaleString('es-CL')}</td>
-          <td>
-            <span class="badge-estado ${p.disponible ? 'badge-disponible' : 'badge-agotado'}">
-              ${p.disponible ? 'Disponible' : 'Agotado'}
-            </span>
-          </td>
-          <td>${p.promocion ? '🔥 Sí' : 'No'}</td>
-          <td class="acciones-btn">
-            <button class="btn-editar" onclick="cargarEdicion('${id}', '${p.nombre}', '${p.categoria}', ${p.precio}, '${p.imagenUrl || ''}', '${p.descripcion || ''}', ${p.disponible}, ${p.promocion})">Editar</button>
-            <button class="btn-eliminar" onclick="eliminarProducto('${id}')">Eliminar</button>
-          </td>
-        `;
-        tablaBody.appendChild(tr);
-      });
-    });
-
-    // GUARDAR O ACTUALIZAR
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const id = document.getElementById("producto-id").value;
-      const productoData = {
-        nombre: document.getElementById("nombre").value,
-        categoria: document.getElementById("categoria").value,
-        precio: Number(document.getElementById("precio").value),
-        imagenUrl: document.getElementById("imagenUrl").value,
-        descripcion: document.getElementById("descripcion").value,
-        disponible: document.getElementById("disponible").checked,
-        promocion: document.getElementById("promocion").checked
-      };
-
-      try {
-        if (id) {
-          await updateDoc(doc(db, "productos", id), productoData);
-          alert("¡Producto actualizado exitosamente!");
-        } else {
-          await addDoc(collection(db, "productos"), productoData);
-          alert("¡Producto creado exitosamente!");
-        }
-        limpiarFormulario();
-      } catch (error) {
-        console.error("Error al guardar: ", error);
-        alert("Ocurrió un error al guardar el producto.");
-      }
-    });
-
-    // EDITAR
-    window.cargarEdicion = (id, nombre, categoria, precio, imagenUrl, descripcion, disponible, promocion) => {
-      document.getElementById("producto-id").value = id;
-      document.getElementById("nombre").value = nombre;
-      document.getElementById("categoria").value = categoria;
-      document.getElementById("precio").value = precio;
-      document.getElementById("imagenUrl").value = imagenUrl;
-      document.getElementById("descripcion").value = descripcion;
-      document.getElementById("disponible").checked = disponible;
-      document.getElementById("promocion").checked = promocion;
-
-      document.getElementById("form-titulo").innerText = "Editar Producto";
-      document.getElementById("btn-guardar").innerText = "Actualizar Producto";
-      document.getElementById("btn-cancelar").style.display = "inline-block";
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // ELIMINAR
-    window.eliminarProducto = async (id) => {
-      if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-        try {
-          await deleteDoc(doc(db, "productos", id));
-        } catch (error) {
-          console.error("Error al eliminar: ", error);
-        }
-      }
-    };
-
-    // LIMPIAR
-    window.limpiarFormulario = () => {
-      form.reset();
-      document.getElementById("producto-id").value = "";
-      document.getElementById("form-titulo").innerText = "Agregar Nuevo Producto";
-      document.getElementById("btn-guardar").innerText = "Guardar Producto";
-      document.getElementById("btn-cancelar").style.display = "none";
-    };
-  </script>
+	<script type="module" src="js/admin.js"></script>
 </body>
 </html>
