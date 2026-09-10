@@ -284,21 +284,69 @@
     }
 
     /* DUMBBITO FLOTANTE */
-    .dumbbito-flotante {
+    .dumbbito-wrapper {
         position: fixed;
         top: 50%;
         left: calc(50% - 475px - 180px);
         transform: translateY(-50%);
         width: 160px;
-        height: auto;
         z-index: 999;
-        pointer-events: none;
         transition: all 0.3s ease;
+    }
+
+    .dumbbito-flotante {
+        width: 100%;
+        height: auto;
+        display: block;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+    }
+
+    .dumbbito-flotante:active {
+        transform: scale(0.95);
+    }
+
+    /* BURBUJA DE DIÁLOGO DE DUMBBITO */
+    .dumbbito-burbuja {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px) scale(0.8);
+        margin-bottom: 12px;
+        min-width: 180px;
+        max-width: 220px;
+        background-color: var(--blanco);
+        color: var(--rosa-oscuro);
+        border: 2px solid var(--rosa-dumbbo);
+        border-radius: 16px;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 6px 18px rgba(122, 41, 77, 0.18);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .dumbbito-burbuja.mostrar {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    .dumbbito-burbuja::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 8px solid transparent;
+        border-top-color: var(--rosa-dumbbo);
     }
 
     /* MEDIA QUERIES */
     @media (max-width: 1300px) {
-        .dumbbito-flotante {
+        .dumbbito-wrapper {
             left: 15px;
             width: 120px;
         }
@@ -314,7 +362,7 @@
             padding: 18px 12px;
         }
 
-        .dumbbito-flotante {
+        .dumbbito-wrapper {
             display: none;
         }
 
@@ -354,7 +402,10 @@
 	</div>
 
 	<!-- Dumbbito Flotante -->
-	<img src="img/dumbbito.png" alt="Dumbbito" class="dumbbito-flotante">
+	<div class="dumbbito-wrapper">
+		<div class="dumbbito-burbuja" id="dumbbito-burbuja">Disfruta de nuestro nuevo menú digital 🐘☕</div>
+		<img src="img/dumbbito.png" alt="Dumbbito" class="dumbbito-flotante" id="dumbbito-img">
+	</div>
 
 	<script type="module">
 		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -485,6 +536,21 @@
 		        renderizarMenuCliente(filtrados, categoriaSel);
 		      }
 		    });
+		  });
+		}
+
+		// Burbuja de diálogo de Dumbbito
+		const dumbbitoImg = document.getElementById("dumbbito-img");
+		const dumbbitoBurbuja = document.getElementById("dumbbito-burbuja");
+		let timeoutBurbuja;
+
+		if (dumbbitoImg && dumbbitoBurbuja) {
+		  dumbbitoImg.addEventListener("click", () => {
+		    dumbbitoBurbuja.classList.add("mostrar");
+		    clearTimeout(timeoutBurbuja);
+		    timeoutBurbuja = setTimeout(() => {
+		      dumbbitoBurbuja.classList.remove("mostrar");
+		    }, 3500);
 		  });
 		}
 	</script>
