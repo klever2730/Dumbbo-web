@@ -6,598 +6,318 @@
 	<title>Menú - Dumbbo Café</title>
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 	<style>
-    /* ===== COLORES DUMBBO ===== */
-    :root {
-        --rosa-dumbbo: #F0AEC9;
-        --rosa-claro: #FCE8F1;
-        --rosa-oscuro: #7A294D;
-        --texto: #3A2630;
-        --blanco: #FFFFFF;
-        --precio-rojo: #E53935;
-        --gris-suave: #F8F9FA;
-    }
+		:root {
+			--rosa-dumbbo: #F0AEC9;
+			--rosa-claro: #FCE8F1;
+			--rosa-oscuro: #7A294D;
+			--texto: #3A2630;
+			--blanco: #FFFFFF;
+		}
 
-    /* ===== FONDO GENERAL CON LOGO SUTIL ===== */
-    /* ===== FONDO GENERAL ===== */
-    body {
-        background-color: var(--rosa-claro);
-        color: var(--texto);
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        
-        background-image: url('img/logo.png?v=2');
-        background-repeat: no-repeat;
-        background-position: center center;
-        background-attachment: fixed;
-        background-size: 85vw auto;
-    }
+		body {
+			background-color: var(--rosa-claro);
+			color: var(--texto);
+			background-image: url('img/logo1.png');
+			background-repeat: no-repeat;
+			background-position: center center;
+			background-attachment: fixed;
+			background-size: 85vw auto;
+			font-family: system-ui, -apple-system, sans-serif;
+			margin: 0;
+			padding: 20px 10px;
+		}
 
-    /* ===== BANNER PRINCIPAL ===== */
-    .banner-header {
-        width: 100%;
-        margin-bottom: 30px;
-        margin-bottom: 25px;
-        overflow: hidden;
-        background-color: var(--rosa-dumbbo);
-        box-shadow: 0 4px 15px rgba(122, 41, 77, 0.15);
-        box-shadow: 0 4px 15px rgba(122, 41, 77, 0.12);
-    }
+		.menu-container {
+			max-width: 950px;
+			margin: 20px auto;
+			background-color: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(8px);
+			border-radius: 20px;
+			padding: 25px;
+			box-shadow: 0 8px 25px rgba(122, 41, 77, 0.12);
+		}
 
-    .banner-img {
-        width: 100%;
-        height: auto;
-        max-height: none;
-        display: block;
-        object-fit: contain;
-    }
+		/* TÍTULO MENÚ CENTRADO */
+		.menu-header-titulo {
+			text-align: center;
+			color: var(--rosa-oscuro);
+			font-size: 2rem;
+			font-weight: 800;
+			margin-top: 0;
+			margin-bottom: 20px;
+			border-bottom: 2px solid var(--rosa-claro);
+			padding-bottom: 12px;
+		}
 
-    /* ===== RECUADRO DEL MENÚ Y PRODUCTOS ===== */
-    /* ===== CONTENEDOR PRINCIPAL DEL MENÚ ===== */
-    .menu-container {
-        max-width: 900px;
-        max-width: 950px;
-        margin: 0 auto 40px auto;
-        padding: 30px;
-        background-color: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(5px);
-        border-radius: 18px;
-        box-shadow: 0 8px 25px rgba(122, 41, 77, 0.12);
-        padding: 25px 20px;
-        background-color: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(6px);
-        border-radius: 20px;
-        box-shadow: 0 8px 30px rgba(122, 41, 77, 0.10);
-        box-sizing: border-box;
-    }
+		/* BARRA DE CATEGORÍAS CON DESPLAZAMIENTO HORIZONTAL */
+		.categorias-scroll-container {
+			display: flex;
+			gap: 10px;
+			overflow-x: auto;
+			white-space: nowrap;
+			padding-bottom: 10px;
+			margin-bottom: 25px;
+			-webkit-overflow-scrolling: touch;
+			scrollbar-width: thin;
+			scrollbar-color: var(--rosa-dumbbo) transparent;
+		}
 
-    /* ===== NAV DE CATEGORÍAS ===== */
-    /* ===== CABECERA Y TÍTULO ===== */
-    .menu-header-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid var(--rosa-claro);
-    }
+		.categorias-scroll-container::-webkit-scrollbar {
+			height: 5px;
+		}
+		.categorias-scroll-container::-webkit-scrollbar-thumb {
+			background: var(--rosa-dumbbo);
+			border-radius: 10px;
+		}
 
-    .menu-titulo {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--rosa-oscuro);
-        margin: 0;
-        letter-spacing: -0.5px;
-    }
+		.btn-categoria {
+			background-color: var(--rosa-claro);
+			color: var(--rosa-oscuro);
+			border: 1px solid var(--rosa-dumbbo);
+			padding: 8px 18px;
+			border-radius: 20px;
+			font-weight: 700;
+			font-size: 0.9rem;
+			cursor: pointer;
+			flex-shrink: 0;
+			transition: all 0.2s ease;
+		}
 
-    /* BOTÓN Y BARRA DE CATEGORÍAS */
-    .categoria-bar-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 25px;
-    }
+		.btn-categoria.active,
+		.btn-categoria:hover {
+			background-color: var(--rosa-oscuro);
+			color: var(--blanco);
+			border-color: var(--rosa-oscuro);
+		}
 
-    .btn-categorias-menu {
-        background-color: var(--rosa-oscuro);
-        color: var(--blanco);
-        border: none;
-        border-radius: 25px;
-        padding: 10px 18px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        flex-shrink: 0;
-        box-shadow: 0 3px 10px rgba(122, 41, 77, 0.2);
-    }
+		/* SECCIONES Y TARJETAS */
+		.seccion-categoria {
+			margin-bottom: 35px;
+		}
 
-    #cliente-categoria-nav {
-        display: flex;
-        gap: 10px;
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 10px;
-        margin-bottom: 25px;
-        border-bottom: 1px solid #F1D3DF;
-        padding-bottom: 5px;
-        scrollbar-width: thin;
-        scrollbar-color: var(--rosa-dumbbo) transparent;
-    }
+		.seccion-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 15px;
+		}
 
-    #cliente-categoria-nav::-webkit-scrollbar {
-        height: 4px;
-    }
+		.seccion-titulo {
+			color: var(--rosa-oscuro);
+			font-size: 1.4rem;
+			margin: 0;
+		}
 
-    #cliente-categoria-nav::-webkit-scrollbar-thumb {
-        background-color: var(--rosa-dumbbo);
-        border-radius: 4px;
-    }
+		.productos-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+			gap: 15px;
+		}
 
-    .filtro-cliente-btn {
-        background-color: var(--rosa-claro);
-        color: var(--rosa-oscuro);
-        border: 1px solid var(--rosa-dumbbo);
-        border-radius: 20px;
-        padding: 8px 16px;
-        cursor: pointer;
-        white-space: nowrap;
-        font-weight: 500;
-        font-weight: 600;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-    }
+		/* TARJETA SIN BOTÓN DE CARRITO (+) */
+		.producto-card {
+			background: var(--blanco);
+			border: 1px solid #F1D3DF;
+			border-radius: 16px;
+			padding: 12px;
+			display: flex;
+			flex-direction: column;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+			transition: transform 0.2s;
+		}
 
-    .filtro-cliente-btn:hover,
-    .filtro-cliente-btn.active {
-        background-color: var(--rosa-oscuro);
-        color: var(--blanco);
-        border-color: var(--rosa-oscuro);
-    }
+		.producto-card:hover {
+			transform: translateY(-3px);
+		}
 
-    /* ===== SECCIONES Y TARJETAS DE PRODUCTOS ===== */
-    /* ===== SECCIONES Y CARRUSEL HORIZONTAL ESTILO CASTAÑO ===== */
-    .categoria-seccion {
-        margin-bottom: 30px;
-        margin-bottom: 35px;
-    }
+		.producto-card img {
+			width: 100%;
+			height: 120px;
+			object-fit: cover;
+			border-radius: 12px;
+			margin-bottom: 10px;
+		}
 
-    .categoria-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-    }
+		.producto-nombre {
+			font-weight: 700;
+			color: var(--texto);
+			font-size: 0.95rem;
+			margin: 0 0 4px 0;
+		}
 
-    .categoria-titulo {
-        color: var(--rosa-oscuro);
-        font-size: 1.3rem;
-        margin-bottom: 15px;
-        padding-bottom: 5px;
-        border-bottom: 2px solid var(--rosa-dumbbo);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 700;
-        margin: 0;
-    }
+		.producto-descripcion {
+			font-size: 0.78rem;
+			color: #777;
+			margin-bottom: 10px;
+			flex-grow: 1;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
 
-    .productos-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    .ver-mas-link {
-        font-size: 0.85rem;
-        color: #888;
-        text-decoration: none;
-        font-weight: 500;
-    }
+		.producto-footer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-top: auto;
+		}
 
-    /* CONTENEDOR HORIZONTAL SCROLLABLE */
-    .productos-horizontal-scroll {
-        display: flex;
-        gap: 15px;
-        overflow-x: auto;
-        padding: 5px 2px 15px 2px;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-    }
+		.producto-precio {
+			font-weight: 800;
+			color: var(--rosa-oscuro);
+			font-size: 1.1rem;
+		}
 
-    .productos-horizontal-scroll::-webkit-scrollbar {
-        height: 5px;
-    }
+		.badge-oferta {
+			background-color: #FFF3E0;
+			color: #E65100;
+			font-size: 0.7rem;
+			padding: 2px 6px;
+			border-radius: 6px;
+			font-weight: bold;
+		}
 
-    .producto-card {
-    .productos-horizontal-scroll::-webkit-scrollbar-thumb {
-        background-color: var(--rosa-dumbbo);
-        border-radius: 10px;
-    }
-
-    /* TARJETA DE PRODUCTO VERTICAL (ESTILO CATÁLOGO) */
-    .producto-card-vertical {
-        min-width: 165px;
-        width: 165px;
-        background-color: var(--blanco);
-        border: 1px solid #F1D3DF;
-        border-radius: 12px;
-        padding: 14px;
-        border-radius: 16px;
-        padding: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 12px;
-        box-shadow: 0 2px 8px rgba(122, 41, 77, 0.05);
-        flex-direction: column;
-        box-shadow: 0 3px 10px rgba(122, 41, 77, 0.04);
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-sizing: border-box;
-        position: relative;
-        flex-shrink: 0;
-    }
-
-    /* Destacar tarjetas que son promociones */
-    .producto-card.es-promocion {
-        border: 1.5px solid var(--rosa-dumbbo);
-        background-color: #FFF9FC;
-    .producto-card-vertical:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(122, 41, 77, 0.12);
-    }
-
-    .producto-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(122, 41, 77, 0.12);
-    .producto-img-container {
-        width: 100%;
-        height: 120px;
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 10px;
-        background-color: var(--rosa-claro);
-    }
-
-    .producto-detalles {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    .producto-imagen-v {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .producto-nombre {
-        font-size: 1.05rem;
-    .badge-promocion-v {
-        position: absolute;
-        top: 18px;
-        left: 18px;
-        background-color: var(--precio-rojo);
-        color: var(--blanco);
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 3px 7px;
-        border-radius: 6px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
-    .producto-nombre-v {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--texto);
-        margin-bottom: 4px;
-        line-height: 1.25;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        height: 2.4em;
-    }
-
-    .producto-descripcion {
-        font-size: 0.85rem;
-        color: #666;
-        margin-bottom: 12px;
-        line-height: 1.35;
-    .producto-descripcion-v {
-        font-size: 0.75rem;
-        color: #777;
-        margin-bottom: 10px;
-        line-height: 1.2;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .producto-precio {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: var(--precio-rojo);
-    .producto-footer-v {
-        margin-top: auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .producto-imagen {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 1px solid #FCE8F1;
-        flex-shrink: 0;
-    .producto-precio-v {
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--precio-rojo);
-    }
-
-    /* BADGE OFERTA */
-    .badge-promocion {
-        display: inline-block;
-        background-color: var(--rosa-dumbbo);
-        color: var(--rosa-oscuro);
-        font-size: 0.7rem;
-    .btn-agregar-v {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background-color: var(--rosa-oscuro);
-        color: var(--blanco);
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        font-weight: bold;
-        padding: 2px 6px;
-        border-radius: 4px;
-        margin-left: 6px;
-        vertical-align: middle;
-        cursor: pointer;
-    }
-
-    /* ===== DUMBBITO FLOTANTE ===== */
-    /* DUMBBITO FLOTANTE */
-    .dumbbito-flotante {
-        position: fixed;
-        top: 50%;
-        left: calc(50% - 450px - 180px);
-        left: calc(50% - 475px - 180px);
-        transform: translateY(-50%);
-        width: 160px;
-        height: auto;
-        z-index: 999;
-        pointer-events: none;
-        transition: all 0.3s ease;
-    }
-
-    /* MEDIA QUERIES */
-    @media (max-width: 1300px) {
-        .dumbbito-flotante {
-            left: 15px;
-            width: 120px;
-        }
-    }
-
-    @media (max-width: 992px) {
-        .banner-header {
-            margin-bottom: 20px;
-        }
-
-        .menu-container {
-            margin: 0 12px 30px 12px;
-            padding: 15px;
-            border-radius: 16px;
-            margin: 0 10px 30px 10px;
-            padding: 18px 12px;
-        }
-
-        .dumbbito-flotante {
-            display: none;
-        }
-        
-        .productos-grid {
-            grid-template-columns: 1fr;
-
-        .producto-card-vertical {
-            min-width: 145px;
-            width: 145px;
-            padding: 10px;
-        }
-
-        .producto-img-container {
-            height: 105px;
-        }
-    }
-</style>
-
+		.mensaje-vacio {
+			text-align: center;
+			color: #888;
+			font-style: italic;
+			padding: 30px 0;
+		}
+	</style>
 </head>
 <body>
 
-	<!-- Banner Superior -->
-	<div class="banner-header">
-		<img src="img/banner.jpg" alt="Dumbbo Café Banner" class="banner-img">
-	</div>
-
-	<!-- Recuadro del Menú -->
 	<div class="menu-container">
-		<div id="cliente-categoria-nav"></div>
-		
-		<div class="menu-header-bar">
-			<h1 class="menu-titulo">Menú</h1>
+		<!-- TÍTULO CENTRADO -->
+		<h1 class="menu-header-titulo">Menú</h1>
+
+		<!-- BARRA DESLIZANTE DE CATEGORÍAS -->
+		<div class="categorias-scroll-container">
+			<button class="btn-categoria active" onclick="filtrarCategoria('Todos', this)">Todos</button>
+			<button class="btn-categoria" onclick="filtrarCategoria('Dulces', this)">Dulces</button>
+			<button class="btn-categoria" onclick="filtrarCategoria('Cafetería', this)">Cafetería</button>
+			<button class="btn-categoria" onclick="filtrarCategoria('Bebestibles', this)">Bebestibles</button>
+			<button class="btn-categoria" onclick="filtrarCategoria('Sandwich', this)">Sandwich</button>
+			<button class="btn-categoria" onclick="filtrarCategoria('Pasteles', this)">Pasteles</button>
+			<button class="btn-categoria" onclick="filtrarCategoria('Snacks', this)">Snacks</button>
+			<button class="btn-categoria" onclick="filtrarCategoria('Promociones', this)">🔥 Promociones</button>
 		</div>
 
-		<div class="categoria-bar-wrapper">
-			<button class="btn-categorias-menu">
-				<span>≡</span> Categorías
-			</button>
-			<div id="cliente-categoria-nav"></div>
+		<!-- CONTENEDOR DINÁMICO DE PRODUCTOS -->
+		<div id="menu-secciones-container">
+			<p class="mensaje-vacio">Cargando la carta...</p>
 		</div>
-
-		<div id="menu-contenedor"></div>
 	</div>
-
-	<!-- Dumbbito Flotante -->
-	<img src="img/dumbbito.png" alt="Dumbbito" class="dumbbito-flotante">
-
 
 	<script type="module">
 		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 		import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 		const firebaseConfig = {
-		  apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
-		  authDomain: "dumbbo-menu.firebaseapp.com",
-		  projectId: "dumbbo-menu",
-		  storageBucket: "dumbbo-menu.firebasestorage.app",
-		  messagingSenderId: "875230670130",
-		  appId: "1:875230670130:web:63ad4fb93cb7bf2c8bbb2b"
+			apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
+			authDomain: "dumbbo-menu.firebaseapp.com",
+			projectId: "dumbbo-menu",
+			storageBucket: "dumbbo-menu.firebasestorage.app",
+			messagingSenderId: "875230670130",
+			appId: "1:875230670130:web:63ad4fb93cb7bf2c8bbb2b"
 		};
 
 		const app = initializeApp(firebaseConfig);
 		const db = getFirestore(app);
 
 		let todosLosProductos = [];
+		let categoriaFiltroActual = 'Todos';
 
+		// Normaliza cadenas para evitar fallos por tildes o mayúsculas (ej: "Cafetería" vs "cafeteria")
+		function normalizarTexto(texto) {
+			if (!texto) return '';
+			return texto.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+		}
+
+		// OBTENER PRODUCTOS EN TIEMPO REAL
 		onSnapshot(collection(db, "productos"), (snapshot) => {
-		  todosLosProductos = [];
-		  snapshot.forEach((docSnap) => {
-		    const data = docSnap.data();
-		    if (data.disponible) {
-		      todosLosProductos.push({ id: docSnap.id, ...data });
-		    }
-		  });
-		  crearFiltrosCliente(todosLosProductos);
-		  renderizarMenuCliente(todosLosProductos, "todos");
+			todosLosProductos = [];
+			snapshot.forEach((doc) => {
+				const data = doc.data();
+				// Solo considerar los productos marcados como disponibles
+				if (data.disponible === true) {
+					todosLosProductos.push({ id: doc.id, ...data });
+				}
+			});
+			renderizarMenu();
 		});
 
-		function renderizarMenuCliente(productos, filtroSeleccionado) {
-		  const contenedor = document.getElementById("menu-contenedor");
+		window.filtrarCategoria = (cat, btn) => {
+			categoriaFiltroActual = cat;
+			document.querySelectorAll('.btn-categoria').forEach(b => b.classList.remove('active'));
+			if (btn) btn.classList.add('active');
+			renderizarMenu();
+		};
 
-		  if (productos.length === 0) {
-		    contenedor.innerHTML = "<p style='text-align:center;'>No hay productos disponibles por el momento.</p>";
-		    return;
-		  }
+		function renderizarMenu() {
+			const container = document.getElementById("menu-secciones-container");
+			container.innerHTML = "";
 
-		  let html = "";
+			if (todosLosProductos.length === 0) {
+				container.innerHTML = `<p class="mensaje-vacio">No hay productos disponibles por el momento.</p>`;
+				return;
+			}
 
-		  // 1. SECCIÓN DE PROMOCIONES (Solo se muestra cuando la pestaña es "Todos")
-		  // 1. SECCIÓN DE PROMOCIONES Y NOVEDADES (Al inicio en la vista general)
-		  if (filtroSeleccionado === "todos") {
-		    const productosPromocion = productos.filter(p => p.promocion);
-		    if (productosPromocion.length > 0) {
-		      html += `
-		        <div class="categoria-seccion" id="cat-promociones">
-		          <h2 class="categoria-titulo">🔥 Promociones Especiales</h2>
-		          <div class="productos-grid">
-		          <div class="categoria-header-row">
-		            <h2 class="categoria-titulo">Promos y novedades</h2>
-		            <span class="ver-mas-link">Ver más ›</span>
-		          </div>
-		          <div class="productos-horizontal-scroll">
-		      `;
-		      productosPromocion.forEach(p => {
-		        html += crearTarjetaProducto(p, true);
-		        html += crearTarjetaVertical(p);
-		      });
-		      html += `
-		          </div>
-		        </div>
-		      `;
-		    }
-		  }
+			// Filtrar según el botón seleccionado
+			let productosFiltrados = todosLosProductos;
+			
+			if (categoriaFiltroActual === 'Promociones') {
+				productosFiltrados = todosLosProductos.filter(p => p.promocion === true);
+			} else if (categoriaFiltroActual !== 'Todos') {
+				productosFiltrados = todosLosProductos.filter(p => 
+					normalizarTexto(p.categoria) === normalizarTexto(categoriaFiltroActual)
+				);
+			}
 
-		  // 2. SECCIONES REGULARES POR CATEGORÍA
-		  // 2. SECCIONES HORIZONTALES POR CATEGORÍA
-		  const categorias = [...new Set(productos.map(p => p.categoria))];
+			if (productosFiltrados.length === 0) {
+				container.innerHTML = `<p class="mensaje-vacio">No hay productos disponibles en "${categoriaFiltroActual}".</p>`;
+				return;
+			}
 
-		  categorias.forEach(cat => {
-		    const productosCat = productos.filter(p => p.categoria === cat);
+			// Agrupar por categorías existentes en los productos filtrados
+			const categoriasAgrupadas = {};
+			productosFiltrados.forEach(p => {
+				const catKey = p.categoria ? p.categoria.trim() : 'Otros';
+				if (!categoriasAgrupadas[catKey]) {
+					categoriasAgrupadas[catKey] = [];
+				}
+				categoriasAgrupadas[catKey].push(p);
+			});
 
-		    if (productosCat.length > 0) {
-		      html += `
-		        <div class="categoria-seccion" id="cat-${cat.replace(/\s+/g, '-')}">
-		          <h2 class="categoria-titulo">${cat}</h2>
-		          <div class="productos-grid">
-		          <div class="categoria-header-row">
-		            <h2 class="categoria-titulo">${cat}</h2>
-		            <span class="ver-mas-link">Ver más ›</span>
-		          </div>
-		          <div class="productos-horizontal-scroll">
-		      `;
+			// Crear HTML para cada sección de categoría
+			for (const [categoriaNombre, productos] of Object.entries(categoriasAgrupadas)) {
+				const seccionDiv = document.createElement("div");
+				seccionDiv.className = "seccion-categoria";
 
-		      productosCat.forEach(p => {
-		        html += crearTarjetaProducto(p, false);
-		        html += crearTarjetaVertical(p);
-		      });
+				let tarjetasHTML = productos.map(p => `
+					<div class="producto-card">
+						<img src="${p.imagenUrl || 'img/logo.png'}" alt="${p.nombre}" onerror="this.src='img/logo.png'">
+						<h3 class="producto-nombre">${p.nombre}</h3>
+						<p class="producto-descripcion">${p.descripcion || ''}</p>
+						<div class="producto-footer">
+							<span class="producto-precio">$${Number(p.precio).toLocaleString('es-CL')}</span>
+							${p.promocion ? '<span class="badge-oferta">🔥 Oferta</span>' : ''}
+						</div>
+					</div>
+				`).join("");
 
-		      html += `
-		          </div>
-		        </div>
-		      `;
-		    }
-		  });
+				seccionDiv.innerHTML = `
+					<div class="seccion-header">
+						<h2 class="seccion-titulo">${categoriaNombre}</h2>
+					</div>
+					<div class="productos-grid">
+						${tarjetasHTML}
+					</div>
+				`;
 
-		  contenedor.innerHTML = html;
-		}
-
-		// Función auxiliar para renderizar cada tarjeta de producto
-		function crearTarjetaProducto(p, esSeccionPromo) {
-		// Función para construir cada tarjeta del carrusel estilo e-commerce
-		function crearTarjetaVertical(p) {
-		  return `
-		    <div class="producto-card ${p.promocion ? 'es-promocion' : ''}">
-		      <div class="producto-detalles">
-		        <div class="producto-nombre">
-		          ${p.nombre}
-		          ${p.promocion ? '<span class="badge-promocion">Oferta</span>' : ''}
-		        </div>
-		        <div class="producto-descripcion">${p.descripcion || ''}</div>
-		        <div class="producto-precio">$${Number(p.precio).toLocaleString('es-CL')}</div>
-		    <div class="producto-card-vertical">
-		      ${p.promocion ? '<span class="badge-promocion-v">Oferta</span>' : ''}
-		      <div class="producto-img-container">
-		        <img src="${p.imagenUrl || 'img/logo.png'}" alt="${p.nombre}" class="producto-imagen-v">
-		      </div>
-		      <div class="producto-nombre-v">${p.nombre}</div>
-		      <div class="producto-descripcion-v">${p.descripcion || ''}</div>
-		      <div class="producto-footer-v">
-		        <div class="producto-precio-v">$${Number(p.precio).toLocaleString('es-CL')}</div>
-		        <button class="btn-agregar-v">+</button>
-		      </div>
-		      ${p.imagenUrl ? `<img src="${p.imagenUrl}" alt="${p.nombre}" class="producto-imagen">` : ''}
-		    </div>
-		  `;
-		}
-
-		function crearFiltrosCliente(productos) {
-		  const categorias = [...new Set(productos.map(p => p.categoria))];
-		  const nav = document.getElementById("cliente-categoria-nav");
-
-		  let html = `<button class="filtro-cliente-btn active" data-cat="todos">Todos</button>`;
-		  categorias.forEach(cat => {
-		    html += `<button class="filtro-cliente-btn" data-cat="${cat}">${cat}</button>`;
-		  });
-		  nav.innerHTML = html;
-
-		  document.querySelectorAll(".filtro-cliente-btn").forEach(btn => {
-		    btn.addEventListener("click", () => {
-		      document.querySelectorAll(".filtro-cliente-btn").forEach(b => b.classList.remove("active"));
-		      btn.classList.add("active");
-
-		      const categoriaSel = btn.dataset.cat;
-		      if (categoriaSel === "todos") {
-		        renderizarMenuCliente(todosLosProductos, "todos");
-		      } else {
-		        const filtrados = todosLosProductos.filter(p => p.categoria === categoriaSel);
-		        renderizarMenuCliente(filtrados, categoriaSel);
-		      }
-		    });
-		  });
+				container.appendChild(seccionDiv);
+			}
 		}
 	</script>
 </body>
