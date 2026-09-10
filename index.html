@@ -31,7 +31,7 @@
         background-size: 85vw auto;
     }
 
-    /* ===== BANNER PRINCIPAL (FULL-WIDTH 100% SIN RECORTE) ===== */
+    /* ===== BANNER PRINCIPAL ===== */
     .banner-header {
         width: 100%;
         margin-bottom: 30px;
@@ -42,10 +42,10 @@
 
     .banner-img {
         width: 100%;
-        height: auto;           /* Ajuste automático de altura según la proporción real */
-        max-height: none;       /* Sin tope máximo para evitar recorte vertical */
+        height: auto;
+        max-height: none;
         display: block;
-        object-fit: contain;    /* Muestra la imagen completa e íntegra */
+        object-fit: contain;
     }
 
     /* ===== RECUADRO DEL MENÚ Y PRODUCTOS ===== */
@@ -109,6 +109,9 @@
         margin-bottom: 15px;
         padding-bottom: 5px;
         border-bottom: 2px solid var(--rosa-dumbbo);
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .productos-grid {
@@ -128,6 +131,12 @@
         gap: 12px;
         box-shadow: 0 2px 8px rgba(122, 41, 77, 0.05);
         transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    /* Destacar tarjetas que son promociones */
+    .producto-card.es-promocion {
+        border: 1.5px solid var(--rosa-dumbbo);
+        background-color: #FFF9FC;
     }
 
     .producto-card:hover {
@@ -185,7 +194,7 @@
         vertical-align: middle;
     }
 
-    /* ===== DUMBBITO FLOTANTE EN EL MARGEN ROSADO ===== */
+    /* ===== DUMBBITO FLOTANTE ===== */
     .dumbbito-flotante {
         position: fixed;
         top: 50%;
@@ -198,7 +207,7 @@
         transition: all 0.3s ease;
     }
 
-    /* MEDIA QUERIES PARA ADAPTACIÓN SEGÚN DISPOSITIVO */
+    /* MEDIA QUERIES */
     @media (max-width: 1300px) {
         .dumbbito-flotante {
             left: 15px;
@@ -206,7 +215,6 @@
         }
     }
 
-    /* Móviles */
     @media (max-width: 992px) {
         .banner-header {
             margin-bottom: 20px;
@@ -231,12 +239,12 @@
 </head>
 <body>
 
-	<!-- Banner Superior de lado a lado -->
+	<!-- Banner Superior -->
 	<div class="banner-header">
 		<img src="img/banner.jpg" alt="Dumbbo Café Banner" class="banner-img">
 	</div>
 
-	<!-- Recuadro independiente con el contenido del Menú -->
+	<!-- Recuadro del Menú -->
 	<div class="menu-container">
 		<div id="cliente-categoria-nav"></div>
 		<div id="menu-contenedor"></div>
@@ -273,12 +281,11 @@
 		    }
 		  });
 		  crearFiltrosCliente(todosLosProductos);
-		  renderizarMenuCliente(todosLosProductos);
+		  renderizarMenuCliente(todosLosProductos, "todos");
 		});
 
-		function renderizarMenuCliente(productos) {
+		function renderizarMenuCliente(productos, filtroSeleccionado) {
 		  const contenedor = document.getElementById("menu-contenedor");
-		  const categorias = [...new Set(productos.map(p => p.categoria))];
 		  
 		  if (productos.length === 0) {
 		    contenedor.innerHTML = "<p style='text-align:center;'>No hay productos disponibles por el momento.</p>";
@@ -286,6 +293,29 @@
 		  }
 
 		  let html = "";
+
+		  // 1. SECCIÓN DE PROMOCIONES (Solo se muestra cuando la pestaña es "Todos")
+		  if (filtroSeleccionado === "todos") {
+		    const productosPromocion = productos.filter(p => p.promocion);
+		    if (productosPromocion.length > 0) {
+		      html += `
+		        <div class="categoria-seccion" id="cat-promociones">
+		          <h2 class="categoria-titulo">🔥 Promociones Especiales</h2>
+		          <div class="productos-grid">
+		      `;
+		      productosPromocion.forEach(p => {
+		        html += crearTarjetaProducto(p, true);
+		      });
+		      html += `
+		          </div>
+		        </div>
+		      `;
+		    }
+		  }
+
+		  // 2. SECCIONES REGULARES POR CATEGORÍA
+		  const categorias = [...new Set(productos.map(p => p.categoria))];
+		  
 		  categorias.forEach(cat => {
 		    const productosCat = productos.filter(p => p.categoria === cat);
 		    
@@ -297,19 +327,7 @@
 		      `;
 		      
 		      productosCat.forEach(p => {
-		        html += `
-		          <div class="producto-card">
-		            <div class="producto-detalles">
-		              <div class="producto-nombre">
-		                ${p.nombre}
-		                ${p.promocion ? '<span class="badge-promocion">Oferta</span>' : ''}
-		              </div>
-		              <div class="producto-descripcion">${p.descripcion || ''}</div>
-		              <div class="producto-precio">$${Number(p.precio).toLocaleString('es-CL')}</div>
-		            </div>
-		            ${p.imagenUrl ? `<img src="${p.imagenUrl}" alt="${p.nombre}" class="producto-imagen">` : ''}
-		          </div>
-		        `;
+		        html += crearTarjetaProducto(p, false);
 		      });
 		      
 		      html += `
@@ -320,6 +338,23 @@
 		  });
 		  
 		  contenedor.innerHTML = html;
+		}
+
+		// Función auxiliar para renderizar cada tarjeta de producto
+		function crearTarjetaProducto(p, esSeccionPromo) {
+		  return `
+		    <div class="producto-card ${p.promocion ? 'es-promocion' : ''}">
+		      <div class="producto-detalles">
+		        <div class="producto-nombre">
+		          ${p.nombre}
+		          ${p.promocion ? '<span class="badge-promocion">Oferta</span>' : ''}
+		        </div>
+		        <div class="producto-descripcion">${p.descripcion || ''}</div>
+		        <div class="producto-precio">$${Number(p.precio).toLocaleString('es-CL')}</div>
+		      </div>
+		      ${p.imagenUrl ? `<img src="${p.imagenUrl}" alt="${p.nombre}" class="producto-imagen">` : ''}
+		    </div>
+		  `;
 		}
 
 		function crearFiltrosCliente(productos) {
@@ -339,10 +374,10 @@
 		      
 		      const categoriaSel = btn.dataset.cat;
 		      if (categoriaSel === "todos") {
-		        renderizarMenuCliente(todosLosProductos);
+		        renderizarMenuCliente(todosLosProductos, "todos");
 		      } else {
 		        const filtrados = todosLosProductos.filter(p => p.categoria === categoriaSel);
-		        renderizarMenuCliente(filtrados);
+		        renderizarMenuCliente(filtrados, categoriaSel);
 		      }
 		    });
 		  });
