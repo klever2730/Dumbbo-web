@@ -89,6 +89,66 @@
     }
 
 
+    /* ===== DUMBBITO AL LADO DEL TÍTULO ===== */
+
+    .dumbbito-wrapper {
+        position: relative;
+        width: 160px;
+        flex-shrink: 0;
+    }
+
+    .dumbbito-flotante {
+        width: 100%;
+        height: auto;
+        display: block;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+    }
+
+    .dumbbito-flotante:active {
+        transform: scale(0.95);
+    }
+
+
+    /* ===== BURBUJA DE DIÁLOGO ===== */
+    .dumbbito-burbuja {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px) scale(0.8);
+        margin-bottom: 12px;
+        min-width: 180px;
+        max-width: 220px;
+        background-color: var(--blanco);
+        color: var(--rosa-oscuro);
+        border: 2px solid var(--rosa-dumbbo);
+        border-radius: 16px;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 6px 18px rgba(122, 41, 77, 0.18);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .dumbbito-burbuja.mostrar {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    .dumbbito-burbuja::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 8px solid transparent;
+        border-top-color: var(--rosa-dumbbo);
+    }
+
+
     /* ===== BOTÓN Y BARRA DE CATEGORÍAS ===== */
     .categoria-bar-wrapper {
         display: flex;
@@ -299,84 +359,9 @@
     }
 
 
-    /* ===== DUMBBITO FLOTANTE ===== */
-    .dumbbito-wrapper {
-        position: fixed;
-        top: 50%;
-        left: calc(50% - 475px - 180px);
-        transform: translateY(-50%);
-        width: 160px;
-        z-index: 9999;
-        transition: all 0.3s ease;
-    }
-
-    .dumbbito-flotante {
-        width: 100%;
-        height: auto;
-        display: block;
-        cursor: pointer;
-        transition: transform 0.15s ease;
-    }
-
-    .dumbbito-flotante:active {
-        transform: scale(0.95);
-    }
-
-
-    /* ===== BURBUJA DE DIÁLOGO ===== */
-    .dumbbito-burbuja {
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%) translateY(10px) scale(0.8);
-        margin-bottom: 12px;
-        min-width: 180px;
-        max-width: 220px;
-        background-color: var(--blanco);
-        color: var(--rosa-oscuro);
-        border: 2px solid var(--rosa-dumbbo);
-        border-radius: 16px;
-        padding: 12px 16px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-align: center;
-        box-shadow: 0 6px 18px rgba(122, 41, 77, 0.18);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-
-    .dumbbito-burbuja.mostrar {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0) scale(1);
-    }
-
-    .dumbbito-burbuja::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 8px solid transparent;
-        border-top-color: var(--rosa-dumbbo);
-    }
-
-
     /* =====================================================
        RESPONSIVE
        ===================================================== */
-
-    @media (max-width: 1300px) {
-
-        .dumbbito-wrapper {
-            left: 15px;
-            width: 120px;
-        }
-
-    }
-
-
-    /* ===== TABLETS Y TELÉFONOS ===== */
 
     @media (max-width: 992px) {
 
@@ -391,30 +376,16 @@
 
 
         /* =================================================
-           DUMBBITO FIJO EN DISPOSITIVOS MÓVILES
+           DUMBBITO JUNTO A "MENÚ" EN DISPOSITIVOS MÓVILES
            ================================================= */
 
         .dumbbito-wrapper {
-            display: block;
-            position: fixed;
-
-            /* La posición se calcula automáticamente con JavaScript */
-            top: 180px;
-
-            /* Derecha */
-            right: 15px;
-
-            /* Anulamos la posición anterior */
-            left: auto;
-
-            /* Ya no se centra verticalmente */
-            transform: none;
-
-            /* Tamaño para teléfono */
+            position: relative;
             width: 65px;
-
-            /* Siempre por encima del contenido */
-            z-index: 9999;
+            right: auto;
+            left: auto;
+            top: auto;
+            transform: none;
         }
 
         .dumbbito-flotante {
@@ -437,7 +408,6 @@
 
             padding: 9px 12px;
 
-            /* La burbuja aparece hacia la izquierda */
             left: auto;
             right: 0;
 
@@ -479,7 +449,6 @@
     @media (max-width: 480px) {
 
         .dumbbito-wrapper {
-            right: 12px;
             width: 58px;
         }
 
@@ -634,6 +603,31 @@
 				Menú
 			</h1>
 
+
+			<!-- =================================================
+			     DUMBBITO
+			     Ahora forma parte de la cabecera del menú
+			     ================================================= -->
+
+			<div class="dumbbito-wrapper">
+
+				<div
+					class="dumbbito-burbuja"
+					id="dumbbito-burbuja"
+				>
+					Disfruta de nuestro nuevo menú digital 🐘☕
+				</div>
+
+
+				<img
+					src="img/dumbbito.png"
+					alt="Dumbbito"
+					class="dumbbito-flotante"
+					id="dumbbito-img"
+				>
+
+			</div>
+
 		</div>
 
 
@@ -650,31 +644,6 @@
 
 
 		<div id="menu-contenedor"></div>
-
-	</div>
-
-
-
-	<!-- =====================================================
-	     DUMBBITO FLOTANTE
-	     ===================================================== -->
-
-	<div class="dumbbito-wrapper">
-
-		<div
-			class="dumbbito-burbuja"
-			id="dumbbito-burbuja"
-		>
-			Disfruta de nuestro nuevo menú digital 🐘☕
-		</div>
-
-
-		<img
-			src="img/dumbbito.png"
-			alt="Dumbbito"
-			class="dumbbito-flotante"
-			id="dumbbito-img"
-		>
 
 	</div>
 
@@ -1143,78 +1112,6 @@
 				});
 
 		}
-
-
-
-		/* =====================================================
-		   POSICIÓN AUTOMÁTICA DE DUMBBITO EN TELÉFONOS
-		   ===================================================== */
-
-		function posicionarDumbbitoMovil() {
-
-			const dumbbito =
-				document.querySelector(
-					".dumbbito-wrapper"
-				);
-
-			const titulo =
-				document.querySelector(
-					".menu-titulo"
-				);
-
-
-			if (
-				!dumbbito ||
-				!titulo
-			) {
-				return;
-			}
-
-
-			if (window.innerWidth <= 992) {
-
-				const rect =
-					titulo.getBoundingClientRect();
-
-
-				const alturaDumbbito =
-					dumbbito.offsetHeight;
-
-
-				const top =
-					rect.top +
-					(
-						rect.height -
-						alturaDumbbito
-					) / 2;
-
-
-				dumbbito.style.top =
-					Math.max(
-						10,
-						top
-					) + "px";
-
-			}
-
-			else {
-
-				dumbbito.style.top = "";
-
-			}
-
-		}
-
-
-
-		/* Esperamos a que cargue completamente
-		   el banner para calcular correctamente
-		   la posición del menú */
-
-		window.addEventListener(
-			"load",
-			posicionarDumbbitoMovil
-		);
 
 
 
