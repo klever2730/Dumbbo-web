@@ -31,34 +31,46 @@
         background-size: 85vw auto;
     }
 
-    /* ===== CONTENEDOR PRINCIPAL ===== */
+        /* ===== CONTENEDOR PRINCIPAL ===== */
     .menu-container {
         max-width: 900px;
         margin: 30px auto;
-        padding: 25px;
-        background-color: rgba(255, 255, 255, 0.92);
+        padding: 0 0 25px 0; /* Padding superior en 0 para pegarlo al borde */
+        background-color: rgba(255, 255, 255, 0.94);
         backdrop-filter: blur(5px);
         border-radius: 18px;
         box-shadow: 0 5px 25px rgba(122, 41, 77, 0.12);
         box-sizing: border-box;
+        overflow: hidden; /* Garantiza que la imagen respete las esquinas redondeadas superiores */
     }
 
-    /* ===== BANNER SUPERIOR DE MARCA ===== */
+    /* ===== BANNER ESTILO SIMPLE HOUSE (FULL WIDTH) ===== */
     .banner-header {
         width: 100%;
         margin-bottom: 25px;
-        overflow: hidden;
-        border-radius: 14px;
-        box-shadow: 0 4px 12px rgba(122, 41, 77, 0.15);
     }
 
     .banner-img {
         width: 100%;
-        height: auto;
-        max-height: 220px;
-        object-fit: cover;
+        height: 200px; /* Altura fija para mantener proporción */
+        object-fit: cover; /* Ajusta la imagen de fondo sin deformarla */
         display: block;
     }
+
+    /* Padding interno para las secciones inferiores (categorías y menú) */
+    .menu-contenido-inner {
+        padding: 0 25px;
+    }
+
+    @media (max-width: 992px) {
+        .banner-img {
+            height: 140px;
+        }
+        .menu-contenido-inner {
+            padding: 0 15px;
+        }
+    }
+
 
     /* ===== NAV DE CATEGORÍAS ===== */
     #cliente-categoria-nav {
