@@ -376,6 +376,101 @@
             height: 105px;
         }
     }
+		  /* ========================================== */
+  /* ESTILOS FOOTER DUMBBO                      */
+  /* ========================================== */
+  .dumbbo-footer {
+    background-color: #7A294D;
+    color: #FFFFFF;
+    padding: 50px 20px 30px 20px;
+    margin-top: 60px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .dumbbo-footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .footer-col-logo {
+    width: 220px;
+    flex-shrink: 0;
+  }
+
+  .footer-logo-box {
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  }
+
+  .footer-logo-img {
+    height: 60%;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .footer-col-links {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .footer-col-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #FFFFFF;
+  }
+
+  .footer-links-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-links-list li {
+    margin-bottom: 10px;
+  }
+
+  .footer-links-list a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    transition: opacity 0.2s;
+  }
+
+  .footer-links-list a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .footer-bottom-brand {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  @media (max-width: 768px) {
+    .dumbbo-footer-container {
+      flex-direction: column;
+      gap: 30px;
+    }
+    .footer-col-logo {
+      width: 180px;
+    }
+  }
+
     </style>
 </head>
 <body>
@@ -553,6 +648,52 @@
 		    }, 3500);
 		  });
 		}
+		<!-- SECCIÓN FOOTER -->
+<footer class="dumbbo-footer">
+  <div class="dumbbo-footer-container">
+    
+    <div class="footer-col-logo">
+      <div class="footer-logo-box">
+        <img src="img/logo1.png" alt="Dumbbo Café Logo" class="footer-logo-img">
+      </div>
+    </div>
+
+    <div class="footer-col-links">
+      <div class="footer-col-title">Conócenos</div>
+      <ul class="footer-links-list">
+        <li><a href="#">Contáctanos</a></li>
+        <li><a href="#">Sobre Nosotros</a></li>
+        <li><a href="#">Nuestras Tiendas</a></li>
+        <li><a href="#">Zonas de Cobertura</a></li>
+        <li><a href="#">Política de Cancelación y Reembolso</a></li>
+        <li><a href="#">Términos y condiciones</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-links">
+      <div class="footer-col-title">Redes sociales</div>
+      <ul class="footer-links-list">
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Facebook</a></li>
+        <li><a href="#">TikTok</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-links">
+      <div class="footer-col-title">Mi cuenta</div>
+      <ul class="footer-links-list">
+        <li><a href="#">Pedir</a></li>
+        <li><a href="#">Iniciar sesión</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom-brand">
+    Dumbbo Café © Todos los derechos reservados
+  </div>
+</footer>
+
 	</script>
 </body>
 </html>
