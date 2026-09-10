@@ -200,22 +200,24 @@
     /* ===== DUMBBITO FLOTANTE EN EL MARGEN ROSADO ===== */
     .dumbbito-flotante {
         position: fixed;
-        bottom: 25px;
+        top: 50%;  /*Centrado verticalmente*/
         /* Ubica la imagen a la izquierda del contenedor de 900px */
-        left: calc(50% - 450px - 140px);
-        width: 120px;
+        left: calc(50% - 450px - 180px);
+		transform: translateY(-50%);  /*Ajuste de centrado vertical*/
+        width: 160px;
         height: auto;
         z-index: 999;
         pointer-events: none;
+		transition: all 0.3s ease;
     }
 
     /* MEDIA QUERIES PARA ADAPTACIÓN SEGÚN DISPOSITIVO */
     
     /* En tablets/pantallas medianas donde el margen rosado es más estrecho */
-    @media (max-width: 1200px) {
+    @media (max-width: 1300px) {
         .dumbbito-flotante {
             left: 15px;
-            width: 90px;
+            width: 120px;
         }
     }
 
