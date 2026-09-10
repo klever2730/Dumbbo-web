@@ -261,7 +261,7 @@
     .producto-footer-v {
         margin-top: auto;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
     }
 
@@ -460,7 +460,6 @@
 		      <div class="producto-descripcion-v">${p.descripcion || ''}</div>
 		      <div class="producto-footer-v">
 		        <div class="producto-precio-v">$${Number(p.precio).toLocaleString('es-CL')}</div>
-		        <button class="btn-agregar-v">+</button>
 		      </div>
 		    </div>
 		  `;
