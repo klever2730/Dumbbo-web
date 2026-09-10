@@ -31,7 +31,7 @@
         background-size: 85vw auto;
     }
 
-    /* ===== BANNER PRINCIPAL (ESTILO SIMPLE HOUSE: FULL-WIDTH Y SEPARADO) ===== */
+    /* ===== BANNER PRINCIPAL (FULL-WIDTH 100% SIN RECORTE) ===== */
     .banner-header {
         width: 100%;
         margin-bottom: 30px;
@@ -42,20 +42,20 @@
 
     .banner-img {
         width: 100%;
-        height: auto;
+        height: auto;           /* Ajuste automático de altura según la proporción real */
+        max-height: none;       /* Sin tope máximo para evitar recorte vertical */
         display: block;
-        max-height: 280px;
-        object-fit: cover; /* Mantiene la estética de portada de restaurante */
+        object-fit: contain;    /* Muestra la imagen completa e íntegra */
     }
 
-    /* ===== RECUADRO DEL MENÚ Y PRODUCTOS (SEPARADO DEL BANNER) ===== */
+    /* ===== RECUADRO DEL MENÚ Y PRODUCTOS ===== */
     .menu-container {
         max-width: 900px;
         margin: 0 auto 40px auto;
         padding: 30px;
         background-color: rgba(255, 255, 255, 0.94);
         backdrop-filter: blur(5px);
-        border-radius: 18px; /* Recuadro completamente cerrado con curvas */
+        border-radius: 18px;
         box-shadow: 0 8px 25px rgba(122, 41, 77, 0.12);
         box-sizing: border-box;
     }
@@ -208,8 +208,8 @@
 
     /* Móviles */
     @media (max-width: 992px) {
-        .banner-img {
-            max-height: 160px;
+        .banner-header {
+            margin-bottom: 20px;
         }
 
         .menu-container {
@@ -219,7 +219,7 @@
         }
 
         .dumbbito-flotante {
-            display: none; /* Se oculta para no interferir con el contenido */
+            display: none;
         }
         
         .productos-grid {
