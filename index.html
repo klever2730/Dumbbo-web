@@ -174,21 +174,19 @@
         padding: 5px 2px 15px 2px;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
     .productos-horizontal-scroll::-webkit-scrollbar {
-        height: 5px;
-    }
-
-    .productos-horizontal-scroll::-webkit-scrollbar-thumb {
-        background-color: var(--rosa-dumbbo);
-        border-radius: 10px;
+        display: none;
     }
 
     /* TARJETA DE PRODUCTO VERTICAL (ESTILO CATÁLOGO) */
     .producto-card-vertical {
         min-width: 165px;
         width: 165px;
+        flex-shrink: 0;
         background-color: var(--blanco);
         border: 1px solid #F1D3DF;
         border-radius: 16px;
@@ -199,7 +197,6 @@
         transition: transform 0.2s, box-shadow 0.2s;
         box-sizing: border-box;
         position: relative;
-        flex-shrink: 0;
     }
 
     .producto-card-vertical:hover {
