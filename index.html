@@ -5,7 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Menú - Dumbbo Café</title>
 	<link href="css/templatemo-style.css" rel="stylesheet" />
+
 	<style>
+
     /* ===== COLORES DUMBBO ===== */
     :root {
         --rosa-dumbbo: #F0AEC9;
@@ -18,30 +20,26 @@
     }
 
     /* ===== FONDO GENERAL ===== */
-body {
-    background-color: var(--rosa-claro);
-    color: var(--texto);
-    margin: 0;
-    padding: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    body {
+        background-color: var(--rosa-claro);
+        color: var(--texto);
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-    /* Fondo Dumbbo */
-    background-image: url('img/fondo.png');
-    background-repeat: repeat-y;
-    background-position: center top;
+        /* Fondo Dumbbo */
+        background-image: url('img/fondo-dumbbo.jpeg');
+        background-repeat: repeat-y;
+        background-position: center top;
 
-    /*
-       El fondo se adapta al ancho de la pantalla.
-       En celulares también será visible.
-    */
-    background-size: 100% auto;
+        /* Fondo adaptable */
+        background-size: 100% auto;
 
-    /*
-       IMPORTANTE:
-       El fondo se mueve junto con la página.
-    */
-    background-attachment: scroll;
-}
+        /* El fondo se mueve junto con la página */
+        background-attachment: scroll;
+    }
+
+
     /* ===== BANNER PRINCIPAL ===== */
     .banner-header {
         width: 100%;
@@ -58,6 +56,7 @@ body {
         object-fit: contain;
     }
 
+
     /* ===== CONTENEDOR PRINCIPAL DEL MENÚ ===== */
     .menu-container {
         max-width: 950px;
@@ -69,6 +68,7 @@ body {
         box-shadow: 0 8px 30px rgba(122, 41, 77, 0.10);
         box-sizing: border-box;
     }
+
 
     /* ===== CABECERA Y TÍTULO ===== */
     .menu-header-bar {
@@ -88,7 +88,8 @@ body {
         letter-spacing: -0.5px;
     }
 
-    /* BOTÓN Y BARRA DE CATEGORÍAS */
+
+    /* ===== BOTÓN Y BARRA DE CATEGORÍAS ===== */
     .categoria-bar-wrapper {
         display: flex;
         align-items: center;
@@ -151,6 +152,7 @@ body {
         border-color: var(--rosa-oscuro);
     }
 
+
     /* ===== SECCIONES Y CARRUSEL HORIZONTAL ===== */
     .categoria-seccion {
         margin-bottom: 35px;
@@ -177,7 +179,8 @@ body {
         font-weight: 500;
     }
 
-    /* CONTENEDOR HORIZONTAL SCROLLABLE */
+
+    /* ===== CONTENEDOR HORIZONTAL SCROLLABLE ===== */
     .productos-horizontal-scroll {
         display: flex;
         gap: 15px;
@@ -193,7 +196,8 @@ body {
         display: none;
     }
 
-    /* TARJETA DE PRODUCTO VERTICAL (ESTILO CATÁLOGO) */
+
+    /* ===== TARJETA DE PRODUCTO ===== */
     .producto-card-vertical {
         min-width: 165px;
         width: 165px;
@@ -294,14 +298,15 @@ body {
         cursor: pointer;
     }
 
-    /* DUMBBITO FLOTANTE */
+
+    /* ===== DUMBBITO FLOTANTE ===== */
     .dumbbito-wrapper {
         position: fixed;
         top: 50%;
         left: calc(50% - 475px - 180px);
         transform: translateY(-50%);
         width: 160px;
-        z-index: 999;
+        z-index: 9999;
         transition: all 0.3s ease;
     }
 
@@ -317,7 +322,8 @@ body {
         transform: scale(0.95);
     }
 
-    /* BURBUJA DE DIÁLOGO DE DUMBBITO */
+
+    /* ===== BURBUJA DE DIÁLOGO ===== */
     .dumbbito-burbuja {
         position: absolute;
         bottom: 100%;
@@ -355,15 +361,25 @@ body {
         border-top-color: var(--rosa-dumbbo);
     }
 
-    /* MEDIA QUERIES */
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
     @media (max-width: 1300px) {
+
         .dumbbito-wrapper {
             left: 15px;
             width: 120px;
         }
+
     }
 
+
+    /* ===== TABLETS Y TELÉFONOS ===== */
+
     @media (max-width: 992px) {
+
         .banner-header {
             margin-bottom: 20px;
         }
@@ -373,16 +389,85 @@ body {
             padding: 18px 12px;
         }
 
+
+        /* =================================================
+           DUMBBITO FIJO EN DISPOSITIVOS MÓVILES
+           ================================================= */
+
         .dumbbito-wrapper {
-    display: block;
-    position: fixed;
-    top: 95px;
-    right: 15px;
-    left: auto;
-    width: 65px;
-    transform: none;
-    z-index: 9999;
-}
+            display: block;
+
+            /* Siempre permanece visible al hacer scroll */
+            position: fixed;
+
+            /*
+               Altura aproximada del título "Menú".
+               Se adapta según la altura del teléfono.
+            */
+            top: clamp(180px, 34vh, 280px);
+
+            /* Lo colocamos a la derecha */
+            right: 15px;
+
+            /* Anulamos la posición anterior */
+            left: auto;
+
+            /* Ya no necesitamos centrarlo verticalmente */
+            transform: none;
+
+            /* Tamaño para teléfono */
+            width: 65px;
+
+            /* Por encima del menú */
+            z-index: 9999;
+        }
+
+        .dumbbito-flotante {
+            width: 65px;
+            height: auto;
+
+            filter: drop-shadow(
+                0 3px 5px rgba(0, 0, 0, 0.15)
+            );
+        }
+
+
+        /* ===== BURBUJA EN TELÉFONOS ===== */
+
+        .dumbbito-wrapper .dumbbito-burbuja {
+            min-width: 150px;
+            max-width: 180px;
+
+            font-size: 0.72rem;
+
+            padding: 9px 12px;
+
+            /*
+               La burbuja aparece hacia la izquierda
+               para que no se salga de la pantalla.
+            */
+            left: auto;
+            right: 0;
+
+            transform:
+                translateY(10px)
+                scale(0.8);
+        }
+
+        .dumbbito-wrapper .dumbbito-burbuja.mostrar {
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+        .dumbbito-wrapper .dumbbito-burbuja::after {
+            left: auto;
+            right: 20px;
+            transform: none;
+        }
+
+
+        /* ===== PRODUCTOS EN MÓVIL ===== */
 
         .producto-card-vertical {
             min-width: 145px;
@@ -393,30 +478,36 @@ body {
         .producto-img-container {
             height: 105px;
         }
+
     }
 
-		    /* ===== FONDO EN CELULARES ===== */
-    @media (max-width: 600px) {
-        body {
-            background-size: 100% auto;
-            background-position: center top;
-            background-repeat: repeat-y;
-            background-attachment: scroll;
+
+    /* ===== TELÉFONOS PEQUEÑOS ===== */
+
+    @media (max-width: 480px) {
+
+        .dumbbito-wrapper {
+            right: 12px;
+            width: 58px;
         }
 
-        .banner-header {
-            width: 100%;
-            margin-bottom: 15px;
+        .dumbbito-flotante {
+            width: 58px;
         }
 
-        .banner-img {
-            width: 100%;
-            height: auto;
-            display: block;
+        .dumbbito-wrapper .dumbbito-burbuja {
+            min-width: 145px;
+            max-width: 165px;
+            font-size: 0.70rem;
         }
+
     }
 
-    /* ===== FOOTER DUMBBBO ===== */
+
+    /* =====================================================
+       FOOTER DUMBBO
+       ===================================================== */
+
     .dumbbo-footer {
         width: 100%;
         min-height: 300px;
@@ -439,7 +530,9 @@ body {
         gap: 50px;
     }
 
-    /* LOGO */
+
+    /* ===== LOGO ===== */
+
     .dumbbo-footer-logo {
         height: 180px;
         width: auto;
@@ -449,7 +542,9 @@ body {
         margin: 0 auto;
     }
 
-    /* COLUMNAS */
+
+    /* ===== COLUMNAS ===== */
+
     .dumbbo-footer-columna {
         display: flex;
         flex-direction: column;
@@ -470,7 +565,9 @@ body {
         color: #FFFFFF;
     }
 
-    /* TEXTO INFERIOR */
+
+    /* ===== TEXTO INFERIOR ===== */
+
     .dumbbo-footer-final {
         grid-column: 1 / -1;
         text-align: center;
@@ -480,8 +577,11 @@ body {
         opacity: 0.9;
     }
 
+
     /* ===== FOOTER RESPONSIVE ===== */
+
     @media (max-width: 768px) {
+
         .dumbbo-footer {
             min-height: auto;
             padding: 40px 25px;
@@ -505,216 +605,613 @@ body {
         .dumbbo-footer-titulo {
             font-size: 1.3rem;
         }
+
     }
 
-    </style>
+	</style>
 </head>
+
 <body>
 
-	<!-- Banner Superior -->
+
+	<!-- =====================================================
+	     BANNER SUPERIOR
+	     ===================================================== -->
+
 	<div class="banner-header">
-		<img src="img/banner.jpg" alt="Dumbbo Café Banner" class="banner-img">
+
+		<img
+			src="img/banner.jpg"
+			alt="Dumbbo Café Banner"
+			class="banner-img"
+		>
+
 	</div>
 
-	<!-- Recuadro del Menú -->
+
+
+	<!-- =====================================================
+	     RECUADRO DEL MENÚ
+	     ===================================================== -->
+
 	<div class="menu-container">
+
 		<div class="menu-header-bar">
-			<h1 class="menu-titulo">Menú</h1>
+
+			<h1 class="menu-titulo">
+				Menú
+			</h1>
+
 		</div>
+
 
 		<div class="categoria-bar-wrapper">
+
 			<button class="btn-categorias-menu">
-				<span>≡</span> Categorías
+				<span>≡</span>
+				Categorías
 			</button>
+
 			<div id="cliente-categoria-nav"></div>
+
 		</div>
 
+
 		<div id="menu-contenedor"></div>
+
 	</div>
 
-	<!-- Dumbbito Flotante -->
+
+
+	<!-- =====================================================
+	     DUMBBITO FLOTANTE
+	     ===================================================== -->
+
 	<div class="dumbbito-wrapper">
-		<div class="dumbbito-burbuja" id="dumbbito-burbuja">Disfruta de nuestro nuevo menú digital 🐘☕</div>
-		<img src="img/dumbbito.png" alt="Dumbbito" class="dumbbito-flotante" id="dumbbito-img">
+
+		<div
+			class="dumbbito-burbuja"
+			id="dumbbito-burbuja"
+		>
+			Disfruta de nuestro nuevo menú digital 🐘☕
+		</div>
+
+
+		<img
+			src="img/dumbbito.png"
+			alt="Dumbbito"
+			class="dumbbito-flotante"
+			id="dumbbito-img"
+		>
+
 	</div>
 
-	<!-- ===== FOOTER DUMBBBO ===== -->
+
+
+	<!-- =====================================================
+	     FOOTER DUMBBO
+	     ===================================================== -->
+
 	<footer class="dumbbo-footer">
+
 		<div class="dumbbo-footer-contenido">
 
+
 			<!-- Logo -->
+
 			<div class="dumbbo-footer-columna">
-				<img src="img/logo1.png" alt="Dumbbo Café" class="dumbbo-footer-logo">
+
+				<img
+					src="img/logo1.png"
+					alt="Dumbbo Café"
+					class="dumbbo-footer-logo"
+				>
+
 			</div>
 
+
 			<!-- Información -->
+
 			<div class="dumbbo-footer-columna">
-				<h2 class="dumbbo-footer-titulo">Dumbbo Café</h2>
+
+				<h2 class="dumbbo-footer-titulo">
+					Dumbbo Café
+				</h2>
+
 				<p class="dumbbo-footer-texto">
 					Disfruta de nuestro menú<br>
 					y vive la experiencia Dumbbo 🐘☕
 				</p>
+
 			</div>
 
+
 			<!-- Espacio visual -->
+
 			<div class="dumbbo-footer-columna">
 			</div>
 
+
 			<!-- Copyright -->
+
 			<div class="dumbbo-footer-final">
+
 				© 2026 Dumbbo Café
+
 			</div>
 
+
 		</div>
+
 	</footer>
 
+
+
+	<!-- =====================================================
+	     FIREBASE + JAVASCRIPT
+	     ===================================================== -->
+
 	<script type="module">
-		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-		import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+		import {
+			initializeApp
+		}
+		from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+
+
+		import {
+			getFirestore,
+			collection,
+			onSnapshot
+		}
+		from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+
 
 		const firebaseConfig = {
-		  apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
-		  authDomain: "dumbbo-menu.firebaseapp.com",
-		  projectId: "dumbbo-menu",
-		  storageBucket: "dumbbo-menu.firebasestorage.app",
-		  messagingSenderId: "875230670130",
-		  appId: "1:875230670130:web:63ad4fb93cb7bf2c8bbb2b"
+
+			apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
+
+			authDomain: "dumbbo-menu.firebaseapp.com",
+
+			projectId: "dumbbo-menu",
+
+			storageBucket: "dumbbo-menu.firebasestorage.app",
+
+			messagingSenderId: "875230670130",
+
+			appId: "1:875230670130:web:63ad4fb93cb7bf2c8bbb2b"
+
 		};
 
+
+
 		const app = initializeApp(firebaseConfig);
+
 		const db = getFirestore(app);
+
 
 		let todosLosProductos = [];
 
-		onSnapshot(collection(db, "productos"), (snapshot) => {
-		  todosLosProductos = [];
-		  snapshot.forEach((docSnap) => {
-		    const data = docSnap.data();
-		    if (data.disponible) {
-		      todosLosProductos.push({ id: docSnap.id, ...data });
-		    }
-		  });
-		  crearFiltrosCliente(todosLosProductos);
-		  renderizarMenuCliente(todosLosProductos, "todos");
-		});
 
-		function renderizarMenuCliente(productos, filtroSeleccionado) {
-		  const contenedor = document.getElementById("menu-contenedor");
 
-		  if (productos.length === 0) {
-		    contenedor.innerHTML = "<p style='text-align:center;'>No hay productos disponibles por el momento.</p>";
-		    return;
-		  }
+		onSnapshot(
+			collection(db, "productos"),
+			(snapshot) => {
 
-		  let html = "";
+				todosLosProductos = [];
 
-		  if (filtroSeleccionado === "todos") {
-		    const productosPromocion = productos.filter(p => p.promocion);
-		    if (productosPromocion.length > 0) {
-		      html += `
-		        <div class="categoria-seccion" id="cat-promociones">
-		          <div class="categoria-header-row">
-		            <h2 class="categoria-titulo">🔥 Promos y novedades</h2>
-		            <span class="ver-mas-link">Ver más ›</span>
-		          </div>
-		          <div class="productos-horizontal-scroll">
-		      `;
-		      productosPromocion.forEach(p => {
-		        html += crearTarjetaVertical(p);
-		      });
-		      html += `
-		          </div>
-		        </div>
-		      `;
-		    }
-		  }
 
-		  const categorias = [...new Set(productos.map(p => p.categoria))];
+				snapshot.forEach((docSnap) => {
 
-		  categorias.forEach(cat => {
-		    const productosCat = productos.filter(p => p.categoria === cat);
+					const data = docSnap.data();
 
-		    if (productosCat.length > 0) {
-		      html += `
-		        <div class="categoria-seccion" id="cat-${cat.replace(/\s+/g, '-')}">
-		          <div class="categoria-header-row">
-		            <h2 class="categoria-titulo">${cat}</h2>
-		            <span class="ver-mas-link">Ver más ›</span>
-		          </div>
-		          <div class="productos-horizontal-scroll">
-		      `;
 
-		      productosCat.forEach(p => {
-		        html += crearTarjetaVertical(p);
-		      });
+					if (data.disponible) {
 
-		      html += `
-		          </div>
-		        </div>
-		      `;
-		    }
-		  });
+						todosLosProductos.push({
+							id: docSnap.id,
+							...data
+						});
 
-		  contenedor.innerHTML = html;
+					}
+
+				});
+
+
+				crearFiltrosCliente(todosLosProductos);
+
+				renderizarMenuCliente(
+					todosLosProductos,
+					"todos"
+				);
+
+			}
+		);
+
+
+
+		function renderizarMenuCliente(
+			productos,
+			filtroSeleccionado
+		) {
+
+			const contenedor =
+				document.getElementById(
+					"menu-contenedor"
+				);
+
+
+			if (productos.length === 0) {
+
+				contenedor.innerHTML =
+					"<p style='text-align:center;'>No hay productos disponibles por el momento.</p>";
+
+				return;
+
+			}
+
+
+			let html = "";
+
+
+
+			if (filtroSeleccionado === "todos") {
+
+				const productosPromocion =
+					productos.filter(
+						p => p.promocion
+					);
+
+
+				if (productosPromocion.length > 0) {
+
+					html += `
+
+						<div
+							class="categoria-seccion"
+							id="cat-promociones"
+						>
+
+							<div class="categoria-header-row">
+
+								<h2 class="categoria-titulo">
+									🔥 Promos y novedades
+								</h2>
+
+								<span class="ver-mas-link">
+									Ver más ›
+								</span>
+
+							</div>
+
+
+							<div class="productos-horizontal-scroll">
+					`;
+
+
+					productosPromocion.forEach(p => {
+
+						html += crearTarjetaVertical(p);
+
+					});
+
+
+					html += `
+
+							</div>
+
+						</div>
+
+					`;
+
+				}
+
+			}
+
+
+
+			const categorias =
+				[
+					...new Set(
+						productos.map(
+							p => p.categoria
+						)
+					)
+				];
+
+
+
+			categorias.forEach(cat => {
+
+				const productosCat =
+					productos.filter(
+						p => p.categoria === cat
+					);
+
+
+				if (productosCat.length > 0) {
+
+					html += `
+
+						<div
+							class="categoria-seccion"
+							id="cat-${cat.replace(/\s+/g, '-')}"
+						>
+
+							<div class="categoria-header-row">
+
+								<h2 class="categoria-titulo">
+									${cat}
+								</h2>
+
+								<span class="ver-mas-link">
+									Ver más ›
+								</span>
+
+							</div>
+
+
+							<div class="productos-horizontal-scroll">
+					`;
+
+
+					productosCat.forEach(p => {
+
+						html += crearTarjetaVertical(p);
+
+					});
+
+
+					html += `
+
+							</div>
+
+						</div>
+
+					`;
+
+				}
+
+			});
+
+
+			contenedor.innerHTML = html;
+
 		}
+
+
 
 		function crearTarjetaVertical(p) {
-		  return `
-		    <div class="producto-card-vertical">
-		      ${p.promocion ? '<span class="badge-promocion-v">Oferta</span>' : ''}
-		      <div class="producto-img-container">
-		        <img src="${p.imagenUrl || 'img/logo.png'}" alt="${p.nombre}" class="producto-imagen-v">
-		      </div>
-		      <div class="producto-nombre-v">${p.nombre}</div>
-		      <div class="producto-descripcion-v">${p.descripcion || ''}</div>
-		      <div class="producto-footer-v">
-		        <div class="producto-precio-v">$${Number(p.precio).toLocaleString('es-CL')}</div>
-		      </div>
-		    </div>
-		  `;
+
+			return `
+
+				<div class="producto-card-vertical">
+
+					${
+						p.promocion
+						?
+						'<span class="badge-promocion-v">Oferta</span>'
+						:
+						''
+					}
+
+
+					<div class="producto-img-container">
+
+						<img
+							src="${p.imagenUrl || 'img/logo.png'}"
+							alt="${p.nombre}"
+							class="producto-imagen-v"
+						>
+
+					</div>
+
+
+					<div class="producto-nombre-v">
+						${p.nombre}
+					</div>
+
+
+					<div class="producto-descripcion-v">
+						${p.descripcion || ''}
+					</div>
+
+
+					<div class="producto-footer-v">
+
+						<div class="producto-precio-v">
+							$${Number(p.precio).toLocaleString('es-CL')}
+						</div>
+
+					</div>
+
+				</div>
+
+			`;
+
 		}
+
+
 
 		function crearFiltrosCliente(productos) {
-		  const categorias = [...new Set(productos.map(p => p.categoria))];
-		  const nav = document.getElementById("cliente-categoria-nav");
 
-		  let html = `<button class="filtro-cliente-btn active" data-cat="todos">Todos</button>`;
-		  categorias.forEach(cat => {
-		    html += `<button class="filtro-cliente-btn" data-cat="${cat}">${cat}</button>`;
-		  });
-		  nav.innerHTML = html;
+			const categorias =
+				[
+					...new Set(
+						productos.map(
+							p => p.categoria
+						)
+					)
+				];
 
-		  document.querySelectorAll(".filtro-cliente-btn").forEach(btn => {
-		    btn.addEventListener("click", () => {
-		      document.querySelectorAll(".filtro-cliente-btn").forEach(b => b.classList.remove("active"));
-		      btn.classList.add("active");
 
-		      const categoriaSel = btn.dataset.cat;
-		      if (categoriaSel === "todos") {
-		        renderizarMenuCliente(todosLosProductos, "todos");
-		      } else {
-		        const filtrados = todosLosProductos.filter(p => p.categoria === categoriaSel);
-		        renderizarMenuCliente(filtrados, categoriaSel);
-		      }
-		    });
-		  });
+			const nav =
+				document.getElementById(
+					"cliente-categoria-nav"
+				);
+
+
+			let html = `
+
+				<button
+					class="filtro-cliente-btn active"
+					data-cat="todos"
+				>
+					Todos
+				</button>
+
+			`;
+
+
+			categorias.forEach(cat => {
+
+				html += `
+
+					<button
+						class="filtro-cliente-btn"
+						data-cat="${cat}"
+					>
+						${cat}
+					</button>
+
+				`;
+
+			});
+
+
+			nav.innerHTML = html;
+
+
+
+			document
+				.querySelectorAll(
+					".filtro-cliente-btn"
+				)
+				.forEach(btn => {
+
+
+					btn.addEventListener(
+						"click",
+						() => {
+
+
+							document
+								.querySelectorAll(
+									".filtro-cliente-btn"
+								)
+								.forEach(b =>
+									b.classList.remove(
+										"active"
+									)
+								);
+
+
+							btn.classList.add(
+								"active"
+							);
+
+
+							const categoriaSel =
+								btn.dataset.cat;
+
+
+							if (
+								categoriaSel ===
+								"todos"
+							) {
+
+								renderizarMenuCliente(
+									todosLosProductos,
+									"todos"
+								);
+
+							}
+
+							else {
+
+								const filtrados =
+									todosLosProductos.filter(
+										p =>
+											p.categoria ===
+											categoriaSel
+									);
+
+
+								renderizarMenuCliente(
+									filtrados,
+									categoriaSel
+								);
+
+							}
+
+						}
+					);
+
+				});
+
 		}
 
-		// Burbuja de diálogo de Dumbbito
-		const dumbbitoImg = document.getElementById("dumbbito-img");
-		const dumbbitoBurbuja = document.getElementById("dumbbito-burbuja");
+
+
+		/* =====================================================
+		   BURBUJA DE DIÁLOGO DE DUMBBITO
+		   ===================================================== */
+
+		const dumbbitoImg =
+			document.getElementById(
+				"dumbbito-img"
+			);
+
+
+		const dumbbitoBurbuja =
+			document.getElementById(
+				"dumbbito-burbuja"
+			);
+
+
 		let timeoutBurbuja;
 
-		if (dumbbitoImg && dumbbitoBurbuja) {
-		  dumbbitoImg.addEventListener("click", () => {
-		    dumbbitoBurbuja.classList.add("mostrar");
-		    clearTimeout(timeoutBurbuja);
-		    timeoutBurbuja = setTimeout(() => {
-		      dumbbitoBurbuja.classList.remove("mostrar");
-		    }, 3500);
-		  });
+
+
+		if (
+			dumbbitoImg &&
+			dumbbitoBurbuja
+		) {
+
+			dumbbitoImg.addEventListener(
+				"click",
+				() => {
+
+
+					dumbbitoBurbuja.classList.add(
+						"mostrar"
+					);
+
+
+					clearTimeout(
+						timeoutBurbuja
+					);
+
+
+					timeoutBurbuja =
+						setTimeout(
+							() => {
+
+								dumbbitoBurbuja.classList.remove(
+									"mostrar"
+								);
+
+							},
+							3500
+						);
+
+				}
+			);
+
 		}
 
 	</script>
+
 </body>
 </html>
