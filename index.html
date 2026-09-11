@@ -272,6 +272,9 @@
         transition: transform 0.2s, box-shadow 0.2s;
         box-sizing: border-box;
         position: relative;
+
+        /* NUEVO: indica que la tarjeta se puede tocar */
+        cursor: pointer;
     }
 
     .producto-card-vertical:hover {
@@ -360,6 +363,135 @@
 
 
     /* =====================================================
+       POPUP DE PRODUCTO
+       ===================================================== */
+
+    .producto-popup-overlay {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+        z-index: 99999;
+
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .producto-popup-overlay.mostrar {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .producto-popup {
+        position: relative;
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: var(--blanco);
+        border-radius: 22px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+        padding: 18px;
+        box-sizing: border-box;
+
+        transform: translateY(20px) scale(0.96);
+        transition: transform 0.25s ease;
+    }
+
+    .producto-popup-overlay.mostrar .producto-popup {
+        transform: translateY(0) scale(1);
+    }
+
+    .producto-popup-cerrar {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--rosa-oscuro);
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .producto-popup-cerrar:active {
+        transform: scale(0.92);
+    }
+
+    .producto-popup-imagen-container {
+        width: 100%;
+        height: 300px;
+        border-radius: 17px;
+        overflow: hidden;
+        background-color: var(--rosa-claro);
+        margin-bottom: 18px;
+    }
+
+    .producto-popup-imagen {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    .producto-popup-badge {
+        display: inline-block;
+        background-color: var(--precio-rojo);
+        color: var(--blanco);
+        font-size: 0.78rem;
+        font-weight: 800;
+        padding: 5px 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .producto-popup-nombre {
+        margin: 0 45px 10px 0;
+        color: var(--rosa-oscuro);
+        font-size: 1.65rem;
+        line-height: 1.2;
+        font-weight: 800;
+    }
+
+    .producto-popup-descripcion {
+        margin: 0 0 18px 0;
+        color: #666;
+        font-size: 1rem;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+    .producto-popup-precio {
+        color: var(--precio-rojo);
+        font-size: 1.45rem;
+        font-weight: 900;
+        margin: 0;
+    }
+
+
+    /* =====================================================
        RESPONSIVE
        ===================================================== */
 
@@ -441,6 +573,39 @@
             height: 105px;
         }
 
+
+        /* ===== POPUP EN MÓVIL ===== */
+
+        .producto-popup-overlay {
+            padding: 15px;
+        }
+
+        .producto-popup {
+            max-width: 100%;
+            max-height: 88vh;
+            border-radius: 20px;
+            padding: 14px;
+        }
+
+        .producto-popup-imagen-container {
+            height: 240px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .producto-popup-nombre {
+            font-size: 1.4rem;
+        }
+
+        .producto-popup-descripcion {
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .producto-popup-precio {
+            font-size: 1.3rem;
+        }
+
     }
 
 
@@ -460,6 +625,41 @@
             min-width: 145px;
             max-width: 165px;
             font-size: 0.70rem;
+        }
+
+
+        /* ===== POPUP TELÉFONOS PEQUEÑOS ===== */
+
+        .producto-popup-overlay {
+            padding: 10px;
+        }
+
+        .producto-popup {
+            max-height: 90vh;
+            padding: 12px;
+            border-radius: 18px;
+        }
+
+        .producto-popup-imagen-container {
+            height: 210px;
+        }
+
+        .producto-popup-nombre {
+            font-size: 1.25rem;
+        }
+
+        .producto-popup-descripcion {
+            font-size: 0.88rem;
+        }
+
+        .producto-popup-precio {
+            font-size: 1.2rem;
+        }
+
+        .producto-popup-cerrar {
+            width: 36px;
+            height: 36px;
+            font-size: 1.35rem;
         }
 
     }
@@ -644,6 +844,38 @@
 
 
 		<div id="menu-contenedor"></div>
+
+	</div>
+
+
+
+	<!-- =====================================================
+	     POPUP DE PRODUCTO
+	     ===================================================== -->
+
+	<div
+		class="producto-popup-overlay"
+		id="producto-popup-overlay"
+	>
+
+		<div
+			class="producto-popup"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="popup-producto-nombre"
+		>
+
+			<button
+				class="producto-popup-cerrar"
+				id="producto-popup-cerrar"
+				aria-label="Cerrar"
+			>
+				×
+			</button>
+
+			<div id="popup-producto-contenido"></div>
+
+		</div>
 
 	</div>
 
@@ -947,7 +1179,10 @@
 
 			return `
 
-				<div class="producto-card-vertical">
+				<div
+					class="producto-card-vertical"
+					data-producto-id="${p.id}"
+				>
 
 					${
 						p.promocion
@@ -1112,6 +1347,234 @@
 				});
 
 		}
+
+
+
+		/* =====================================================
+		   POPUP DE PRODUCTO
+		   ===================================================== */
+
+		const productoPopupOverlay =
+			document.getElementById(
+				"producto-popup-overlay"
+			);
+
+
+		const productoPopupCerrar =
+			document.getElementById(
+				"producto-popup-cerrar"
+			);
+
+
+		const popupProductoContenido =
+			document.getElementById(
+				"popup-producto-contenido"
+			);
+
+
+
+		/* ===== ESCAPA TEXTO PARA EVITAR HTML NO DESEADO ===== */
+
+		function escaparHtml(texto) {
+
+			return String(texto ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#039;");
+
+		}
+
+
+
+		/* ===== ABRIR POPUP ===== */
+
+		function abrirProductoPopup(producto) {
+
+			if (!producto) return;
+
+
+			const nombre =
+				escaparHtml(producto.nombre || "Producto");
+
+
+			const descripcion =
+				escaparHtml(
+					producto.descripcion ||
+					"Sin descripción disponible."
+				);
+
+
+			const imagen =
+				producto.imagenUrl ||
+				"img/logo.png";
+
+
+			const precio =
+				Number(
+					producto.precio || 0
+				).toLocaleString(
+					"es-CL"
+				);
+
+
+			popupProductoContenido.innerHTML = `
+
+				<div class="producto-popup-imagen-container">
+
+					<img
+						src="${imagen}"
+						alt="${nombre}"
+						class="producto-popup-imagen"
+					>
+
+				</div>
+
+
+				${
+					producto.promocion
+					?
+					`
+						<div class="producto-popup-badge">
+							🔥 Oferta
+						</div>
+					`
+					:
+					''
+				}
+
+
+				<h2
+					class="producto-popup-nombre"
+					id="popup-producto-nombre"
+				>
+					${nombre}
+				</h2>
+
+
+				<p class="producto-popup-descripcion">
+					${descripcion}
+				</p>
+
+
+				<p class="producto-popup-precio">
+					$${precio}
+				</p>
+
+			`;
+
+
+			productoPopupOverlay.classList.add(
+				"mostrar"
+			);
+
+
+			document.body.style.overflow =
+				"hidden";
+
+		}
+
+
+
+		/* ===== CERRAR POPUP ===== */
+
+		function cerrarProductoPopup() {
+
+			productoPopupOverlay.classList.remove(
+				"mostrar"
+			);
+
+
+			document.body.style.overflow =
+				"";
+
+		}
+
+
+
+		/* ===== TOCAR UNA TARJETA ===== */
+
+		document
+			.getElementById("menu-contenedor")
+			.addEventListener(
+				"click",
+				(evento) => {
+
+					const tarjeta =
+						evento.target.closest(
+							".producto-card-vertical"
+						);
+
+
+					if (!tarjeta) return;
+
+
+					const producto =
+						todosLosProductos.find(
+							p =>
+								p.id ===
+								tarjeta.dataset.productoId
+						);
+
+
+					abrirProductoPopup(
+						producto
+					);
+
+				}
+			);
+
+
+
+		/* ===== BOTÓN X ===== */
+
+		productoPopupCerrar.addEventListener(
+			"click",
+			cerrarProductoPopup
+		);
+
+
+
+		/* ===== TOCAR FUERA DEL POPUP ===== */
+
+		productoPopupOverlay.addEventListener(
+			"click",
+			(evento) => {
+
+				if (
+					evento.target ===
+					productoPopupOverlay
+				) {
+
+					cerrarProductoPopup();
+
+				}
+
+			}
+		);
+
+
+
+		/* ===== TECLA ESC ===== */
+
+		document.addEventListener(
+			"keydown",
+			(evento) => {
+
+				if (
+					evento.key === "Escape" &&
+					productoPopupOverlay.classList.contains(
+						"mostrar"
+					)
+				) {
+
+					cerrarProductoPopup();
+
+				}
+
+			}
+		);
 
 
 
