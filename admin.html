@@ -5,7 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Admin - Dumbbo Café</title>
 	<link href="css/templatemo-style.css" rel="stylesheet" />
-
 	<style>
 		:root {
 			--rosa-dumbbo: #F0AEC9;
@@ -70,6 +69,7 @@
 			font-size: 1.6rem;
 		}
 
+		/* FORMULARIO */
 		.form-crear-producto {
 			background-color: #FFF9FB;
 			border: 1px solid #F1D3DF;
@@ -155,6 +155,7 @@
 			font-size: 0.9rem;
 		}
 
+		/* BOTONES DE FILTRO Y APARTADOS */
 		.apartados-bar {
 			display: flex;
 			gap: 8px;
@@ -181,6 +182,7 @@
 			border-color: var(--rosa-oscuro);
 		}
 
+		/* TABLA ESTILO CAPTURA */
 		.tabla-container {
 			overflow-x: auto;
 			border-radius: 12px;
@@ -217,6 +219,7 @@
 			border: 1px solid #F1D3DF;
 		}
 
+		/* BADGES Y CASILLAS */
 		.badge-toggle-group {
 			display: flex;
 			align-items: center;
@@ -248,6 +251,7 @@
 			accent-color: var(--rosa-oscuro);
 		}
 
+		/* BOTONES TABLA */
 		.tm-btn {
 			border-radius: 8px;
 			padding: 8px 16px;
@@ -302,151 +306,73 @@
 		}
 	</style>
 </head>
-
 <body>
 
 	<div id="admin-login">
 		<h2 style="color: var(--rosa-oscuro);">Panel Administrador - Dumbbo</h2>
-
-		<input type="email" id="admin-email"
-			placeholder="Correo electrónico"
-			style="width:100%; padding:10px; margin-bottom:12px; border:1px solid #DFA5BB; border-radius:8px;" />
-
-		<input type="password" id="admin-password"
-			placeholder="Contraseña"
-			style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #DFA5BB; border-radius:8px;" />
-
-		<button id="btn-login" class="tm-btn tm-btn-default" style="width:100%;">
-			Iniciar sesión
-		</button>
-
+		<input type="email" id="admin-email" placeholder="Correo electrónico" style="width:100%; padding:10px; margin-bottom:12px; border:1px solid #DFA5BB; border-radius:8px;" />
+		<input type="password" id="admin-password" placeholder="Contraseña" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #DFA5BB; border-radius:8px;" />
+		<button id="btn-login" class="tm-btn tm-btn-default" style="width:100%;">Iniciar sesión</button>
 		<p id="login-error" style="color:var(--rojo); margin-top:10px;"></p>
 	</div>
 
 	<div id="admin-panel" class="hidden">
-
 		<div class="admin-header">
 			<h2>Gestión de Productos</h2>
-			<button id="btn-logout" class="tm-btn tm-btn-default">
-				Cerrar sesión
-			</button>
+			<button id="btn-logout" class="tm-btn tm-btn-default">Cerrar sesión</button>
 		</div>
 
 		<form id="form-crear-producto" class="form-crear-producto">
-
 			<h3 id="form-titulo">+ Agregar Nuevo Producto</h3>
-
 			<input type="hidden" id="producto-id-edit" />
 			<input type="hidden" id="imagen-actual-url" />
 
 			<div class="form-grid">
+				<input type="text" id="nuevo-nombre" placeholder="Nombre (ej. Brownie de chocolate)" required />
+				
+				<select id="nuevo-categoria" required>
+					<option value="">-- Seleccionar Categoría --</option>
+					<option value="Bebestibles">Bebestibles</option>
+					<option value="Cafetería">Cafetería</option>
+					<option value="Dulces">Dulces</option>
+					<option value="Pasteles">Pasteles</option>
+					<option value="Snacks">Snacks</option>
+					<option value="Sandwich">Sandwich</option>
+					<option value="Promociones">Promociones</option>
+				</select>
 
-				<input type="text"
-					id="nuevo-nombre"
-					placeholder="Nombre (ej. Brownie de chocolate)"
-					required />
-
-				<div>
-					<select id="nuevo-categoria" required>
-						<option value="">-- Seleccionar Categoría --</option>
-					</select>
-
-					<div id="nueva-categoria-container" style="display:none; margin-top:8px;">
-						<input
-							type="text"
-							id="nueva-categoria-input"
-							placeholder="Nombre de la nueva categoría"
-						/>
-					</div>
-				</div>
-
-				<input type="number"
-					id="nuevo-precio"
-					placeholder="Precio ($)"
-					required />
+				<input type="number" id="nuevo-precio" placeholder="Precio ($)" required />
 
 				<div class="input-file-container">
 					<label for="nuevo-imagen">Foto del producto:</label>
-					<input type="file"
-						id="nuevo-imagen"
-						accept="image/*" />
+					<input type="file" id="nuevo-imagen" accept="image/*" />
 				</div>
 
-				<textarea
-					id="nuevo-descripcion"
-					placeholder="Descripción del producto..."></textarea>
-
+				<textarea id="nuevo-descripcion" placeholder="Descripción del producto..."></textarea>
 			</div>
 
 			<div class="form-checkboxes">
-				<label>
-					<input type="checkbox" id="nuevo-disponible" checked />
-					Disponible (Visible en la carta)
-				</label>
-
-				<label>
-					<input type="checkbox" id="nuevo-promocion" />
-					Activar en Oferta 🔥
-				</label>
+				<label><input type="checkbox" id="nuevo-disponible" checked /> Disponible (Visible en la carta)</label>
+				<label><input type="checkbox" id="nuevo-promocion" /> Activar en Oferta 🔥</label>
 			</div>
 
-			<div style="display:flex; gap:10px; align-items:center;">
-
-				<button type="submit"
-					id="btn-guardar"
-					class="tm-btn tm-btn-default">
-					Guardar Producto en Firebase
-				</button>
-
-				<button type="button"
-					id="btn-cancelar"
-					class="tm-btn"
-					style="background:#ccc; display:none;"
-					onclick="limpiarFormulario()">
-					Cancelar
-				</button>
-
-				<span id="mensaje-carga"
-					style="display:none; color:var(--rosa-oscuro); font-weight:bold;">
-					Guardando...
-				</span>
-
+			<div style="display: flex; gap: 10px; align-items: center;">
+				<button type="submit" id="btn-guardar" class="tm-btn tm-btn-default">Guardar Producto en Firebase</button>
+				<button type="button" id="btn-cancelar" class="tm-btn" style="background:#ccc; display:none;" onclick="limpiarFormulario()">Cancelar</button>
+				<span id="mensaje-carga" style="display:none; color:var(--rosa-oscuro); font-weight:bold;">Guardando...</span>
 			</div>
-
 		</form>
 
-		<h3 style="color:var(--rosa-oscuro); margin-bottom:10px;">
-			Lista de Productos
-		</h3>
-
+		<h3 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Lista de Productos</h3>
 		<div class="apartados-bar">
-
-			<button class="btn-apartado active"
-				onclick="filtrarTabla('todos', this)">
-				Todos
-			</button>
-
-			<button class="btn-apartado"
-				onclick="filtrarTabla('disponible', this)">
-				Disponibles
-			</button>
-
-			<button class="btn-apartado"
-				onclick="filtrarTabla('oculto', this)">
-				Ocultos
-			</button>
-
-			<button class="btn-apartado"
-				onclick="filtrarTabla('oferta', this)">
-				🔥 En Oferta
-			</button>
-
+			<button class="btn-apartado active" onclick="filtrarTabla('todos', this)">Todos</button>
+			<button class="btn-apartado" onclick="filtrarTabla('disponible', this)">Disponibles</button>
+			<button class="btn-apartado" onclick="filtrarTabla('oculto', this)">Ocultos</button>
+			<button class="btn-apartado" onclick="filtrarTabla('oferta', this)">🔥 En Oferta</button>
 		</div>
 
 		<div class="tabla-container">
-
 			<table>
-
 				<thead>
 					<tr>
 						<th>Imagen</th>
@@ -458,16 +384,207 @@
 						<th>Acciones</th>
 					</tr>
 				</thead>
-
-				<tbody id="tabla-productos-body"></tbody>
-
+				<tbody id="tabla-productos-body">
+					</tbody>
 			</table>
-
 		</div>
-
 	</div>
 
-	<script type="module" src="admin.js"></script>
+	<script type="module">
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+		import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+		import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+		import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
+		const firebaseConfig = {
+			apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
+			authDomain: "dumbbo-menu.firebaseapp.com",
+			projectId: "dumbbo-menu",
+			storageBucket: "dumbbo-menu.firebasestorage.app",
+			messagingSenderId: "875230670130",
+			appId: "1:875230670130:web:63ad4fb93cb7bf2c8bbb2b"
+		};
+
+		const app = initializeApp(firebaseConfig);
+		const auth = getAuth(app);
+		const db = getFirestore(app);
+		const storage = getStorage(app);
+
+		let listaProductosCache = [];
+		let filtroActual = 'todos';
+
+		// AUTENTICACIÓN
+		onAuthStateChanged(auth, (user) => {
+			if (user) {
+				document.getElementById("admin-login").classList.add("hidden");
+				document.getElementById("admin-panel").classList.remove("hidden");
+			} else {
+				document.getElementById("admin-login").classList.remove("hidden");
+				document.getElementById("admin-panel").classList.add("hidden");
+			}
+		});
+
+		document.getElementById("btn-login").addEventListener("click", async () => {
+			const email = document.getElementById("admin-email").value;
+			const pass = document.getElementById("admin-password").value;
+			try {
+				await signInWithEmailAndPassword(auth, email, pass);
+			} catch (err) {
+				document.getElementById("login-error").innerText = "Error: Credenciales incorrectas.";
+			}
+		});
+
+		document.getElementById("btn-logout").addEventListener("click", () => signOut(auth));
+
+		// LEER PRODUCTOS EN TIEMPO REAL
+		onSnapshot(collection(db, "productos"), (snapshot) => {
+			listaProductosCache = [];
+			snapshot.forEach((docSnap) => {
+				listaProductosCache.push({ id: docSnap.id, ...docSnap.data() });
+			});
+			renderizarTabla();
+		});
+
+		// RENDERIZAR TABLA CON FILTROS Y CONTROLES RÁPIDOS
+		function renderizarTabla() {
+			const tbody = document.getElementById("tabla-productos-body");
+			tbody.innerHTML = "";
+
+			const filtrados = listaProductosCache.filter(p => {
+				if (filtroActual === 'disponible') return p.disponible;
+				if (filtroActual === 'oculto') return !p.disponible;
+				if (filtroActual === 'oferta') return p.promocion;
+				return true;
+			});
+
+			filtrados.forEach(p => {
+				const tr = document.createElement("tr");
+				tr.innerHTML = `
+					<td><img src="${p.imagenUrl || 'img/logo.png'}" class="img-tabla" alt="${p.nombre}"></td>
+					<td><strong>${p.nombre}</strong></td>
+					<td>${p.categoria || '-'}</td>
+					<td>$${Number(p.precio).toLocaleString('es-CL')}</td>
+					<td>
+						<div class="badge-toggle-group">
+							<span class="badge-estado ${p.disponible ? 'badge-disponible' : 'badge-oculto'}">
+								${p.disponible ? 'Disponible' : 'Oculto'}
+							</span>
+							<input type="checkbox" class="chk-rapido" ${p.disponible ? 'checked' : ''} 
+								title="Marcar para mostrar / Desmarcar para ocultar"
+								onchange="toggleDisponible('${p.id}', this.checked)" />
+						</div>
+					</td>
+					<td>
+						<div class="badge-toggle-group">
+							<span>${p.promocion ? '🔥 Sí' : 'No'}</span>
+							<input type="checkbox" class="chk-rapido" ${p.promocion ? 'checked' : ''} 
+								title="Activar / Desactivar oferta"
+								onchange="togglePromocion('${p.id}', this.checked)" />
+						</div>
+					</td>
+					<td>
+						<div style="display:flex; gap:6px;">
+							<button class="btn-editar-tabla" onclick="cargarEdicion('${p.id}')">Editar</button>
+							<button class="btn-eliminar-tabla" onclick="eliminarProducto('${p.id}')">Eliminar</button>
+						</div>
+					</td>
+				`;
+				tbody.appendChild(tr);
+			});
+		}
+
+		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA DIRECTO EN TABLA
+		window.toggleDisponible = async (id, estado) => {
+			await updateDoc(doc(db, "productos", id), { disponible: estado });
+		};
+
+		window.togglePromocion = async (id, estado) => {
+			await updateDoc(doc(db, "productos", id), { promocion: estado });
+		};
+
+		// FILTRADO POR APARTADO
+		window.filtrarTabla = (tipo, btn) => {
+			filtroActual = tipo;
+			document.querySelectorAll(".btn-apartado").forEach(b => b.classList.remove("active"));
+			btn.classList.add("active");
+			renderizarTabla();
+		};
+
+		// CARGAR EDICIÓN COMPLETA AL FORMULARIO
+		window.cargarEdicion = (id) => {
+			const p = listaProductosCache.find(item => item.id === id);
+			if (!p) return;
+
+			document.getElementById("producto-id-edit").value = p.id;
+			document.getElementById("nuevo-nombre").value = p.nombre;
+			document.getElementById("nuevo-categoria").value = p.categoria || '';
+			document.getElementById("nuevo-precio").value = p.precio;
+			document.getElementById("nuevo-descripcion").value = p.descripcion || '';
+			document.getElementById("nuevo-disponible").checked = p.disponible;
+			document.getElementById("nuevo-promocion").checked = p.promocion;
+			document.getElementById("imagen-actual-url").value = p.imagenUrl || '';
+
+			document.getElementById("form-titulo").innerText = "✏️ Editar Producto";
+			document.getElementById("btn-guardar").innerText = "Actualizar Producto";
+			document.getElementById("btn-cancelar").style.display = "inline-block";
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		};
+
+		// GUARDAR O ACTUALIZAR PRODUCTO
+		document.getElementById("form-crear-producto").addEventListener("submit", async (e) => {
+			e.preventDefault();
+
+			const id = document.getElementById("producto-id-edit").value;
+			const archivoInput = document.getElementById("nuevo-imagen");
+			let urlImagenFinal = document.getElementById("imagen-actual-url").value;
+
+			document.getElementById("mensaje-carga").style.display = "inline";
+
+			try {
+				if (archivoInput.files.length > 0) {
+					const file = archivoInput.files[0];
+					const storageRef = ref(storage, `productos/${Date.now()}_${file.name}`);
+					await uploadBytes(storageRef, file);
+					urlImagenFinal = await getDownloadURL(storageRef);
+				}
+
+				const productoData = {
+					nombre: document.getElementById("nuevo-nombre").value,
+					categoria: document.getElementById("nuevo-categoria").value,
+					precio: Number(document.getElementById("nuevo-precio").value),
+					imagenUrl: urlImagenFinal,
+					descripcion: document.getElementById("nuevo-descripcion").value,
+					disponible: document.getElementById("nuevo-disponible").checked,
+					promocion: document.getElementById("nuevo-promocion").checked
+				};
+
+				if (id) {
+					await updateDoc(doc(db, "productos", id), productoData);
+				} else {
+					await addDoc(collection(db, "productos"), productoData);
+				}
+				limpiarFormulario();
+			} catch (error) {
+				alert("Error al guardar el producto.");
+			} finally {
+				document.getElementById("mensaje-carga").style.display = "none";
+			}
+		});
+
+		window.eliminarProducto = async (id) => {
+			if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+				await deleteDoc(doc(db, "productos", id));
+			}
+		};
+
+		window.limpiarFormulario = () => {
+			document.getElementById("form-crear-producto").reset();
+			document.getElementById("producto-id-edit").value = "";
+			document.getElementById("imagen-actual-url").value = "";
+			document.getElementById("form-titulo").innerText = "+ Agregar Nuevo Producto";
+			document.getElementById("btn-guardar").innerText = "Guardar Producto en Firebase";
+			document.getElementById("btn-cancelar").style.display = "none";
+		};
+	</script>
 </body>
 </html>
