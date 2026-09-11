@@ -7,7 +7,6 @@
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 
 	<style>
-
 		:root {
 			--rosa-dumbbo: #F0AEC9;
 			--rosa-claro: #FCE8F1;
@@ -19,7 +18,6 @@
 			--verde-bg: #E8F5E9;
 			--rojo-bg: #FFEBEE;
 		}
-
 
 		body {
 			background-color: var(--rosa-claro);
@@ -34,13 +32,11 @@
 			padding: 20px;
 		}
 
-
 		#admin-login,
 		#admin-panel {
 			background-color: rgba(255, 255, 255, 0.95);
 			backdrop-filter: blur(8px);
 		}
-
 
 		#admin-login {
 			max-width: 450px;
@@ -51,7 +47,6 @@
 			text-align: center;
 		}
 
-
 		#admin-panel {
 			max-width: 1000px;
 			margin: 40px auto;
@@ -59,7 +54,6 @@
 			border-radius: 20px;
 			box-shadow: 0 8px 25px rgba(122, 41, 77, 0.15);
 		}
-
 
 		.admin-header {
 			display: flex;
@@ -70,17 +64,11 @@
 			padding-bottom: 15px;
 		}
 
-
 		.admin-header h2 {
 			margin: 0;
 			color: var(--rosa-oscuro);
 			font-size: 1.6rem;
 		}
-
-
-		/* =====================================================
-		   FORMULARIO
-		   ===================================================== */
 
 		.form-crear-producto {
 			background-color: #FFF9FB;
@@ -90,7 +78,6 @@
 			margin-bottom: 30px;
 		}
 
-
 		.form-crear-producto h3 {
 			margin-top: 0;
 			margin-bottom: 15px;
@@ -98,14 +85,12 @@
 			font-size: 1.2rem;
 		}
 
-
 		.form-grid {
 			display: grid;
 			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 			gap: 12px;
 			margin-bottom: 15px;
 		}
-
 
 		.form-crear-producto input[type="text"],
 		.form-crear-producto input[type="number"],
@@ -121,59 +106,17 @@
 			background-color: #FFF;
 		}
 
-
-		/* ===== CAMPO NUEVA CATEGORÍA ===== */
-
-		.nueva-categoria-container {
-			display: none;
-			flex-direction: column;
-			gap: 5px;
-		}
-
-
-		.nueva-categoria-container.mostrar {
-			display: flex;
-		}
-
-
-		.nueva-categoria-label {
-			font-size: 0.8rem;
-			font-weight: bold;
-			color: var(--rosa-oscuro);
-		}
-
-
-		#nueva-categoria-input {
-			padding: 10px;
-			border: 1px solid var(--rosa-dumbbo);
-			border-radius: 8px;
-			outline: none;
-			width: 100%;
-			box-sizing: border-box;
-			font-size: 0.9rem;
-			background-color: #FFF;
-		}
-
-
-		#nueva-categoria-input:focus {
-			border-color: var(--rosa-oscuro);
-			box-shadow: 0 0 0 2px rgba(240, 174, 201, 0.25);
-		}
-
-
 		.input-file-container {
 			display: flex;
 			flex-direction: column;
 			gap: 4px;
 		}
 
-
 		.input-file-container label {
 			font-size: 0.85rem;
 			color: var(--rosa-oscuro);
 			font-weight: bold;
 		}
-
 
 		.form-crear-producto input[type="file"] {
 			padding: 6px;
@@ -186,13 +129,11 @@
 			font-size: 0.85rem;
 		}
 
-
 		.form-crear-producto textarea {
 			grid-column: 1 / -1;
 			resize: vertical;
 			height: 60px;
 		}
-
 
 		.form-checkboxes {
 			display: flex;
@@ -204,7 +145,6 @@
 			border-radius: 10px;
 		}
 
-
 		.form-checkboxes label {
 			display: flex;
 			align-items: center;
@@ -215,18 +155,12 @@
 			font-size: 0.9rem;
 		}
 
-
-		/* =====================================================
-		   BOTONES DE FILTRO
-		   ===================================================== */
-
 		.apartados-bar {
 			display: flex;
 			gap: 8px;
 			margin-bottom: 20px;
 			flex-wrap: wrap;
 		}
-
 
 		.btn-apartado {
 			background-color: var(--rosa-claro);
@@ -240,7 +174,6 @@
 			transition: all 0.2s;
 		}
 
-
 		.btn-apartado.active,
 		.btn-apartado:hover {
 			background-color: var(--rosa-oscuro);
@@ -248,17 +181,11 @@
 			border-color: var(--rosa-oscuro);
 		}
 
-
-		/* =====================================================
-		   TABLA
-		   ===================================================== */
-
 		.tabla-container {
 			overflow-x: auto;
 			border-radius: 12px;
 			border: 1px solid #F1D3DF;
 		}
-
 
 		table {
 			width: 100%;
@@ -266,7 +193,6 @@
 			text-align: left;
 			background-color: #FFF;
 		}
-
 
 		th {
 			background-color: #FCE8F1;
@@ -276,14 +202,12 @@
 			font-weight: 700;
 		}
 
-
 		td {
 			padding: 12px 14px;
 			border-bottom: 1px solid #F1D3DF;
 			font-size: 0.9rem;
 			vertical-align: middle;
 		}
-
 
 		.img-tabla {
 			width: 50px;
@@ -293,17 +217,11 @@
 			border: 1px solid #F1D3DF;
 		}
 
-
-		/* =====================================================
-		   BADGES Y CASILLAS
-		   ===================================================== */
-
 		.badge-toggle-group {
 			display: flex;
 			align-items: center;
 			gap: 8px;
 		}
-
 
 		.badge-estado {
 			padding: 5px 12px;
@@ -313,18 +231,15 @@
 			display: inline-block;
 		}
 
-
 		.badge-disponible {
 			background-color: var(--verde-bg);
 			color: var(--verde);
 		}
 
-
 		.badge-oculto {
 			background-color: var(--rojo-bg);
 			color: var(--rojo);
 		}
-
 
 		.chk-rapido {
 			width: 18px;
@@ -332,11 +247,6 @@
 			cursor: pointer;
 			accent-color: var(--rosa-oscuro);
 		}
-
-
-		/* =====================================================
-		   BOTONES TABLA
-		   ===================================================== */
 
 		.tm-btn {
 			border-radius: 8px;
@@ -346,19 +256,16 @@
 			font-weight: bold;
 		}
 
-
 		.tm-btn-default {
 			background-color: var(--rosa-dumbbo);
 			border: 1px solid var(--rosa-dumbbo);
 			color: var(--rosa-oscuro);
 		}
 
-
 		.tm-btn-default:hover {
 			background-color: var(--rosa-oscuro);
 			color: white;
 		}
-
 
 		.btn-editar-tabla {
 			background-color: #FCE8F1;
@@ -371,11 +278,9 @@
 			font-size: 0.85rem;
 		}
 
-
 		.btn-editar-tabla:hover {
 			background-color: var(--rosa-dumbbo);
 		}
-
 
 		.btn-eliminar-tabla {
 			background-color: var(--rojo);
@@ -388,338 +293,121 @@
 			font-size: 0.85rem;
 		}
 
-
 		.btn-eliminar-tabla:hover {
 			opacity: 0.9;
 		}
 
-
 		.hidden {
 			display: none;
 		}
-
-
-		/* =====================================================
-		   RESPONSIVE
-		   ===================================================== */
-
-		@media (max-width: 600px) {
-
-			body {
-				padding: 10px;
-			}
-
-
-			#admin-panel {
-				margin: 15px auto;
-				padding: 15px;
-			}
-
-
-			.admin-header {
-				flex-direction: column;
-				gap: 12px;
-				align-items: stretch;
-			}
-
-
-			.admin-header h2 {
-				text-align: center;
-			}
-
-
-			.form-checkboxes {
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 10px;
-			}
-
-
-			.tm-btn {
-				width: 100%;
-			}
-
-
-			.admin-header .tm-btn {
-				width: 100%;
-			}
-
-		}
-
 	</style>
 </head>
 
-
 <body>
 
-
-	<!-- =====================================================
-	     LOGIN
-	     ===================================================== -->
-
 	<div id="admin-login">
+		<h2 style="color: var(--rosa-oscuro);">Panel Administrador - Dumbbo</h2>
 
-		<h2 style="color: var(--rosa-oscuro);">
-			Panel Administrador - Dumbbo
-		</h2>
-
-
-		<input
-			type="email"
-			id="admin-email"
+		<input type="email" id="admin-email"
 			placeholder="Correo electrónico"
-			style="width:100%; padding:10px; margin-bottom:12px; border:1px solid #DFA5BB; border-radius:8px;"
-		/>
+			style="width:100%; padding:10px; margin-bottom:12px; border:1px solid #DFA5BB; border-radius:8px;" />
 
-
-		<input
-			type="password"
-			id="admin-password"
+		<input type="password" id="admin-password"
 			placeholder="Contraseña"
-			style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #DFA5BB; border-radius:8px;"
-		/>
+			style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #DFA5BB; border-radius:8px;" />
 
-
-		<button
-			id="btn-login"
-			class="tm-btn tm-btn-default"
-			style="width:100%;"
-		>
+		<button id="btn-login" class="tm-btn tm-btn-default" style="width:100%;">
 			Iniciar sesión
 		</button>
 
-
-		<p
-			id="login-error"
-			style="color:var(--rojo); margin-top:10px;"
-		></p>
-
+		<p id="login-error" style="color:var(--rojo); margin-top:10px;"></p>
 	</div>
-
-
-
-	<!-- =====================================================
-	     PANEL ADMINISTRADOR
-	     ===================================================== -->
 
 	<div id="admin-panel" class="hidden">
 
-
 		<div class="admin-header">
-
-			<h2>
-				Gestión de Productos
-			</h2>
-
-
-			<button
-				id="btn-logout"
-				class="tm-btn tm-btn-default"
-			>
+			<h2>Gestión de Productos</h2>
+			<button id="btn-logout" class="tm-btn tm-btn-default">
 				Cerrar sesión
 			</button>
-
 		</div>
 
+		<form id="form-crear-producto" class="form-crear-producto">
 
+			<h3 id="form-titulo">+ Agregar Nuevo Producto</h3>
 
-		<!-- =================================================
-		     FORMULARIO PRODUCTO
-		     ================================================= -->
-
-		<form
-			id="form-crear-producto"
-			class="form-crear-producto"
-		>
-
-			<h3 id="form-titulo">
-				+ Agregar Nuevo Producto
-			</h3>
-
-
-			<input
-				type="hidden"
-				id="producto-id-edit"
-			/>
-
-
-			<input
-				type="hidden"
-				id="imagen-actual-url"
-			/>
-
-
+			<input type="hidden" id="producto-id-edit" />
+			<input type="hidden" id="imagen-actual-url" />
 
 			<div class="form-grid">
 
-
-				<!-- NOMBRE -->
-
-				<input
-					type="text"
+				<input type="text"
 					id="nuevo-nombre"
 					placeholder="Nombre (ej. Brownie de chocolate)"
-					required
-				/>
+					required />
 
+				<div>
+					<select id="nuevo-categoria" required>
+						<option value="">-- Seleccionar Categoría --</option>
+					</select>
 
-
-				<!-- CATEGORÍA -->
-
-				<select
-					id="nuevo-categoria"
-					required
-				>
-
-					<option value="">
-						-- Seleccionar Categoría --
-					</option>
-
-
-					<!--
-						Las categorías se cargarán
-						automáticamente desde Firebase.
-					-->
-
-					<option value="__nueva_categoria__">
-						➕ Nueva categoría
-					</option>
-
-				</select>
-
-
-
-				<!-- CAMPO NUEVA CATEGORÍA -->
-
-				<div
-					class="nueva-categoria-container"
-					id="nueva-categoria-container"
-				>
-
-					<label
-						class="nueva-categoria-label"
-						for="nueva-categoria-input"
-					>
-						Nombre de la nueva categoría
-					</label>
-
-
-					<input
-						type="text"
-						id="nueva-categoria-input"
-						placeholder="Ej. Postres"
-						maxlength="50"
-					/>
-
+					<div id="nueva-categoria-container" style="display:none; margin-top:8px;">
+						<input
+							type="text"
+							id="nueva-categoria-input"
+							placeholder="Nombre de la nueva categoría"
+						/>
+					</div>
 				</div>
 
-
-
-				<!-- PRECIO -->
-
-				<input
-					type="number"
+				<input type="number"
 					id="nuevo-precio"
 					placeholder="Precio ($)"
-					required
-				/>
-
-
-
-				<!-- IMAGEN -->
+					required />
 
 				<div class="input-file-container">
-
-					<label for="nuevo-imagen">
-						Foto del producto:
-					</label>
-
-
-					<input
-						type="file"
+					<label for="nuevo-imagen">Foto del producto:</label>
+					<input type="file"
 						id="nuevo-imagen"
-						accept="image/*"
-					/>
-
+						accept="image/*" />
 				</div>
-
-
-
-				<!-- DESCRIPCIÓN -->
 
 				<textarea
 					id="nuevo-descripcion"
-					placeholder="Descripción del producto..."
-				></textarea>
-
+					placeholder="Descripción del producto..."></textarea>
 
 			</div>
-
-
-
-			<!-- CHECKBOXES -->
 
 			<div class="form-checkboxes">
-
 				<label>
-
-					<input
-						type="checkbox"
-						id="nuevo-disponible"
-						checked
-					/>
-
-					Disponible
-					(Visible en la carta)
-
+					<input type="checkbox" id="nuevo-disponible" checked />
+					Disponible (Visible en la carta)
 				</label>
 
-
 				<label>
-
-					<input
-						type="checkbox"
-						id="nuevo-promocion"
-					/>
-
+					<input type="checkbox" id="nuevo-promocion" />
 					Activar en Oferta 🔥
-
 				</label>
-
 			</div>
 
+			<div style="display:flex; gap:10px; align-items:center;">
 
-
-			<!-- BOTONES -->
-
-			<div
-				style="display: flex; gap: 10px; align-items: center;"
-			>
-
-				<button
-					type="submit"
+				<button type="submit"
 					id="btn-guardar"
-					class="tm-btn tm-btn-default"
-				>
+					class="tm-btn tm-btn-default">
 					Guardar Producto en Firebase
 				</button>
 
-
-				<button
-					type="button"
+				<button type="button"
 					id="btn-cancelar"
 					class="tm-btn"
 					style="background:#ccc; display:none;"
-					onclick="limpiarFormulario()"
-				>
+					onclick="limpiarFormulario()">
 					Cancelar
 				</button>
 
-
-				<span
-					id="mensaje-carga"
-					style="display:none; color:var(--rosa-oscuro); font-weight:bold;"
-				>
+				<span id="mensaje-carga"
+					style="display:none; color:var(--rosa-oscuro); font-weight:bold;">
 					Guardando...
 				</span>
 
@@ -727,69 +415,40 @@
 
 		</form>
 
-
-
-		<!-- =================================================
-		     LISTA DE PRODUCTOS
-		     ================================================= -->
-
-		<h3
-			style="color: var(--rosa-oscuro); margin-bottom: 10px;"
-		>
+		<h3 style="color:var(--rosa-oscuro); margin-bottom:10px;">
 			Lista de Productos
 		</h3>
 
-
-
 		<div class="apartados-bar">
 
-			<button
-				class="btn-apartado active"
-				onclick="filtrarTabla('todos', this)"
-			>
+			<button class="btn-apartado active"
+				onclick="filtrarTabla('todos', this)">
 				Todos
 			</button>
 
-
-			<button
-				class="btn-apartado"
-				onclick="filtrarTabla('disponible', this)"
-			>
+			<button class="btn-apartado"
+				onclick="filtrarTabla('disponible', this)">
 				Disponibles
 			</button>
 
-
-			<button
-				class="btn-apartado"
-				onclick="filtrarTabla('oculto', this)"
-			>
+			<button class="btn-apartado"
+				onclick="filtrarTabla('oculto', this)">
 				Ocultos
 			</button>
 
-
-			<button
-				class="btn-apartado"
-				onclick="filtrarTabla('oferta', this)"
-			>
+			<button class="btn-apartado"
+				onclick="filtrarTabla('oferta', this)">
 				🔥 En Oferta
 			</button>
 
 		</div>
-
-
-
-		<!-- =================================================
-		     TABLA
-		     ================================================= -->
 
 		<div class="tabla-container">
 
 			<table>
 
 				<thead>
-
 					<tr>
-
 						<th>Imagen</th>
 						<th>Nombre</th>
 						<th>Categoría</th>
@@ -797,34 +456,18 @@
 						<th>Estado</th>
 						<th>Promoción</th>
 						<th>Acciones</th>
-
 					</tr>
-
 				</thead>
 
-
-				<tbody id="tabla-productos-body">
-
-				</tbody>
+				<tbody id="tabla-productos-body"></tbody>
 
 			</table>
 
 		</div>
 
-
 	</div>
 
-
-
-	<!-- =====================================================
-	     JAVASCRIPT
-	     ===================================================== -->
-
-	<script
-		type="module"
-		src="admin.js"
-	></script>
-
+	<script type="module" src="admin.js"></script>
 
 </body>
 </html>
