@@ -163,6 +163,23 @@
 			flex-wrap: wrap;
 		}
 
+		.input-busqueda {
+			width: 100%;
+			padding: 12px 16px;
+			border: 1px solid #DFA5BB;
+			border-radius: 25px;
+			font-size: 0.95rem;
+			box-sizing: border-box;
+			margin-bottom: 15px;
+			background-color: #FFF;
+			outline: none;
+		}
+
+		.input-busqueda:focus {
+			border-color: var(--rosa-oscuro);
+			box-shadow: 0 0 0 3px rgba(122, 41, 77, 0.1);
+		}
+
 		.btn-apartado {
 			background-color: var(--rosa-claro);
 			color: var(--rosa-oscuro);
@@ -371,6 +388,9 @@
 		</form>
 
 		<h3 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Lista de Productos</h3>
+
+		<input type="text" id="input-busqueda" class="input-busqueda" placeholder="🔍 Buscar producto por nombre..." />
+
 		<div class="apartados-bar">
 			<button class="btn-apartado active" onclick="filtrarTabla('todos', this)">Todos</button>
 			<button class="btn-apartado" onclick="filtrarTabla('disponible', this)">Disponibles</button>
@@ -419,6 +439,7 @@
 
 		let listaProductosCache = [];
 		let filtroActual = 'todos';
+		let terminoBusqueda = '';
 		let imagenesExtraActuales = []; // fotos de variedades ya guardadas del producto en edición
 
 		// ===== SUBIDA DE IMAGEN A IMGBB (reemplaza Firebase Storage) =====
@@ -474,10 +495,17 @@
 			tbody.innerHTML = "";
 
 			const filtrados = listaProductosCache.filter(p => {
-				if (filtroActual === 'disponible') return p.disponible;
-				if (filtroActual === 'oculto') return !p.disponible;
-				if (filtroActual === 'oferta') return p.promocion;
-				return true;
+				const coincideEstado =
+					filtroActual === 'disponible' ? p.disponible :
+					filtroActual === 'oculto' ? !p.disponible :
+					filtroActual === 'oferta' ? p.promocion :
+					true;
+
+				const coincideBusqueda =
+					terminoBusqueda === '' ||
+					(p.nombre || '').toLowerCase().includes(terminoBusqueda);
+
+				return coincideEstado && coincideBusqueda;
 			});
 
 			filtrados.forEach(p => {
@@ -532,6 +560,12 @@
 			btn.classList.add("active");
 			renderizarTabla();
 		};
+
+		// BÚSQUEDA POR NOMBRE
+		document.getElementById("input-busqueda").addEventListener("input", (e) => {
+			terminoBusqueda = e.target.value.trim().toLowerCase();
+			renderizarTabla();
+		});
 
 		// CARGAR EDICIÓN COMPLETA AL FORMULARIO
 		window.cargarEdicion = (id) => {
