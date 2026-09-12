@@ -440,12 +440,13 @@
     }
 
     .producto-popup-imagen-container {
+        position: relative;
         width: 100%;
         height: 300px;
         border-radius: 17px;
         overflow: hidden;
         background-color: var(--rosa-claro);
-        margin-bottom: 18px;
+        margin-bottom: 12px;
     }
 
     .producto-popup-imagen {
@@ -453,6 +454,61 @@
         height: 100%;
         object-fit: contain;
         display: block;
+    }
+
+    /* ===== FLECHAS DEL CARRUSEL DEL POPUP ===== */
+    .popup-carrusel-flecha {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.88);
+        border: none;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: var(--rosa-oscuro);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+        z-index: 2;
+    }
+
+    .popup-carrusel-flecha:active {
+        transform: translateY(-50%) scale(0.92);
+    }
+
+    .popup-carrusel-flecha.izq {
+        left: 10px;
+    }
+
+    .popup-carrusel-flecha.der {
+        right: 10px;
+    }
+
+    /* ===== PUNTOS INDICADORES DEL CARRUSEL DEL POPUP ===== */
+    .popup-carrusel-puntos {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 16px;
+    }
+
+    .popup-carrusel-punto {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #E3C4D3;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .popup-carrusel-punto.activo {
+        background-color: var(--rosa-oscuro);
+        transform: scale(1.25);
     }
 
     .producto-popup-badge {
@@ -1372,6 +1428,13 @@
 			);
 
 
+		/* ===== ESTADO DEL CARRUSEL DEL POPUP ===== */
+
+		let imagenesPopupActuales = [];
+
+		let indicePopupActual = 0;
+
+
 
 		/* ===== ESCAPA TEXTO PARA EVITAR HTML NO DESEADO ===== */
 
@@ -1406,11 +1469,6 @@
 				);
 
 
-			const imagen =
-				producto.imagenUrl ||
-				"img/logo.png";
-
-
 			const precio =
 				Number(
 					producto.precio || 0
@@ -1419,17 +1477,83 @@
 				);
 
 
+			/* Si el producto tiene fotos de variedades (imagenesExtra), el carrusel
+			   muestra SOLO esas — la foto principal (imagenUrl) es exclusiva del menú.
+			   Si no tiene variedades, se usa la principal como respaldo. */
+
+			imagenesPopupActuales =
+				Array.isArray(producto.imagenesExtra) && producto.imagenesExtra.length > 0
+				? producto.imagenesExtra
+				: [producto.imagenUrl].filter(Boolean);
+
+
+			if (imagenesPopupActuales.length === 0) {
+
+				imagenesPopupActuales = ["img/logo.png"];
+
+			}
+
+
+			indicePopupActual = 0;
+
+
+			const hayVariasFotos =
+				imagenesPopupActuales.length > 1;
+
+
 			popupProductoContenido.innerHTML = `
 
 				<div class="producto-popup-imagen-container">
 
 					<img
-						src="${imagen}"
+						src="${imagenesPopupActuales[0]}"
 						alt="${nombre}"
 						class="producto-popup-imagen"
+						id="popup-imagen-actual"
 					>
 
+					${
+						hayVariasFotos
+						? `
+							<button
+								class="popup-carrusel-flecha izq"
+								id="popup-flecha-izq"
+								aria-label="Foto anterior"
+							>‹</button>
+
+							<button
+								class="popup-carrusel-flecha der"
+								id="popup-flecha-der"
+								aria-label="Foto siguiente"
+							>›</button>
+						`
+						: ''
+					}
+
 				</div>
+
+
+				${
+					hayVariasFotos
+					? `
+						<div
+							class="popup-carrusel-puntos"
+							id="popup-carrusel-puntos"
+						>
+							${
+								imagenesPopupActuales
+									.map((_, i) => `
+										<span
+											class="popup-carrusel-punto ${i === 0 ? 'activo' : ''}"
+											data-indice="${i}"
+										></span>
+									`)
+									.join('')
+							}
+						</div>
+					`
+					: ''
+				}
 
 
 				${
@@ -1465,6 +1589,34 @@
 			`;
 
 
+			if (hayVariasFotos) {
+
+				document
+					.getElementById("popup-flecha-izq")
+					.addEventListener("click", () => cambiarImagenPopup(-1));
+
+				document
+					.getElementById("popup-flecha-der")
+					.addEventListener("click", () => cambiarImagenPopup(1));
+
+				document
+					.querySelectorAll(".popup-carrusel-punto")
+					.forEach(punto => {
+
+						punto.addEventListener("click", () => {
+
+							indicePopupActual =
+								Number(punto.dataset.indice);
+
+							actualizarImagenPopup();
+
+						});
+
+					});
+
+			}
+
+
 			productoPopupOverlay.classList.add(
 				"mostrar"
 			);
@@ -1472,6 +1624,46 @@
 
 			document.body.style.overflow =
 				"hidden";
+
+		}
+
+
+
+		/* ===== CAMBIAR DE FOTO EN EL CARRUSEL ===== */
+
+		function cambiarImagenPopup(direccion) {
+
+			indicePopupActual =
+				(
+					indicePopupActual +
+					direccion +
+					imagenesPopupActuales.length
+				) % imagenesPopupActuales.length;
+
+
+			actualizarImagenPopup();
+
+		}
+
+
+		function actualizarImagenPopup() {
+
+			document.getElementById(
+				"popup-imagen-actual"
+			).src =
+				imagenesPopupActuales[indicePopupActual];
+
+
+			document
+				.querySelectorAll(".popup-carrusel-punto")
+				.forEach((punto, i) => {
+
+					punto.classList.toggle(
+						"activo",
+						i === indicePopupActual
+					);
+
+				});
 
 		}
 
