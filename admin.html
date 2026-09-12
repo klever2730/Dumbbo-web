@@ -581,6 +581,10 @@
 			document.getElementById("nuevo-promocion").checked = p.promocion;
 			document.getElementById("imagen-actual-url").value = p.imagenUrl || '';
 
+			// Limpia cualquier archivo que hubiera quedado seleccionado de otro producto
+			document.getElementById("nuevo-imagen").value = '';
+			document.getElementById("nuevo-imagenes-extra").value = '';
+
 			imagenesExtraActuales = Array.isArray(p.imagenesExtra) ? [...p.imagenesExtra] : [];
 			renderizarPreviewImagenesExtra();
 
