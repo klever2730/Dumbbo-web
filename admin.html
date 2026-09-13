@@ -421,7 +421,7 @@
 		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 		import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 		import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-		import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+		import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 		const firebaseConfig = {
 			apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
@@ -467,21 +467,15 @@
 			});
 		}
 
-		// ===== SUBIDA DE IMAGEN A IMGBB (reemplaza Firebase Storage) =====
-		async function subirImagenImgBB(file) {
+		// ===== SUBIDA DE IMAGEN A FIREBASE STORAGE =====
+		async function subirImagenStorage(file) {
 			const archivoComprimido = await comprimirImagen(file);
 
-			const apiKey = "c1691ba9c22d39708a67980bb99f7a62";
-			const formData = new FormData();
-			formData.append("image", archivoComprimido);
+			const nombreArchivo = `productos/${Date.now()}_${archivoComprimido.name}`;
+			const storageRef = ref(storage, nombreArchivo);
 
-			const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-				method: "POST",
-				body: formData
-			});
-			const data = await response.json();
-			if (!data.success) throw new Error("Error subiendo imagen a ImgBB");
-			return data.data.url;
+			const snapshot = await uploadBytes(storageRef, archivoComprimido);
+			return await getDownloadURL(snapshot.ref);
 		}
 
 		// AUTENTICACIÓN
@@ -650,13 +644,13 @@
 
 			try {
 				if (archivoInput.files.length > 0) {
-					urlImagenFinal = await subirImagenImgBB(archivoInput.files[0]);
+					urlImagenFinal = await subirImagenStorage(archivoInput.files[0]);
 				}
 
 				const archivosExtra = document.getElementById("nuevo-imagenes-extra").files;
 				if (archivosExtra.length > 0) {
 					const urlsNuevas = await Promise.all(
-						Array.from(archivosExtra).map(archivo => subirImagenImgBB(archivo))
+						Array.from(archivosExtra).map(archivo => subirImagenStorage(archivo))
 					);
 					imagenesExtraActuales.push(...urlsNuevas);
 				}
@@ -686,8 +680,29 @@
 		});
 
 		window.eliminarProducto = async (id) => {
+			const p = listaProductosCache.find(item => item.id === id);
+
 			if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-				await deleteDoc(doc(db, "productos", id));
+				try {
+					await deleteDoc(doc(db, "productos", id));
+
+					// Borra también sus fotos del Storage (principal + variedades)
+					const urlsABorrar = [
+						p?.imagenUrl,
+						...(Array.isArray(p?.imagenesExtra) ? p.imagenesExtra : [])
+					].filter(Boolean);
+
+					for (const url of urlsABorrar) {
+						try {
+							await deleteObject(ref(storage, url));
+						} catch (e) {
+							// Si la foto ya no existe o falla el borrado, no bloquea el resto
+							console.warn("No se pudo borrar una foto del Storage:", e);
+						}
+					}
+				} catch (error) {
+					alert("Error al eliminar: " + error.message);
+				}
 			}
 		};
 
