@@ -411,6 +411,11 @@
 			</div>
 		</div>
 
+		<button type="button" id="btn-limpiar-huerfanas" class="tm-btn tm-btn-default" style="margin-bottom:12px;">
+			🧹 Limpiar fotos no usadas en Storage
+		</button>
+		<div id="limpieza-estado" style="font-size:0.85rem; color:var(--rosa-oscuro); margin-bottom:12px;"></div>
+
 		<input type="text" id="input-busqueda" class="input-busqueda" placeholder="🔍 Buscar producto por nombre..." />
 
 		<div class="apartados-bar">
@@ -443,7 +448,7 @@
 		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 		import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 		import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-		import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+		import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 		const firebaseConfig = {
 			apiKey: "AIzaSyDEhG5JEj8s2GMQgdceHY3LeUa_32jx_MI",
@@ -715,6 +720,58 @@
 		document.getElementById("input-busqueda").addEventListener("input", (e) => {
 			terminoBusqueda = e.target.value.trim().toLowerCase();
 			renderizarTabla();
+		});
+
+		// ===== LIMPIAR FOTOS QUE YA NO USA NINGÚN PRODUCTO =====
+		document.getElementById("btn-limpiar-huerfanas").addEventListener("click", async () => {
+			const confirmar = confirm(
+				"Esto va a revisar todas las fotos guardadas en Storage y borrar las que ningún " +
+				"producto (ni promoción) esté usando actualmente. ¿Continuar?"
+			);
+			if (!confirmar) return;
+
+			const estado = document.getElementById("limpieza-estado");
+			const boton = document.getElementById("btn-limpiar-huerfanas");
+			boton.disabled = true;
+			estado.innerText = "Revisando fotos en Storage...";
+
+			try {
+				// Todas las URLs que algún producto/promo está usando ahora mismo
+				const urlsEnUso = new Set();
+				listaProductosCache.forEach(p => {
+					if (p.imagenUrl) urlsEnUso.add(p.imagenUrl);
+					if (Array.isArray(p.imagenesExtra)) {
+						p.imagenesExtra.forEach(u => urlsEnUso.add(u));
+					}
+				});
+
+				const listado = await listAll(ref(storage, "productos"));
+
+				let revisadas = 0;
+				let borradas = 0;
+
+				for (const itemRef of listado.items) {
+					revisadas++;
+					estado.innerText = `Revisando ${revisadas}/${listado.items.length}...`;
+
+					try {
+						const url = await getDownloadURL(itemRef);
+						if (!urlsEnUso.has(url)) {
+							await deleteObject(itemRef);
+							borradas++;
+						}
+					} catch (e) {
+						console.warn("No se pudo revisar/borrar:", itemRef.fullPath, e);
+					}
+				}
+
+				estado.innerText = `✅ Listo: ${revisadas} fotos revisadas, ${borradas} borradas por no estar en uso.`;
+			} catch (error) {
+				estado.innerText = "";
+				alert("Error al limpiar Storage: " + error.message);
+			} finally {
+				boton.disabled = false;
+			}
 		});
 
 		// CARGAR EDICIÓN COMPLETA AL FORMULARIO
