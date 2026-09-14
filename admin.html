@@ -395,6 +395,8 @@
 				Elige 2 o más productos existentes y arma una promo con precio especial. Las fotos se toman automáticamente de los productos que elijas.
 			</p>
 
+			<input type="text" id="combo-busqueda" class="input-busqueda" placeholder="🔍 Buscar producto para agregar al combo..." style="margin-bottom:10px;" />
+
 			<div id="lista-seleccion-combo" style="max-height:220px; overflow-y:auto; border:1px solid #F1D3DF; border-radius:10px; padding:10px; margin-bottom:14px; background:#FFF;"></div>
 
 			<div class="form-grid">
@@ -408,11 +410,6 @@
 				<span id="combo-mensaje" style="display:none; color:var(--rosa-oscuro); font-weight:bold;">Creando...</span>
 			</div>
 		</div>
-
-		<button type="button" id="btn-migrar-fotos" class="tm-btn tm-btn-default" style="margin-bottom:12px;">
-			🔄 Normalizar fotos antiguas a formato cuadrado
-		</button>
-		<div id="migracion-estado" style="font-size:0.85rem; color:var(--rosa-oscuro); margin-bottom:12px;"></div>
 
 		<input type="text" id="input-busqueda" class="input-busqueda" placeholder="🔍 Buscar producto por nombre..." />
 
@@ -465,6 +462,8 @@
 		let listaProductosCache = [];
 		let filtroActual = 'todos';
 		let terminoBusqueda = '';
+		let terminoBusquedaCombo = '';
+		let idsSeleccionadosCombo = new Set();
 		let imagenesExtraActuales = []; // fotos de variedades ya guardadas del producto en edición
 
 		// ===== COMPRIME Y CUADRA LA IMAGEN ANTES DE SUBIRLA =====
@@ -556,14 +555,33 @@
 			const contenedor = document.getElementById("lista-seleccion-combo");
 			if (!contenedor) return;
 
-			contenedor.innerHTML = listaProductosCache.map(p => `
+			const filtrados = listaProductosCache.filter(p =>
+				terminoBusquedaCombo === '' || (p.nombre || '').toLowerCase().includes(terminoBusquedaCombo)
+			);
+
+			contenedor.innerHTML = filtrados.map(p => `
 				<label style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; border-bottom:1px solid #FCE8F1;">
-					<input type="checkbox" class="chk-combo-producto" value="${p.id}" />
+					<input type="checkbox" class="chk-combo-producto" value="${p.id}" ${idsSeleccionadosCombo.has(p.id) ? 'checked' : ''} />
 					<img src="${p.imagenUrl || 'img/logo.png'}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid #F1D3DF;" />
 					<span style="font-size:0.9rem;">${p.nombre} — $${Number(p.precio || 0).toLocaleString('es-CL')}</span>
 				</label>
-			`).join('');
+			`).join('') || `<p style="text-align:center; color:#999; font-size:0.85rem; margin:8px 0;">Sin resultados.</p>`;
+
+			document.querySelectorAll(".chk-combo-producto").forEach(chk => {
+				chk.addEventListener("change", (e) => {
+					if (e.target.checked) {
+						idsSeleccionadosCombo.add(e.target.value);
+					} else {
+						idsSeleccionadosCombo.delete(e.target.value);
+					}
+				});
+			});
 		}
+
+		document.getElementById("combo-busqueda").addEventListener("input", (e) => {
+			terminoBusquedaCombo = e.target.value.trim().toLowerCase();
+			renderizarSeleccionCombo();
+		});
 
 		// RENDERIZAR TABLA CON FILTROS Y CONTROLES RÁPIDOS
 		function renderizarTabla() {
@@ -639,8 +657,8 @@
 
 		// ===== CREAR PROMOCIÓN COMBINADA (2+ productos existentes) =====
 		document.getElementById("btn-crear-combo").addEventListener("click", async () => {
-			const seleccionados = Array.from(document.querySelectorAll(".chk-combo-producto:checked"))
-				.map(chk => listaProductosCache.find(p => p.id === chk.value))
+			const seleccionados = Array.from(idsSeleccionadosCombo)
+				.map(id => listaProductosCache.find(p => p.id === id))
 				.filter(Boolean);
 
 			if (seleccionados.length < 2) {
@@ -681,7 +699,8 @@
 				document.getElementById("combo-nombre").value = "";
 				document.getElementById("combo-precio").value = "";
 				document.getElementById("combo-descripcion").value = "";
-				document.querySelectorAll(".chk-combo-producto:checked").forEach(chk => chk.checked = false);
+				idsSeleccionadosCombo.clear();
+				renderizarSeleccionCombo();
 
 				alert("¡Promoción creada!");
 			} catch (error) {
@@ -695,61 +714,6 @@
 		document.getElementById("input-busqueda").addEventListener("input", (e) => {
 			terminoBusqueda = e.target.value.trim().toLowerCase();
 			renderizarTabla();
-		});
-
-		// ===== MIGRACIÓN: NORMALIZAR FOTOS ANTIGUAS AL FORMATO CUADRADO =====
-		async function reprocesarFotoDesdeUrl(url) {
-			const respuesta = await fetch(url);
-			const blob = await respuesta.blob();
-			const archivo = new File([blob], "foto.jpg", { type: blob.type || "image/jpeg" });
-			return await subirImagenStorage(archivo);
-		}
-
-		document.getElementById("btn-migrar-fotos").addEventListener("click", async () => {
-			const confirmar = confirm(
-				"Esto va a reprocesar TODAS las fotos existentes a formato cuadrado. " +
-				"Puede tardar varios minutos dependiendo de cuántos productos tengas. ¿Continuar?"
-			);
-			if (!confirmar) return;
-
-			const estado = document.getElementById("migracion-estado");
-			const boton = document.getElementById("btn-migrar-fotos");
-			boton.disabled = true;
-
-			let procesados = 0;
-			let errores = 0;
-			const total = listaProductosCache.length;
-
-			for (const p of listaProductosCache) {
-				procesados++;
-				estado.innerText = `Procesando ${procesados}/${total}: ${p.nombre}...`;
-
-				try {
-					const actualizacion = {};
-
-					if (p.imagenUrl) {
-						actualizacion.imagenUrl = await reprocesarFotoDesdeUrl(p.imagenUrl);
-					}
-
-					if (Array.isArray(p.imagenesExtra) && p.imagenesExtra.length > 0) {
-						actualizacion.imagenesExtra = await Promise.all(
-							p.imagenesExtra.map(url => reprocesarFotoDesdeUrl(url))
-						);
-					}
-
-					if (Object.keys(actualizacion).length > 0) {
-						await updateDoc(doc(db, "productos", p.id), actualizacion);
-					}
-				} catch (error) {
-					errores++;
-					console.warn(`No se pudo migrar la foto de "${p.nombre}":`, error);
-				}
-			}
-
-			boton.disabled = false;
-			estado.innerText = errores === 0
-				? `✅ Listo: ${total} productos procesados.`
-				: `⚠️ Terminado con ${errores} error(es) de ${total} productos. Revisa la consola (F12) para detalles.`;
 		});
 
 		// CARGAR EDICIÓN COMPLETA AL FORMULARIO
