@@ -389,6 +389,26 @@
 
 		<h3 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Lista de Productos</h3>
 
+		<div class="form-crear-producto" style="margin-bottom: 20px;">
+			<h3>🎉 Crear Promoción Combinada</h3>
+			<p style="font-size:0.85rem; color:#777; margin-top:-8px; margin-bottom: 14px;">
+				Elige 2 o más productos existentes y arma una promo con precio especial. Las fotos se toman automáticamente de los productos que elijas.
+			</p>
+
+			<div id="lista-seleccion-combo" style="max-height:220px; overflow-y:auto; border:1px solid #F1D3DF; border-radius:10px; padding:10px; margin-bottom:14px; background:#FFF;"></div>
+
+			<div class="form-grid">
+				<input type="text" id="combo-nombre" placeholder="Nombre de la promoción (ej. Aliado + Bebida)" />
+				<input type="number" id="combo-precio" placeholder="Precio del combo ($)" />
+				<textarea id="combo-descripcion" placeholder="Descripción (opcional, se genera automática si la dejas vacía)"></textarea>
+			</div>
+
+			<div style="display:flex; gap:10px; align-items:center;">
+				<button type="button" id="btn-crear-combo" class="tm-btn tm-btn-default">Crear Promoción</button>
+				<span id="combo-mensaje" style="display:none; color:var(--rosa-oscuro); font-weight:bold;">Creando...</span>
+			</div>
+		</div>
+
 		<button type="button" id="btn-migrar-fotos" class="tm-btn tm-btn-default" style="margin-bottom:12px;">
 			🔄 Normalizar fotos antiguas a formato cuadrado
 		</button>
@@ -528,7 +548,22 @@
 				listaProductosCache.push({ id: docSnap.id, ...docSnap.data() });
 			});
 			renderizarTabla();
+			renderizarSeleccionCombo();
 		});
+
+		// RENDERIZAR LISTA DE PRODUCTOS PARA ARMAR PROMOCIONES COMBINADAS
+		function renderizarSeleccionCombo() {
+			const contenedor = document.getElementById("lista-seleccion-combo");
+			if (!contenedor) return;
+
+			contenedor.innerHTML = listaProductosCache.map(p => `
+				<label style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; border-bottom:1px solid #FCE8F1;">
+					<input type="checkbox" class="chk-combo-producto" value="${p.id}" />
+					<img src="${p.imagenUrl || 'img/logo.png'}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid #F1D3DF;" />
+					<span style="font-size:0.9rem;">${p.nombre} — $${Number(p.precio || 0).toLocaleString('es-CL')}</span>
+				</label>
+			`).join('');
+		}
 
 		// RENDERIZAR TABLA CON FILTROS Y CONTROLES RÁPIDOS
 		function renderizarTabla() {
@@ -601,6 +636,60 @@
 			btn.classList.add("active");
 			renderizarTabla();
 		};
+
+		// ===== CREAR PROMOCIÓN COMBINADA (2+ productos existentes) =====
+		document.getElementById("btn-crear-combo").addEventListener("click", async () => {
+			const seleccionados = Array.from(document.querySelectorAll(".chk-combo-producto:checked"))
+				.map(chk => listaProductosCache.find(p => p.id === chk.value))
+				.filter(Boolean);
+
+			if (seleccionados.length < 2) {
+				alert("Selecciona al menos 2 productos para armar la promoción.");
+				return;
+			}
+
+			const nombre = document.getElementById("combo-nombre").value.trim();
+			const precio = Number(document.getElementById("combo-precio").value);
+
+			if (!nombre || !precio) {
+				alert("Completa el nombre y el precio del combo.");
+				return;
+			}
+
+			const mensaje = document.getElementById("combo-mensaje");
+			mensaje.style.display = "inline";
+
+			try {
+				// La primera foto seleccionada es la principal (la que se ve en la tarjeta del menú)
+				const imagenesCombo = seleccionados.map(p => p.imagenUrl).filter(Boolean);
+
+				const descripcionAuto = `Incluye: ${seleccionados.map(p => p.nombre).join(' + ')}`;
+
+				const nuevaPromocion = {
+					nombre: nombre,
+					categoria: "Promociones",
+					precio: precio,
+					imagenUrl: imagenesCombo[0] || 'img/logo.png',
+					imagenesExtra: imagenesCombo,
+					descripcion: document.getElementById("combo-descripcion").value.trim() || descripcionAuto,
+					disponible: true,
+					promocion: true
+				};
+
+				await addDoc(collection(db, "productos"), nuevaPromocion);
+
+				document.getElementById("combo-nombre").value = "";
+				document.getElementById("combo-precio").value = "";
+				document.getElementById("combo-descripcion").value = "";
+				document.querySelectorAll(".chk-combo-producto:checked").forEach(chk => chk.checked = false);
+
+				alert("¡Promoción creada!");
+			} catch (error) {
+				alert("Error al crear la promoción: " + error.message);
+			} finally {
+				mensaje.style.display = "none";
+			}
+		});
 
 		// BÚSQUEDA POR NOMBRE
 		document.getElementById("input-busqueda").addEventListener("input", (e) => {
