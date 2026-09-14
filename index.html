@@ -1137,7 +1137,7 @@
 									🔥 Promos y novedades
 								</h2>
 
-								<span class="ver-mas-link">
+								<span class="ver-mas-link" data-cat="__promociones__">
 									Ver más ›
 								</span>
 
@@ -1203,7 +1203,7 @@
 									${cat}
 								</h2>
 
-								<span class="ver-mas-link">
+								<span class="ver-mas-link" data-cat="${cat}">
 									Ver más ›
 								</span>
 
@@ -1700,6 +1700,58 @@
 				"";
 
 		}
+
+
+
+		/* ===== TOCAR "VER MÁS" DE UNA CATEGORÍA ===== */
+
+		document
+			.getElementById("menu-contenedor")
+			.addEventListener(
+				"click",
+				(evento) => {
+
+					const linkVerMas =
+						evento.target.closest(
+							".ver-mas-link"
+						);
+
+
+					if (!linkVerMas) return;
+
+
+					const cat = linkVerMas.dataset.cat;
+
+
+					const filtrados =
+						cat === "__promociones__"
+						? todosLosProductos.filter(p => p.promocion)
+						: todosLosProductos.filter(p => p.categoria === cat);
+
+
+					renderizarMenuCliente(
+						filtrados,
+						cat
+					);
+
+
+					// Sincroniza el botón de categoría activo en la barra de filtros
+					document
+						.querySelectorAll(".filtro-cliente-btn")
+						.forEach(b => b.classList.remove("active"));
+
+					const btnCategoria =
+						document.querySelector(
+							`.filtro-cliente-btn[data-cat="${cat}"]`
+						);
+
+					if (btnCategoria) btnCategoria.classList.add("active");
+
+
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+
+				}
+			);
 
 
 
