@@ -245,6 +245,38 @@
     }
 
 
+    /* ===== PANTALLA DE CARGA INICIAL DEL MENÚ ===== */
+    .menu-loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 70px 20px;
+        color: var(--rosa-oscuro);
+        gap: 16px;
+    }
+
+    .menu-loader-spinner {
+        width: 42px;
+        height: 42px;
+        border: 4px solid var(--rosa-claro);
+        border-top-color: var(--rosa-oscuro);
+        border-radius: 50%;
+        animation: menu-loader-girar 0.8s linear infinite;
+    }
+
+    @keyframes menu-loader-girar {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .menu-loader-texto {
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+
     /* ===== CONTENEDOR HORIZONTAL SCROLLABLE ===== */
     .productos-horizontal-scroll {
         display: flex;
@@ -908,7 +940,12 @@
 		</div>
 
 
-		<div id="menu-contenedor"></div>
+		<div id="menu-contenedor">
+			<div class="menu-loader">
+				<div class="menu-loader-spinner"></div>
+				<div class="menu-loader-texto">Cargando menú...</div>
+			</div>
+		</div>
 
 	</div>
 
