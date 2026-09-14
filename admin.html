@@ -389,6 +389,11 @@
 
 		<h3 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Lista de Productos</h3>
 
+		<button type="button" id="btn-migrar-fotos" class="tm-btn tm-btn-default" style="margin-bottom:12px;">
+			🔄 Normalizar fotos antiguas a formato cuadrado
+		</button>
+		<div id="migracion-estado" style="font-size:0.85rem; color:var(--rosa-oscuro); margin-bottom:12px;"></div>
+
 		<input type="text" id="input-busqueda" class="input-busqueda" placeholder="🔍 Buscar producto por nombre..." />
 
 		<div class="apartados-bar">
@@ -601,6 +606,61 @@
 		document.getElementById("input-busqueda").addEventListener("input", (e) => {
 			terminoBusqueda = e.target.value.trim().toLowerCase();
 			renderizarTabla();
+		});
+
+		// ===== MIGRACIÓN: NORMALIZAR FOTOS ANTIGUAS AL FORMATO CUADRADO =====
+		async function reprocesarFotoDesdeUrl(url) {
+			const respuesta = await fetch(url);
+			const blob = await respuesta.blob();
+			const archivo = new File([blob], "foto.jpg", { type: blob.type || "image/jpeg" });
+			return await subirImagenStorage(archivo);
+		}
+
+		document.getElementById("btn-migrar-fotos").addEventListener("click", async () => {
+			const confirmar = confirm(
+				"Esto va a reprocesar TODAS las fotos existentes a formato cuadrado. " +
+				"Puede tardar varios minutos dependiendo de cuántos productos tengas. ¿Continuar?"
+			);
+			if (!confirmar) return;
+
+			const estado = document.getElementById("migracion-estado");
+			const boton = document.getElementById("btn-migrar-fotos");
+			boton.disabled = true;
+
+			let procesados = 0;
+			let errores = 0;
+			const total = listaProductosCache.length;
+
+			for (const p of listaProductosCache) {
+				procesados++;
+				estado.innerText = `Procesando ${procesados}/${total}: ${p.nombre}...`;
+
+				try {
+					const actualizacion = {};
+
+					if (p.imagenUrl) {
+						actualizacion.imagenUrl = await reprocesarFotoDesdeUrl(p.imagenUrl);
+					}
+
+					if (Array.isArray(p.imagenesExtra) && p.imagenesExtra.length > 0) {
+						actualizacion.imagenesExtra = await Promise.all(
+							p.imagenesExtra.map(url => reprocesarFotoDesdeUrl(url))
+						);
+					}
+
+					if (Object.keys(actualizacion).length > 0) {
+						await updateDoc(doc(db, "productos", p.id), actualizacion);
+					}
+				} catch (error) {
+					errores++;
+					console.warn(`No se pudo migrar la foto de "${p.nombre}":`, error);
+				}
+			}
+
+			boton.disabled = false;
+			estado.innerText = errores === 0
+				? `✅ Listo: ${total} productos procesados.`
+				: `⚠️ Terminado con ${errores} error(es) de ${total} productos. Revisa la consola (F12) para detalles.`;
 		});
 
 		// CARGAR EDICIÓN COMPLETA AL FORMULARIO
