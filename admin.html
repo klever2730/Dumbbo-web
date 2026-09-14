@@ -744,6 +744,39 @@
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		};
 
+		// ===== SI OTRO PRODUCTO (PROMO U OTRO) USA ESTA MISMA FOTO, LE ACTUALIZA LA URL EN VEZ DE ROMPERLA =====
+		async function actualizarReferenciasFoto(urlVieja, urlNueva, idExcluir) {
+			for (const p of listaProductosCache) {
+				if (p.id === idExcluir) continue;
+
+				const cambios = {};
+
+				if (p.imagenUrl === urlVieja) {
+					cambios.imagenUrl = urlNueva;
+				}
+
+				if (Array.isArray(p.imagenesExtra) && p.imagenesExtra.includes(urlVieja)) {
+					cambios.imagenesExtra = p.imagenesExtra.map(u => u === urlVieja ? urlNueva : u);
+				}
+
+				if (Object.keys(cambios).length > 0) {
+					try {
+						await updateDoc(doc(db, "productos", p.id), cambios);
+					} catch (e) {
+						console.warn(`No se pudo actualizar la referencia de foto en "${p.nombre}":`, e);
+					}
+				}
+			}
+		}
+
+		// ===== ¿ALGÚN OTRO PRODUCTO (DISTINTO DE idExcluir) SIGUE USANDO ESTA FOTO? =====
+		function otrosProductosUsanFoto(url, idExcluir) {
+			return listaProductosCache.some(p =>
+				p.id !== idExcluir &&
+				(p.imagenUrl === url || (Array.isArray(p.imagenesExtra) && p.imagenesExtra.includes(url)))
+			);
+		}
+
 		// MUESTRA LAS MINIATURAS DE LAS FOTOS DE VARIEDADES YA GUARDADAS
 		function renderizarPreviewImagenesExtra() {
 			const contenedor = document.getElementById("preview-imagenes-extra");
@@ -756,10 +789,22 @@
 			`).join('');
 		}
 
-		window.eliminarImagenExtra = (i) => {
+		window.eliminarImagenExtra = async (i) => {
+			const urlABorrar = imagenesExtraActuales[i];
+			const idActual = document.getElementById("producto-id-edit").value;
 			imagenesExtraActuales.splice(i, 1);
 			renderizarPreviewImagenesExtra();
+
+			// Si otra promo/producto sigue usando esta foto, no la borres del Storage
+			if (otrosProductosUsanFoto(urlABorrar, idActual)) return;
+
+			try {
+				await deleteObject(ref(storage, urlABorrar));
+			} catch (e) {
+				console.warn("No se pudo borrar la foto del Storage:", e);
+			}
 		};
+
 
 		// GUARDAR O ACTUALIZAR PRODUCTO
 		document.getElementById("form-crear-producto").addEventListener("submit", async (e) => {
@@ -767,7 +812,8 @@
 
 			const id = document.getElementById("producto-id-edit").value;
 			const archivoInput = document.getElementById("nuevo-imagen");
-			let urlImagenFinal = document.getElementById("imagen-actual-url").value;
+			const urlImagenAnterior = document.getElementById("imagen-actual-url").value;
+			let urlImagenFinal = urlImagenAnterior;
 
 			document.getElementById("mensaje-carga").style.display = "inline";
 
@@ -800,6 +846,19 @@
 				} else {
 					await addDoc(collection(db, "productos"), productoData);
 				}
+
+				// Si se reemplazó la foto principal, actualiza la referencia en cualquier
+				// promo/producto que la usara, y recién ahí borra la anterior del Storage
+				if (archivoInput.files.length > 0 && urlImagenAnterior && urlImagenAnterior !== urlImagenFinal) {
+					await actualizarReferenciasFoto(urlImagenAnterior, urlImagenFinal, id);
+
+					try {
+						await deleteObject(ref(storage, urlImagenAnterior));
+					} catch (e) {
+						console.warn("No se pudo borrar la foto anterior del Storage:", e);
+					}
+				}
+
 				limpiarFormulario();
 			} catch (error) {
 				alert("Error al guardar el producto.");
@@ -826,6 +885,8 @@
 					].filter(Boolean);
 
 					for (const url of urlsABorrar) {
+						if (otrosProductosUsanFoto(url, id)) continue; // otra promo/producto la sigue usando
+
 						try {
 							await deleteObject(ref(storage, url));
 						} catch (e) {
