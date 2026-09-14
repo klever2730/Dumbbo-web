@@ -1089,6 +1089,22 @@
 		let todosLosProductos = [];
 
 
+		// Orden en que se muestran las categorías en el menú (de arriba hacia abajo).
+		// Cualquier categoría nueva que no esté en esta lista se agrega automáticamente al final.
+		const ORDEN_CATEGORIAS = ["Promociones", "Cafetería", "Sandwich", "Pasteles", "Bebestibles", "Dulces", "Snacks"];
+
+		function ordenarCategorias(categorias) {
+			return [...categorias].sort((a, b) => {
+				const idxA = ORDEN_CATEGORIAS.indexOf(a);
+				const idxB = ORDEN_CATEGORIAS.indexOf(b);
+				const posA = idxA === -1 ? ORDEN_CATEGORIAS.length : idxA;
+				const posB = idxB === -1 ? ORDEN_CATEGORIAS.length : idxB;
+				if (posA !== posB) return posA - posB;
+				return a.localeCompare(b);
+			});
+		}
+
+
 
 		onSnapshot(
 			collection(db, "productos"),
@@ -1207,13 +1223,13 @@
 
 
 			const categorias =
-				[
+				ordenarCategorias([
 					...new Set(
 						productos.map(
 							p => p.categoria
 						)
 					)
-				];
+				]);
 
 
 
@@ -1337,13 +1353,13 @@
 		function crearFiltrosCliente(productos) {
 
 			const categorias =
-				[
+				ordenarCategorias([
 					...new Set(
 						productos.map(
 							p => p.categoria
 						)
 					)
-				];
+				]);
 
 
 			const nav =
