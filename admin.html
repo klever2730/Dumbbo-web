@@ -691,7 +691,8 @@
 					imagenesExtra: imagenesCombo,
 					descripcion: document.getElementById("combo-descripcion").value.trim() || descripcionAuto,
 					disponible: true,
-					promocion: true
+					promocion: true,
+					esPromoCombinada: true
 				};
 
 				await addDoc(collection(db, "productos"), nuevaPromocion);
@@ -813,6 +814,10 @@
 			if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
 				try {
 					await deleteDoc(doc(db, "productos", id));
+
+					// Las promociones combinadas usan fotos de OTROS productos —
+					// nunca se borran del Storage al eliminar la promo.
+					if (p?.esPromoCombinada) return;
 
 					// Borra también sus fotos del Storage (principal + variedades)
 					const urlsABorrar = [
