@@ -180,6 +180,17 @@
 			box-shadow: 0 0 0 3px rgba(122, 41, 77, 0.1);
 		}
 
+		.filtro-select {
+			background-color: var(--rosa-claro);
+			color: var(--rosa-oscuro);
+			border: 1px solid var(--rosa-dumbbo);
+			border-radius: 20px;
+			padding: 8px 14px;
+			font-size: 0.85rem;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
 		.btn-apartado {
 			background-color: var(--rosa-claro);
 			color: var(--rosa-oscuro);
@@ -425,6 +436,18 @@
 			<button class="btn-apartado" onclick="filtrarTabla('oferta', this)">🔥 En Oferta</button>
 		</div>
 
+		<div class="apartados-bar">
+			<select id="select-categoria-filtro" class="filtro-select">
+				<option value="todas">Todas las categorías</option>
+			</select>
+
+			<select id="select-orden-precio" class="filtro-select">
+				<option value="ninguno">Ordenar: sin orden</option>
+				<option value="precio-asc">Precio: menor a mayor</option>
+				<option value="precio-desc">Precio: mayor a menor</option>
+			</select>
+		</div>
+
 		<div class="tabla-container">
 			<table>
 				<thead>
@@ -467,6 +490,8 @@
 		let listaProductosCache = [];
 		let filtroActual = 'todos';
 		let terminoBusqueda = '';
+		let categoriaFiltroActual = 'todas';
+		let ordenActual = 'ninguno';
 		let terminoBusquedaCombo = '';
 		let idsSeleccionadosCombo = new Set();
 		let imagenesExtraActuales = []; // fotos de variedades ya guardadas del producto en edición
@@ -590,7 +615,27 @@
 			});
 			renderizarTabla();
 			renderizarSeleccionCombo();
+			renderizarSelectCategorias();
 		});
+
+		// LLENA EL SELECTOR DE CATEGORÍAS DEL PANEL DE FILTROS
+		function renderizarSelectCategorias() {
+			const select = document.getElementById("select-categoria-filtro");
+			if (!select) return;
+
+			const valorActual = select.value || 'todas';
+			const categorias = [...new Set(listaProductosCache.map(p => p.categoria).filter(Boolean))].sort();
+
+			select.innerHTML = `<option value="todas">Todas las categorías</option>` +
+				categorias.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+			// Mantiene la categoría seleccionada si sigue existiendo
+			if ([...select.options].some(o => o.value === valorActual)) {
+				select.value = valorActual;
+			} else {
+				categoriaFiltroActual = 'todas';
+			}
+		}
 
 		// RENDERIZAR LISTA DE PRODUCTOS PARA ARMAR PROMOCIONES COMBINADAS
 		function renderizarSeleccionCombo() {
@@ -641,8 +686,18 @@
 					terminoBusqueda === '' ||
 					(p.nombre || '').toLowerCase().includes(terminoBusqueda);
 
-				return coincideEstado && coincideBusqueda;
+				const coincideCategoria =
+					categoriaFiltroActual === 'todas' ||
+					p.categoria === categoriaFiltroActual;
+
+				return coincideEstado && coincideBusqueda && coincideCategoria;
 			});
+
+			if (ordenActual === 'precio-asc') {
+				filtrados.sort((a, b) => Number(a.precio || 0) - Number(b.precio || 0));
+			} else if (ordenActual === 'precio-desc') {
+				filtrados.sort((a, b) => Number(b.precio || 0) - Number(a.precio || 0));
+			}
 
 			filtrados.forEach(p => {
 				const tr = document.createElement("tr");
@@ -756,6 +811,17 @@
 		// BÚSQUEDA POR NOMBRE
 		document.getElementById("input-busqueda").addEventListener("input", (e) => {
 			terminoBusqueda = e.target.value.trim().toLowerCase();
+			renderizarTabla();
+		});
+
+		// FILTRO POR CATEGORÍA Y ORDEN POR PRECIO
+		document.getElementById("select-categoria-filtro").addEventListener("change", (e) => {
+			categoriaFiltroActual = e.target.value;
+			renderizarTabla();
+		});
+
+		document.getElementById("select-orden-precio").addEventListener("change", (e) => {
+			ordenActual = e.target.value;
 			renderizarTabla();
 		});
 
