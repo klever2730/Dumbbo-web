@@ -475,7 +475,7 @@
 		// Encaja cualquier foto (vertical, horizontal, cuadrada) dentro de un lienzo
 		// cuadrado con fondo blanco, para que todas las fotos del menú queden con
 		// la misma proporción sin importar cómo venga la foto original.
-		function comprimirImagen(file, maxLado = 1000, calidad = 0.85) {
+		function comprimirImagen(file, maxLado = 700, calidad = 0.8) {
 			return new Promise((resolve, reject) => {
 				const reader = new FileReader();
 				reader.onload = (e) => {
@@ -522,14 +522,51 @@
 			return await getDownloadURL(snapshot.ref);
 		}
 
+		// ===== CIERRE DE SESIÓN POR INACTIVIDAD (persistente aunque cierres la pestaña) =====
+		const TIEMPO_INACTIVIDAD_MS = 5 * 60 * 1000; // 5 minutos
+		const CLAVE_ULTIMA_ACTIVIDAD = "dumbbo_admin_ultima_actividad";
+		let timerInactividad;
+
+		function marcarActividad() {
+			localStorage.setItem(CLAVE_ULTIMA_ACTIVIDAD, Date.now().toString());
+		}
+
+		function reiniciarTimerInactividad() {
+			marcarActividad();
+			clearTimeout(timerInactividad);
+			timerInactividad = setTimeout(() => {
+				if (auth.currentUser) {
+					signOut(auth);
+					alert("Sesión cerrada por inactividad");
+				}
+			}, TIEMPO_INACTIVIDAD_MS);
+		}
+
+		["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evento => {
+			document.addEventListener(evento, reiniciarTimerInactividad);
+		});
+
+		function revisarInactividadAlCargar() {
+			const ultima = Number(localStorage.getItem(CLAVE_ULTIMA_ACTIVIDAD) || 0);
+			const pasoDemasiadoTiempo = Date.now() - ultima > TIEMPO_INACTIVIDAD_MS;
+			if (pasoDemasiadoTiempo && auth.currentUser) {
+				signOut(auth);
+			}
+		}
+
 		// AUTENTICACIÓN
 		onAuthStateChanged(auth, (user) => {
 			if (user) {
+				revisarInactividadAlCargar();
+				if (!auth.currentUser) return; // se acaba de cerrar sesión por inactividad
+
 				document.getElementById("admin-login").classList.add("hidden");
 				document.getElementById("admin-panel").classList.remove("hidden");
+				reiniciarTimerInactividad();
 			} else {
 				document.getElementById("admin-login").classList.remove("hidden");
 				document.getElementById("admin-panel").classList.add("hidden");
+				clearTimeout(timerInactividad);
 			}
 		});
 
