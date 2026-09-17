@@ -93,12 +93,19 @@
         letter-spacing: -0.5px;
     }
 
+    .menu-subtitulo {
+        font-size: 0.95rem;
+        color: #8A6B78;
+        margin: 6px 0 0 0;
+        font-weight: 500;
+    }
+
 
     /* ===== DUMBBITO AL LADO DEL TÍTULO ===== */
 
     .dumbbito-wrapper {
         position: relative;
-        width: 160px;
+        width: 100px;
         flex-shrink: 0;
     }
 
@@ -493,6 +500,30 @@
         height: 100%;
         object-fit: contain;
         display: block;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .producto-popup-imagen.cargada {
+        opacity: 1;
+    }
+
+    .popup-imagen-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 32px;
+        height: 32px;
+        border: 4px solid var(--rosa-claro);
+        border-top-color: var(--rosa-oscuro);
+        border-radius: 50%;
+        animation: menu-loader-girar 0.8s linear infinite;
+        z-index: 1;
+    }
+
+    .popup-imagen-spinner.oculto {
+        display: none;
     }
 
     /* ===== FLECHAS DEL CARRUSEL DEL POPUP ===== */
@@ -896,10 +927,15 @@
 
 		<div class="menu-header-bar">
 
-			<h1 class="menu-titulo">
-				Menú
-			</h1>
+			<div>
+				<h1 class="menu-titulo">
+					Menú
+				</h1>
 
+				<p class="menu-subtitulo">
+					Café, dulces y algo más para cada antojo 🐘☕
+				</p>
+			</div>
 
 			<!-- =================================================
 			     DUMBBITO
@@ -1576,6 +1612,8 @@
 
 				<div class="producto-popup-imagen-container">
 
+					<div class="popup-imagen-spinner" id="popup-imagen-spinner"></div>
+
 					<img
 						src="${imagenesPopupActuales[0]}"
 						alt="${nombre}"
@@ -1660,6 +1698,23 @@
 			`;
 
 
+			// Oculta el spinner apenas la foto actual termina de cargar (y en cada cambio del carrusel)
+			const imgActualPopup = document.getElementById("popup-imagen-actual");
+			const spinnerActualPopup = document.getElementById("popup-imagen-spinner");
+
+			function marcarImagenPopupCargada() {
+				imgActualPopup.classList.add("cargada");
+				if (spinnerActualPopup) spinnerActualPopup.classList.add("oculto");
+			}
+
+			if (imgActualPopup.complete) {
+				marcarImagenPopupCargada();
+			} else {
+				imgActualPopup.addEventListener("load", marcarImagenPopupCargada);
+				imgActualPopup.addEventListener("error", marcarImagenPopupCargada);
+			}
+
+
 			if (hayVariasFotos) {
 
 				document
@@ -1719,10 +1774,13 @@
 
 		function actualizarImagenPopup() {
 
-			document.getElementById(
-				"popup-imagen-actual"
-			).src =
-				imagenesPopupActuales[indicePopupActual];
+			const img = document.getElementById("popup-imagen-actual");
+			const spinner = document.getElementById("popup-imagen-spinner");
+
+			img.classList.remove("cargada");
+			if (spinner) spinner.classList.remove("oculto");
+
+			img.src = imagenesPopupActuales[indicePopupActual];
 
 
 			document
