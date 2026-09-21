@@ -1550,6 +1550,11 @@
 		let indicePopupActual = 0;
 		
 		let popupCargaId = 0;
+		
+		/* ===== DESLIZAMIENTO DEL CARRUSEL ===== */
+
+let popupTouchInicioX = 0;
+let popupTouchInicioY = 0;
 
 
 
@@ -1732,32 +1737,116 @@
 			}
 
 
-			if (hayVariasFotos) {
+if (hayVariasFotos) {
 
-				document
-					.getElementById("popup-flecha-izq")
-					.addEventListener("click", () => cambiarImagenPopup(-1));
+	document
+		.getElementById("popup-flecha-izq")
+		.addEventListener("click", () => cambiarImagenPopup(-1));
 
-				document
-					.getElementById("popup-flecha-der")
-					.addEventListener("click", () => cambiarImagenPopup(1));
+	document
+		.getElementById("popup-flecha-der")
+		.addEventListener("click", () => cambiarImagenPopup(1));
 
-				document
-					.querySelectorAll(".popup-carrusel-punto")
-					.forEach(punto => {
 
-						punto.addEventListener("click", () => {
+	/* ===== DESLIZAMIENTO TÁCTIL DEL CARRUSEL ===== */
 
-							indicePopupActual =
-								Number(punto.dataset.indice);
+	const imagenContainer =
+		document.querySelector(
+			".producto-popup-imagen-container"
+		);
 
-							actualizarImagenPopup();
 
-						});
+	imagenContainer.addEventListener(
+		"touchstart",
+		(evento) => {
 
-					});
+			popupTouchInicioX =
+				evento.touches[0].clientX;
+
+			popupTouchInicioY =
+				evento.touches[0].clientY;
+
+		},
+		{ passive: true }
+	);
+
+
+	imagenContainer.addEventListener(
+		"touchend",
+		(evento) => {
+
+			const touchFinX =
+				evento.changedTouches[0].clientX;
+
+			const touchFinY =
+				evento.changedTouches[0].clientY;
+
+
+			const diferenciaX =
+				touchFinX - popupTouchInicioX;
+
+			const diferenciaY =
+				touchFinY - popupTouchInicioY;
+
+
+			/* Evita cambiar de imagen
+			   cuando el movimiento fue principalmente vertical */
+
+			if (
+				Math.abs(diferenciaX) <
+				Math.abs(diferenciaY)
+			) {
+				return;
+			}
+
+
+			/* Mínimo de 50px para considerar
+			   que realmente fue un deslizamiento */
+
+			if (Math.abs(diferenciaX) < 50) {
+				return;
+			}
+
+
+			if (diferenciaX < 0) {
+
+				// Deslizar hacia la izquierda
+				// → siguiente imagen
+
+				cambiarImagenPopup(1);
 
 			}
+
+			else {
+
+				// Deslizar hacia la derecha
+				// → imagen anterior
+
+				cambiarImagenPopup(-1);
+
+			}
+
+		},
+		{ passive: true }
+	);
+
+
+	document
+		.querySelectorAll(".popup-carrusel-punto")
+		.forEach(punto => {
+
+			punto.addEventListener("click", () => {
+
+				indicePopupActual =
+					Number(punto.dataset.indice);
+
+				actualizarImagenPopup();
+
+			});
+
+		});
+
+}
 
 
 			productoPopupOverlay.classList.add(
