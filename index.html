@@ -2025,5 +2025,15 @@
 
 	</script>
 
+	<!-- =====================================================
+	     CACHE DE IMAGENES (NUEVO - NO MODIFICA LA LOGICA EXISTENTE)
+	     ===================================================== -->
+	<script>
+		if ("serviceWorker" in navigator) {
+			navigator.serviceWorker.register("./sw.js", { scope: "./" })
+				.catch(error => console.warn("Cache de imagenes no disponible:", error));
+		}
+	</script>
+
 </body>
 </html>
