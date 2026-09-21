@@ -1548,6 +1548,8 @@
 		let imagenesPopupActuales = [];
 
 		let indicePopupActual = 0;
+		
+		let popupCargaId = 0;
 
 
 
@@ -1789,28 +1791,60 @@
 
 		function actualizarImagenPopup() {
 
-			const img = document.getElementById("popup-imagen-actual");
-			const spinner = document.getElementById("popup-imagen-spinner");
+	const img = document.getElementById("popup-imagen-actual");
+	const spinner = document.getElementById("popup-imagen-spinner");
 
-			img.classList.remove("cargada");
-			if (spinner) spinner.classList.remove("oculto");
-
-			img.src = imagenesPopupActuales[indicePopupActual];
+	if (!img) return;
 
 
-			document
-				.querySelectorAll(".popup-carrusel-punto")
-				.forEach((punto, i) => {
+	const cargaId = ++popupCargaId;
 
-					punto.classList.toggle(
-						"activo",
-						i === indicePopupActual
-					);
 
-				});
+	img.classList.remove("cargada");
 
-		}
+	if (spinner) spinner.classList.remove("oculto");
 
+
+	const finalizarCarga = () => {
+
+		// Solo la imagen que actualmente se está mostrando
+		// puede ocultar el spinner.
+		if (cargaId !== popupCargaId) return;
+
+		img.classList.add("cargada");
+
+		if (spinner) spinner.classList.add("oculto");
+
+	};
+
+
+	img.onload = finalizarCarga;
+
+	img.onerror = finalizarCarga;
+
+
+	img.src = imagenesPopupActuales[indicePopupActual];
+
+
+	// Si la imagen ya estaba en caché, complete puede ser true
+	// y el evento load puede haber ocurrido antes de asignar el listener.
+	if (img.complete) {
+		finalizarCarga();
+	}
+
+
+	document
+		.querySelectorAll(".popup-carrusel-punto")
+		.forEach((punto, i) => {
+
+			punto.classList.toggle(
+				"activo",
+				i === indicePopupActual
+			);
+
+		});
+
+}
 
 
 		/* ===== CERRAR POPUP ===== */
