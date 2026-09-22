@@ -19,7 +19,6 @@
 	<meta name="twitter:title" content="Dumbbo Café - Menú" />
 	<meta name="twitter:description" content="Café, dulces y algo más para cada antojo 🐘☕" />
 	<meta name="twitter:image" content="https://klever2730.github.io/img/banner.jpg" />
-
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 
 	<style>
@@ -884,39 +883,24 @@
         font-size: 0.9rem;
         font-weight: 700;
         color: #FFFFFF;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
     }
 
-    /* ===== CONTENEDOR DE LOS LOGOS ===== */
+    /* ===== IMAGEN ÚNICA DE MEDIOS DE PAGO ===== */
 
     .medios-pago-logos {
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        gap: 30px;
         width: 100%;
     }
 
-    /* ===== VISA + MASTERCARD + REDCOMPRA ===== */
-
-    .medios-pago-logos img:first-child {
+    .medios-pago-logos img {
         height: 48px;
         width: auto;
         max-width: 100%;
         object-fit: contain;
-        object-position: center;
-        display: block;
-        flex-shrink: 0;
-    }
-
-    /* ===== PLUXEE ===== */
-
-    .medios-pago-logos img:last-child {
-        height: 48px;
-        width: auto;
-        max-width: 100%;
-        object-fit: contain;
-        object-position: center;
+        object-position: left center;
         display: block;
         flex-shrink: 0;
     }
@@ -934,9 +918,7 @@
     }
 
 
-    /* =====================================================
-       FOOTER RESPONSIVE
-       ===================================================== */
+    /* ===== FOOTER RESPONSIVE ===== */
 
     @media (max-width: 768px) {
 
@@ -978,28 +960,21 @@
             margin-bottom: 14px;
         }
 
+
         .medios-pago-logos {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 25px;
             width: 100%;
         }
 
-        /* Visa + Mastercard + Redcompra */
-
-        .medios-pago-logos img:first-child {
-            height: 40px;
+        .medios-pago-logos img {
+            height: 46px;
             width: auto;
-            max-width: 55%;
-        }
-
-        /* Pluxee */
-
-        .medios-pago-logos img:last-child {
-            height: 40px;
-            width: auto;
-            max-width: 38%;
+            max-width: 100%;
+            object-fit: contain;
+            object-position: center;
+            display: block;
         }
 
     }
@@ -1012,21 +987,17 @@
     @media (max-width: 480px) {
 
         .medios-pago-logos {
-            gap: 22px;
+            align-items: center;
+            justify-content: center;
         }
 
-        .medios-pago-logos img:first-child {
-            height: 38px;
-            max-width: 54%;
-        }
-
-        .medios-pago-logos img:last-child {
-            height: 38px;
-            max-width: 36%;
+        .medios-pago-logos img {
+            height: 42px;
+            width: auto;
+            max-width: 100%;
         }
 
     }
-
 	</style>
 </head>
 
@@ -1183,7 +1154,7 @@
 					Disfruta de nuestro menú<br>
 					y vive la experiencia Dumbbo 🐘☕
 				</p>
-				
+
 				<!-- ===== MEDIOS DE PAGO ===== -->
 
 				<div class="medios-pago">
@@ -1197,13 +1168,8 @@
 					<div class="medios-pago-logos">
 
 						<img
-							src="img/visa-mastercard.png"
-							alt="Visa y Mastercard"
-						>
-
-						<img
-							src="img/pluxee.png"
-							alt="Pluxee"
+							src="img/medios-pago.png"
+							alt="Visa, Mastercard, Redcompra y Pluxee"
 						>
 
 					</div>
@@ -1689,13 +1655,6 @@
 		let imagenesPopupActuales = [];
 
 		let indicePopupActual = 0;
-		
-		let popupCargaId = 0;
-		
-		/* ===== DESLIZAMIENTO DEL CARRUSEL ===== */
-
-		let popupTouchInicioX = 0;
-		let popupTouchInicioY = 0;
 
 
 
@@ -1888,90 +1847,6 @@
 					.getElementById("popup-flecha-der")
 					.addEventListener("click", () => cambiarImagenPopup(1));
 
-
-				/* ===== DESLIZAMIENTO TÁCTIL DEL CARRUSEL ===== */
-
-				const imagenContainer =
-					document.querySelector(
-						".producto-popup-imagen-container"
-					);
-
-
-				imagenContainer.addEventListener(
-					"touchstart",
-					(evento) => {
-
-						popupTouchInicioX =
-							evento.touches[0].clientX;
-
-						popupTouchInicioY =
-							evento.touches[0].clientY;
-
-					},
-					{ passive: true }
-				);
-
-
-				imagenContainer.addEventListener(
-					"touchend",
-					(evento) => {
-
-						const touchFinX =
-							evento.changedTouches[0].clientX;
-
-						const touchFinY =
-							evento.changedTouches[0].clientY;
-
-
-						const diferenciaX =
-							touchFinX - popupTouchInicioX;
-
-						const diferenciaY =
-							touchFinY - popupTouchInicioY;
-
-
-						/* Evita cambiar de imagen
-						   cuando el movimiento fue principalmente vertical */
-
-						if (
-							Math.abs(diferenciaX) <
-							Math.abs(diferenciaY)
-						) {
-							return;
-						}
-
-
-						/* Mínimo de 50px para considerar
-						   que realmente fue un deslizamiento */
-
-						if (Math.abs(diferenciaX) < 50) {
-							return;
-						}
-
-
-						if (diferenciaX < 0) {
-
-							// Deslizar hacia la izquierda
-							// → siguiente imagen
-
-							cambiarImagenPopup(1);
-
-						}
-
-						else {
-
-							// Deslizar hacia la derecha
-							// → imagen anterior
-
-							cambiarImagenPopup(-1);
-
-						}
-
-					},
-					{ passive: true }
-				);
-
-
 				document
 					.querySelectorAll(".popup-carrusel-punto")
 					.forEach(punto => {
@@ -2024,43 +1899,10 @@
 			const img = document.getElementById("popup-imagen-actual");
 			const spinner = document.getElementById("popup-imagen-spinner");
 
-			if (!img) return;
-
-
-			const cargaId = ++popupCargaId;
-
-
 			img.classList.remove("cargada");
-
 			if (spinner) spinner.classList.remove("oculto");
 
-
-			const finalizarCarga = () => {
-
-				// Solo la imagen que actualmente se está mostrando
-				// puede ocultar el spinner.
-				if (cargaId !== popupCargaId) return;
-
-				img.classList.add("cargada");
-
-				if (spinner) spinner.classList.add("oculto");
-
-			};
-
-
-			img.onload = finalizarCarga;
-
-			img.onerror = finalizarCarga;
-
-
 			img.src = imagenesPopupActuales[indicePopupActual];
-
-
-			// Si la imagen ya estaba en caché, complete puede ser true
-			// y el evento load puede haber ocurrido antes de asignar el listener.
-			if (img.complete) {
-				finalizarCarga();
-			}
 
 
 			document
@@ -2075,6 +1917,7 @@
 				});
 
 		}
+
 
 
 		/* ===== CERRAR POPUP ===== */
@@ -2283,32 +2126,6 @@
 						);
 
 				}
-			);
-
-		}
-
-	</script>
-
-	<!-- =====================================================
-	     CACHE DE IMAGENES (NUEVO - NO MODIFICA LA LOGICA EXISTENTE)
-	     ===================================================== -->
-
-	<script>
-
-		if ("serviceWorker" in navigator) {
-
-			navigator.serviceWorker.register(
-				"./sw.js",
-				{
-					scope: "./"
-				}
-			)
-			.catch(
-				error =>
-					console.warn(
-						"Cache de imagenes no disponible:",
-						error
-					)
 			);
 
 		}
