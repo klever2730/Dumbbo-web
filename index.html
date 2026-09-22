@@ -19,6 +19,7 @@
 	<meta name="twitter:title" content="Dumbbo Café - Menú" />
 	<meta name="twitter:description" content="Café, dulces y algo más para cada antojo 🐘☕" />
 	<meta name="twitter:image" content="https://klever2730.github.io/img/banner.jpg" />
+
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 
 	<style>
@@ -868,36 +869,57 @@
         margin: 0;
         color: #FFFFFF;
     }
-    /* ===== MEDIOS DE PAGO ===== */
 
-.medios-pago {
-    margin-top: 12px;
-}
 
-.medios-pago-titulo {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #FFFFFF;
-    margin-bottom: 6px;
-}
+    /* =====================================================
+       MEDIOS DE PAGO
+       ===================================================== */
 
-/* ===== LOGOS DE MEDIOS DE PAGO ===== */
+    .medios-pago {
+        margin-top: 14px;
+        width: 100%;
+    }
 
-.medios-pago-logos {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-top: 8px;
-}
+    .medios-pago-titulo {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 12px;
+    }
 
-.medios-pago-logos img {
-    height: 65px;
-    width: auto;
-    object-fit: contain;
-    display: block;
-    transform: scale(1.35);
-    transform-origin: left center;
-}
+    /* ===== CONTENEDOR DE LOS LOGOS ===== */
+
+    .medios-pago-logos {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 30px;
+        width: 100%;
+    }
+
+    /* ===== VISA + MASTERCARD + REDCOMPRA ===== */
+
+    .medios-pago-logos img:first-child {
+        width: 190px;
+        height: auto;
+        max-width: 100%;
+        object-fit: contain;
+        object-position: center;
+        display: block;
+        flex-shrink: 0;
+    }
+
+    /* ===== PLUXEE ===== */
+
+    .medios-pago-logos img:last-child {
+        width: 125px;
+        height: auto;
+        max-width: 100%;
+        object-fit: contain;
+        object-position: center;
+        display: block;
+        flex-shrink: 0;
+    }
 
 
     /* ===== TEXTO INFERIOR ===== */
@@ -912,7 +934,9 @@
     }
 
 
-    /* ===== FOOTER RESPONSIVE ===== */
+    /* =====================================================
+       FOOTER RESPONSIVE
+       ===================================================== */
 
     @media (max-width: 768px) {
 
@@ -939,17 +963,67 @@
         .dumbbo-footer-titulo {
             font-size: 1.3rem;
         }
+
+
+        /* =================================================
+           MEDIOS DE PAGO EN TELÉFONOS
+           ================================================= */
+
+        .medios-pago {
+            width: 100%;
+        }
+
         .medios-pago-titulo {
-    font-size: 0.78rem;
-}
+            font-size: 0.82rem;
+            margin-bottom: 14px;
+        }
 
-.medios-pago-logos img {
-    height: 55px;
+        .medios-pago-logos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+            width: 100%;
+        }
 
-    transform: scale(1.25);
+        /* Visa + Mastercard + Redcompra */
 
-    transform-origin: center center;
-}
+        .medios-pago-logos img:first-child {
+            width: 175px;
+            height: auto;
+            max-width: 55%;
+        }
+
+        /* Pluxee */
+
+        .medios-pago-logos img:last-child {
+            width: 120px;
+            height: auto;
+            max-width: 38%;
+        }
+
+    }
+
+
+    /* =====================================================
+       TELÉFONOS MUY PEQUEÑOS
+       ===================================================== */
+
+    @media (max-width: 480px) {
+
+        .medios-pago-logos {
+            gap: 22px;
+        }
+
+        .medios-pago-logos img:first-child {
+            width: 165px;
+            max-width: 54%;
+        }
+
+        .medios-pago-logos img:last-child {
+            width: 110px;
+            max-width: 36%;
+        }
 
     }
 
@@ -1112,37 +1186,31 @@
 				
 				<!-- ===== MEDIOS DE PAGO ===== -->
 
-    <div class="medios-pago">
+				<div class="medios-pago">
 
-        <div class="medios-pago-titulo">
+					<div class="medios-pago-titulo">
 
-            💳 Aceptamos todos los medios de pago
+						💳 Aceptamos todos los medios de pago
 
-        </div>
+					</div>
 
-        <div class="medios-pago-logos">
+					<div class="medios-pago-logos">
 
-            <img
+						<img
+							src="img/visa-mastercard.png"
+							alt="Visa y Mastercard"
+						>
 
-                src="img/visa-mastercard.png"
+						<img
+							src="img/pluxee.png"
+							alt="Pluxee"
+						>
 
-                alt="Visa y Mastercard"
+					</div>
 
-            >
+				</div>
 
-            <img
-
-                src="img/pluxee.png"
-
-                alt="Pluxee"
-
-            >
-
-        </div>
-
-    </div>
-
-</div>
+			</div>
 
 
 			<!-- Espacio visual -->
@@ -1626,8 +1694,8 @@
 		
 		/* ===== DESLIZAMIENTO DEL CARRUSEL ===== */
 
-let popupTouchInicioX = 0;
-let popupTouchInicioY = 0;
+		let popupTouchInicioX = 0;
+		let popupTouchInicioY = 0;
 
 
 
@@ -1810,116 +1878,116 @@ let popupTouchInicioY = 0;
 			}
 
 
-if (hayVariasFotos) {
+			if (hayVariasFotos) {
 
-	document
-		.getElementById("popup-flecha-izq")
-		.addEventListener("click", () => cambiarImagenPopup(-1));
+				document
+					.getElementById("popup-flecha-izq")
+					.addEventListener("click", () => cambiarImagenPopup(-1));
 
-	document
-		.getElementById("popup-flecha-der")
-		.addEventListener("click", () => cambiarImagenPopup(1));
-
-
-	/* ===== DESLIZAMIENTO TÁCTIL DEL CARRUSEL ===== */
-
-	const imagenContainer =
-		document.querySelector(
-			".producto-popup-imagen-container"
-		);
+				document
+					.getElementById("popup-flecha-der")
+					.addEventListener("click", () => cambiarImagenPopup(1));
 
 
-	imagenContainer.addEventListener(
-		"touchstart",
-		(evento) => {
+				/* ===== DESLIZAMIENTO TÁCTIL DEL CARRUSEL ===== */
 
-			popupTouchInicioX =
-				evento.touches[0].clientX;
-
-			popupTouchInicioY =
-				evento.touches[0].clientY;
-
-		},
-		{ passive: true }
-	);
+				const imagenContainer =
+					document.querySelector(
+						".producto-popup-imagen-container"
+					);
 
 
-	imagenContainer.addEventListener(
-		"touchend",
-		(evento) => {
+				imagenContainer.addEventListener(
+					"touchstart",
+					(evento) => {
 
-			const touchFinX =
-				evento.changedTouches[0].clientX;
+						popupTouchInicioX =
+							evento.touches[0].clientX;
 
-			const touchFinY =
-				evento.changedTouches[0].clientY;
+						popupTouchInicioY =
+							evento.touches[0].clientY;
 
-
-			const diferenciaX =
-				touchFinX - popupTouchInicioX;
-
-			const diferenciaY =
-				touchFinY - popupTouchInicioY;
+					},
+					{ passive: true }
+				);
 
 
-			/* Evita cambiar de imagen
-			   cuando el movimiento fue principalmente vertical */
+				imagenContainer.addEventListener(
+					"touchend",
+					(evento) => {
 
-			if (
-				Math.abs(diferenciaX) <
-				Math.abs(diferenciaY)
-			) {
-				return;
+						const touchFinX =
+							evento.changedTouches[0].clientX;
+
+						const touchFinY =
+							evento.changedTouches[0].clientY;
+
+
+						const diferenciaX =
+							touchFinX - popupTouchInicioX;
+
+						const diferenciaY =
+							touchFinY - popupTouchInicioY;
+
+
+						/* Evita cambiar de imagen
+						   cuando el movimiento fue principalmente vertical */
+
+						if (
+							Math.abs(diferenciaX) <
+							Math.abs(diferenciaY)
+						) {
+							return;
+						}
+
+
+						/* Mínimo de 50px para considerar
+						   que realmente fue un deslizamiento */
+
+						if (Math.abs(diferenciaX) < 50) {
+							return;
+						}
+
+
+						if (diferenciaX < 0) {
+
+							// Deslizar hacia la izquierda
+							// → siguiente imagen
+
+							cambiarImagenPopup(1);
+
+						}
+
+						else {
+
+							// Deslizar hacia la derecha
+							// → imagen anterior
+
+							cambiarImagenPopup(-1);
+
+						}
+
+					},
+					{ passive: true }
+				);
+
+
+				document
+					.querySelectorAll(".popup-carrusel-punto")
+					.forEach(punto => {
+
+						punto.addEventListener("click", () => {
+
+							indicePopupActual =
+								Number(punto.dataset.indice);
+
+							actualizarImagenPopup();
+
+						});
+
+					});
+
 			}
-
-
-			/* Mínimo de 50px para considerar
-			   que realmente fue un deslizamiento */
-
-			if (Math.abs(diferenciaX) < 50) {
-				return;
-			}
-
-
-			if (diferenciaX < 0) {
-
-				// Deslizar hacia la izquierda
-				// → siguiente imagen
-
-				cambiarImagenPopup(1);
-
-			}
-
-			else {
-
-				// Deslizar hacia la derecha
-				// → imagen anterior
-
-				cambiarImagenPopup(-1);
-
-			}
-
-		},
-		{ passive: true }
-	);
-
-
-	document
-		.querySelectorAll(".popup-carrusel-punto")
-		.forEach(punto => {
-
-			punto.addEventListener("click", () => {
-
-				indicePopupActual =
-					Number(punto.dataset.indice);
-
-				actualizarImagenPopup();
-
-			});
-
-		});
-
-}
 
 
 			productoPopupOverlay.classList.add(
@@ -1953,60 +2021,60 @@ if (hayVariasFotos) {
 
 		function actualizarImagenPopup() {
 
-	const img = document.getElementById("popup-imagen-actual");
-	const spinner = document.getElementById("popup-imagen-spinner");
+			const img = document.getElementById("popup-imagen-actual");
+			const spinner = document.getElementById("popup-imagen-spinner");
 
-	if (!img) return;
-
-
-	const cargaId = ++popupCargaId;
+			if (!img) return;
 
 
-	img.classList.remove("cargada");
-
-	if (spinner) spinner.classList.remove("oculto");
+			const cargaId = ++popupCargaId;
 
 
-	const finalizarCarga = () => {
+			img.classList.remove("cargada");
 
-		// Solo la imagen que actualmente se está mostrando
-		// puede ocultar el spinner.
-		if (cargaId !== popupCargaId) return;
-
-		img.classList.add("cargada");
-
-		if (spinner) spinner.classList.add("oculto");
-
-	};
+			if (spinner) spinner.classList.remove("oculto");
 
 
-	img.onload = finalizarCarga;
+			const finalizarCarga = () => {
 
-	img.onerror = finalizarCarga;
+				// Solo la imagen que actualmente se está mostrando
+				// puede ocultar el spinner.
+				if (cargaId !== popupCargaId) return;
 
+				img.classList.add("cargada");
 
-	img.src = imagenesPopupActuales[indicePopupActual];
+				if (spinner) spinner.classList.add("oculto");
 
-
-	// Si la imagen ya estaba en caché, complete puede ser true
-	// y el evento load puede haber ocurrido antes de asignar el listener.
-	if (img.complete) {
-		finalizarCarga();
-	}
+			};
 
 
-	document
-		.querySelectorAll(".popup-carrusel-punto")
-		.forEach((punto, i) => {
+			img.onload = finalizarCarga;
 
-			punto.classList.toggle(
-				"activo",
-				i === indicePopupActual
-			);
+			img.onerror = finalizarCarga;
 
-		});
 
-}
+			img.src = imagenesPopupActuales[indicePopupActual];
+
+
+			// Si la imagen ya estaba en caché, complete puede ser true
+			// y el evento load puede haber ocurrido antes de asignar el listener.
+			if (img.complete) {
+				finalizarCarga();
+			}
+
+
+			document
+				.querySelectorAll(".popup-carrusel-punto")
+				.forEach((punto, i) => {
+
+					punto.classList.toggle(
+						"activo",
+						i === indicePopupActual
+					);
+
+				});
+
+		}
 
 
 		/* ===== CERRAR POPUP ===== */
@@ -2224,11 +2292,27 @@ if (hayVariasFotos) {
 	<!-- =====================================================
 	     CACHE DE IMAGENES (NUEVO - NO MODIFICA LA LOGICA EXISTENTE)
 	     ===================================================== -->
+
 	<script>
+
 		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.register("./sw.js", { scope: "./" })
-				.catch(error => console.warn("Cache de imagenes no disponible:", error));
+
+			navigator.serviceWorker.register(
+				"./sw.js",
+				{
+					scope: "./"
+				}
+			)
+			.catch(
+				error =>
+					console.warn(
+						"Cache de imagenes no disponible:",
+						error
+					)
+			);
+
 		}
+
 	</script>
 
 </body>
