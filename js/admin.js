@@ -57,32 +57,146 @@ function revisarInactividadAlCargar() {
   }
 }
 
+// ============================================================
+// ===== COMPRESIÓN AUTOMÁTICA DE IMÁGENES ====================
+// ============================================================
+//
+// Reduce el peso de las fotos ANTES de subirlas a Firebase.
+// Esto ayuda tanto a la velocidad de subida como a la carga
+// posterior de las imágenes en el menú.
+//
+// - Máximo 1600 px en el lado más largo.
+// - Formato WebP.
+// - Calidad 82%.
+// - Mantiene una buena calidad visual.
+// - Las imágenes GIF y SVG se dejan sin modificar.
+//
+
+async function comprimirImagen(file) {
+  const MAX_LADO = 1600;
+  const CALIDAD = 0.82;
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("El archivo seleccionado no es una imagen.");
+  }
+
+  // No convertir GIF ni SVG para evitar problemas con animaciones
+  // o características propias de esos formatos.
+  if (file.type === "image/gif" || file.type === "image/svg+xml") {
+    return file;
+  }
+
+  // Creamos una imagen temporal para poder redimensionarla.
+  const imagen = await new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("No se pudo leer la imagen."));
+    };
+
+    img.src = url;
+  });
+
+  let ancho = imagen.naturalWidth;
+  let alto = imagen.naturalHeight;
+
+  // Si la imagen supera los 1600 px, se reduce proporcionalmente.
+  if (ancho > MAX_LADO || alto > MAX_LADO) {
+    const escala = Math.min(
+      MAX_LADO / ancho,
+      MAX_LADO / alto
+    );
+
+    ancho = Math.round(ancho * escala);
+    alto = Math.round(alto * escala);
+  }
+
+  // Creamos un canvas con el nuevo tamaño.
+  const canvas = document.createElement("canvas");
+  canvas.width = ancho;
+  canvas.height = alto;
+
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    throw new Error("No se pudo preparar la imagen para comprimir.");
+  }
+
+  // Dibujamos la imagen redimensionada.
+  ctx.drawImage(imagen, 0, 0, ancho, alto);
+
+  // Convertimos la imagen a WebP.
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (resultado) => {
+        if (resultado) {
+          resolve(resultado);
+        } else {
+          reject(new Error("No se pudo comprimir la imagen."));
+        }
+      },
+      "image/webp",
+      CALIDAD
+    );
+  });
+
+  const nombreBase = file.name.replace(/\.[^/.]+$/, "");
+
+  // Creamos un nuevo archivo comprimido.
+  return new File(
+    [blob],
+    `${nombreBase}.webp`,
+    {
+      type: "image/webp",
+      lastModified: Date.now()
+    }
+  );
+}
+
+
 // ===== AUTENTICACIÓN =====
 document.getElementById("btn-login").addEventListener("click", () => {
   const email = document.getElementById("admin-email").value;
   const password = document.getElementById("admin-password").value;
+
   signInWithEmailAndPassword(auth, email, password)
-    .catch(() => { loginError.textContent = "Correo o contraseña incorrectos"; });
+    .catch(() => {
+      loginError.textContent = "Correo o contraseña incorrectos";
+    });
 });
 
 document.getElementById("btn-logout").addEventListener("click", () => signOut(auth));
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
+
     // Antes de mostrar el panel, revisamos si venía de estar inactivo demasiado tiempo
     revisarInactividadAlCargar();
+
     if (!auth.currentUser) return; // se acaba de cerrar sesión por inactividad
 
     loginBox.classList.add("hidden");
     panelBox.classList.remove("hidden");
+
     reiniciarTimerInactividad();
     cargarProductosAdmin();
+
   } else {
+
     loginBox.classList.remove("hidden");
     panelBox.classList.add("hidden");
     clearTimeout(timerInactividad);
+
   }
 });
+
 
 // ===== AGREGAR NUEVO PRODUCTO (con imagen a Firebase Storage) =====
 document.getElementById("form-crear-producto").addEventListener("submit", async (e) => {
@@ -98,12 +212,24 @@ document.getElementById("form-crear-producto").addEventListener("submit", async 
   }
 
   try {
+
     if (btnGuardar) btnGuardar.disabled = true;
     if (mensajeCarga) mensajeCarga.style.display = "inline";
 
-    const nombreArchivo = `${Date.now()}_${archivoImagen.name}`;
+    // ===== COMPRESIÓN =====
+    // Comprimimos la imagen ANTES de subirla a Firebase.
+    const imagenComprimida = await comprimirImagen(archivoImagen);
+
+    // Usamos el nombre de la imagen ya comprimida.
+    const nombreArchivo = `${Date.now()}_${imagenComprimida.name}`;
+
     const storageRef = ref(storage, `productos/${nombreArchivo}`);
-    const snapshot = await uploadBytes(storageRef, archivoImagen);
+
+    const snapshot = await uploadBytes(
+      storageRef,
+      imagenComprimida
+    );
+
     const imagenUrl = await getDownloadURL(snapshot.ref);
 
     const nuevoProducto = {
@@ -120,187 +246,482 @@ document.getElementById("form-crear-producto").addEventListener("submit", async 
 
     document.getElementById("form-crear-producto").reset();
     document.getElementById("nuevo-disponible").checked = true;
+
     alert("¡Producto e imagen agregados exitosamente a Firebase!");
+
   } catch (error) {
+
     alert("Error al guardar el producto: " + error.message);
+
   } finally {
+
     if (btnGuardar) btnGuardar.disabled = false;
     if (mensajeCarga) mensajeCarga.style.display = "none";
+
   }
 });
 
+
 // ===== RENDERIZAR LISTA EN EL PANEL ADMIN =====
 function renderizarListaAdmin(lista) {
+
   const contenedor = document.getElementById("productos-admin-list");
   let html = "";
 
   lista.forEach((p) => {
-    const precioFormateado = p.precio ? p.precio.toLocaleString("es-CL") : "0";
+
+    const precioFormateado = p.precio
+      ? p.precio.toLocaleString("es-CL")
+      : "0";
 
     html += `
       <div class="producto-admin-row" id="producto-row-${p.id}">
+
         <div class="producto-imagen-col">
-          <img src="${p.imagenUrl || 'https://via.placeholder.com/60'}" alt="${p.nombre}" id="img-preview-${p.id}">
+
+          <img
+            src="${p.imagenUrl || 'https://via.placeholder.com/60'}"
+            alt="${p.nombre}"
+            id="img-preview-${p.id}"
+          >
+
           <label class="btn-cambiar-foto">
+
             Cambiar foto
-            <input type="file" class="input-cambiar-foto hidden" data-id="${p.id}" accept="image/*" />
+
+            <input
+              type="file"
+              class="input-cambiar-foto hidden"
+              data-id="${p.id}"
+              accept="image/*"
+            />
+
           </label>
+
         </div>
 
         <div class="producto-admin-info">
+
           <strong>${p.nombre}</strong> (${p.categoria})
+
           ${p.descripcion ? `<small>${p.descripcion}</small>` : ''}
 
           <div class="precio-contenedor">
-            <span class="precio-texto"><strong>Precio:</strong> $${precioFormateado}</span>
+
+            <span class="precio-texto">
+              <strong>Precio:</strong> $${precioFormateado}
+            </span>
+
             <div class="precio-editar-box hidden">
-              <input type="number" value="${p.precio}" data-id="${p.id}" class="input-precio-edit" />
-              <button data-id="${p.id}" class="btn-guardar-precio">Guardar</button>
-              <button data-id="${p.id}" class="btn-cancelar-precio">X</button>
+
+              <input
+                type="number"
+                value="${p.precio}"
+                data-id="${p.id}"
+                class="input-precio-edit"
+              />
+
+              <button
+                data-id="${p.id}"
+                class="btn-guardar-precio"
+              >
+                Guardar
+              </button>
+
+              <button
+                data-id="${p.id}"
+                class="btn-cancelar-precio"
+              >
+                X
+              </button>
+
             </div>
+
           </div>
+
         </div>
 
         <div class="producto-admin-controles">
-          <label><input type="checkbox" ${p.disponible ? "checked" : ""} data-id="${p.id}" class="input-disponible" /> Disponible</label>
-          <label><input type="checkbox" ${p.promocion ? "checked" : ""} data-id="${p.id}" class="input-promocion" /> Oferta</label>
+
+          <label>
+            <input
+              type="checkbox"
+              ${p.disponible ? "checked" : ""}
+              data-id="${p.id}"
+              class="input-disponible"
+            />
+            Disponible
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              ${p.promocion ? "checked" : ""}
+              data-id="${p.id}"
+              class="input-promocion"
+            />
+            Oferta
+          </label>
+
         </div>
 
         <div class="acciones-btn-group">
-          <button data-id="${p.id}" class="btn-editar-precio">Editar Precio</button>
-          <button data-id="${p.id}" data-nombre="${p.nombre}" class="btn-eliminar">Eliminar</button>
+
+          <button
+            data-id="${p.id}"
+            class="btn-editar-precio"
+          >
+            Editar Precio
+          </button>
+
+          <button
+            data-id="${p.id}"
+            data-nombre="${p.nombre}"
+            class="btn-eliminar"
+          >
+            Eliminar
+          </button>
+
         </div>
+
       </div>
     `;
   });
+
   contenedor.innerHTML = html;
 
+
+  // ==========================================================
+  // ===== CAMBIAR FOTO DE PRODUCTO ===========================
+  // ==========================================================
+
   document.querySelectorAll(".input-cambiar-foto").forEach(input => {
+
     input.addEventListener("change", async (e) => {
+
       const id = e.target.dataset.id;
       const file = e.target.files[0];
+
       if (!file) return;
 
       const imgPreview = document.getElementById(`img-preview-${id}`);
       const parentLabel = e.target.parentElement;
 
       try {
-        parentLabel.textContent = "Subiendo...";
+
+        parentLabel.textContent = "Comprimiendo...";
         parentLabel.style.pointerEvents = "none";
 
-        const nombreArchivo = `${Date.now()}_${file.name}`;
-        const storageRef = ref(storage, `productos/${nombreArchivo}`);
-        const snapshot = await uploadBytes(storageRef, file);
-        const nuevaImagenUrl = await getDownloadURL(snapshot.ref);
+        // ===== COMPRESIÓN =====
+        // Comprimimos la nueva foto antes de subirla.
+        const imagenComprimida = await comprimirImagen(file);
 
-        await updateDoc(doc(db, "productos", id), { imagenUrl: nuevaImagenUrl });
-        if (imgPreview) imgPreview.src = nuevaImagenUrl;
+        parentLabel.textContent = "Subiendo...";
+
+        const nombreArchivo = `${Date.now()}_${imagenComprimida.name}`;
+
+        const storageRef = ref(
+          storage,
+          `productos/${nombreArchivo}`
+        );
+
+        const snapshot = await uploadBytes(
+          storageRef,
+          imagenComprimida
+        );
+
+        const nuevaImagenUrl = await getDownloadURL(
+          snapshot.ref
+        );
+
+        await updateDoc(
+          doc(db, "productos", id),
+          {
+            imagenUrl: nuevaImagenUrl
+          }
+        );
+
+        if (imgPreview) {
+          imgPreview.src = nuevaImagenUrl;
+        }
+
         alert("¡Foto actualizada con éxito!");
+
       } catch (error) {
-        alert("Error al actualizar la foto: " + error.message);
+
+        alert(
+          "Error al actualizar la foto: " +
+          error.message
+        );
+
       } finally {
+
         parentLabel.textContent = "Cambiar foto";
         parentLabel.style.pointerEvents = "auto";
+
       }
+
     });
+
   });
 
+
+  // ===== EDITAR PRECIO =====
   document.querySelectorAll(".btn-editar-precio").forEach(btn => {
+
     btn.addEventListener("click", (e) => {
+
       const id = e.target.dataset.id;
       const row = document.getElementById(`producto-row-${id}`);
-      row.querySelector(".precio-texto").classList.add("hidden");
-      row.querySelector(".precio-editar-box").classList.remove("hidden");
+
+      row
+        .querySelector(".precio-texto")
+        .classList.add("hidden");
+
+      row
+        .querySelector(".precio-editar-box")
+        .classList.remove("hidden");
+
     });
+
   });
 
+
+  // ===== CANCELAR EDICIÓN DE PRECIO =====
   document.querySelectorAll(".btn-cancelar-precio").forEach(btn => {
+
     btn.addEventListener("click", (e) => {
+
       const id = e.target.dataset.id;
       const row = document.getElementById(`producto-row-${id}`);
-      row.querySelector(".precio-texto").classList.remove("hidden");
-      row.querySelector(".precio-editar-box").classList.add("hidden");
+
+      row
+        .querySelector(".precio-texto")
+        .classList.remove("hidden");
+
+      row
+        .querySelector(".precio-editar-box")
+        .classList.add("hidden");
+
     });
+
   });
 
+
+  // ===== GUARDAR PRECIO =====
   document.querySelectorAll(".btn-guardar-precio").forEach(btn => {
+
     btn.addEventListener("click", async (e) => {
+
       const id = e.target.dataset.id;
       const row = document.getElementById(`producto-row-${id}`);
-      const nuevoPrecio = Number(row.querySelector(".input-precio-edit").value);
+
+      const nuevoPrecio = Number(
+        row.querySelector(".input-precio-edit").value
+      );
 
       if (isNaN(nuevoPrecio) || nuevoPrecio < 0) {
+
         alert("Por favor ingresa un precio válido.");
         return;
+
       }
 
       try {
-        await updateDoc(doc(db, "productos", id), { precio: nuevoPrecio });
+
+        await updateDoc(
+          doc(db, "productos", id),
+          {
+            precio: nuevoPrecio
+          }
+        );
+
       } catch (error) {
-        alert("Error al actualizar el precio: " + error.message);
+
+        alert(
+          "Error al actualizar el precio: " +
+          error.message
+        );
+
       }
+
     });
+
   });
 
+
+  // ===== DISPONIBILIDAD =====
   document.querySelectorAll(".input-disponible").forEach(input => {
+
     input.addEventListener("change", async (e) => {
-      await updateDoc(doc(db, "productos", e.target.dataset.id), { disponible: e.target.checked });
+
+      await updateDoc(
+        doc(db, "productos", e.target.dataset.id),
+        {
+          disponible: e.target.checked
+        }
+      );
+
     });
+
   });
 
+
+  // ===== PROMOCIÓN =====
   document.querySelectorAll(".input-promocion").forEach(input => {
+
     input.addEventListener("change", async (e) => {
-      await updateDoc(doc(db, "productos", e.target.dataset.id), { promocion: e.target.checked });
+
+      await updateDoc(
+        doc(db, "productos", e.target.dataset.id),
+        {
+          promocion: e.target.checked
+        }
+      );
+
     });
+
   });
 
+
+  // ===== ELIMINAR PRODUCTO =====
   document.querySelectorAll(".btn-eliminar").forEach(btn => {
+
     btn.addEventListener("click", async (e) => {
+
       const id = e.target.dataset.id;
       const nombre = e.target.dataset.nombre;
 
-      if (confirm(`¿Estás seguro de que deseas eliminar "${nombre}"?`)) {
+      if (
+        confirm(
+          `¿Estás seguro de que deseas eliminar "${nombre}"?`
+        )
+      ) {
+
         try {
-          await deleteDoc(doc(db, "productos", id));
+
+          await deleteDoc(
+            doc(db, "productos", id)
+          );
+
         } catch (error) {
-          alert("Error al eliminar: " + error.message);
+
+          alert(
+            "Error al eliminar: " +
+            error.message
+          );
+
         }
+
       }
+
     });
+
   });
+
 }
+
 
 // ===== FILTROS DE NAVEGACIÓN =====
 function crearFiltrosAdmin(productos) {
-  const categorias = [...new Set(productos.map(p => p.categoria))];
-  const nav = document.getElementById("admin-categoria-nav");
 
-  let html = `<button class="filtro-admin-btn active" data-categoria="todos">Todos (${productos.length})</button>`;
+  const categorias = [
+    ...new Set(
+      productos.map(p => p.categoria)
+    )
+  ];
+
+  const nav = document.getElementById(
+    "admin-categoria-nav"
+  );
+
+  let html = `
+    <button
+      class="filtro-admin-btn active"
+      data-categoria="todos"
+    >
+      Todos (${productos.length})
+    </button>
+  `;
+
   categorias.forEach(cat => {
-    const cantidad = productos.filter(p => p.categoria === cat).length;
-    html += `<button class="filtro-admin-btn" data-categoria="${cat}">${cat} (${cantidad})</button>`;
+
+    const cantidad = productos.filter(
+      p => p.categoria === cat
+    ).length;
+
+    html += `
+      <button
+        class="filtro-admin-btn"
+        data-categoria="${cat}"
+      >
+        ${cat} (${cantidad})
+      </button>
+    `;
+
   });
+
   nav.innerHTML = html;
 
-  document.querySelectorAll(".filtro-admin-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".filtro-admin-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const cat = btn.dataset.categoria;
-      const filtrados = cat === "todos" ? todosLosProductosAdmin : todosLosProductosAdmin.filter(p => p.categoria === cat);
-      renderizarListaAdmin(filtrados);
+  document
+    .querySelectorAll(".filtro-admin-btn")
+    .forEach(btn => {
+
+      btn.addEventListener("click", () => {
+
+        document
+          .querySelectorAll(".filtro-admin-btn")
+          .forEach(b =>
+            b.classList.remove("active")
+          );
+
+        btn.classList.add("active");
+
+        const cat = btn.dataset.categoria;
+
+        const filtrados =
+          cat === "todos"
+            ? todosLosProductosAdmin
+            : todosLosProductosAdmin.filter(
+                p => p.categoria === cat
+              );
+
+        renderizarListaAdmin(filtrados);
+
+      });
+
     });
-  });
+
 }
+
 
 // ===== OBTIENE PRODUCTOS EN TIEMPO REAL DESDE FIREBASE =====
 function cargarProductosAdmin() {
-  onSnapshot(collection(db, "productos"), (snapshot) => {
-    todosLosProductosAdmin = [];
-    snapshot.forEach((docSnap) => {
-      todosLosProductosAdmin.push({ id: docSnap.id, ...docSnap.data() });
-    });
-    crearFiltrosAdmin(todosLosProductosAdmin);
-    renderizarListaAdmin(todosLosProductosAdmin);
-  });
+
+  onSnapshot(
+    collection(db, "productos"),
+    (snapshot) => {
+
+      todosLosProductosAdmin = [];
+
+      snapshot.forEach((docSnap) => {
+
+        todosLosProductosAdmin.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
+
+      });
+
+      crearFiltrosAdmin(
+        todosLosProductosAdmin
+      );
+
+      renderizarListaAdmin(
+        todosLosProductosAdmin
+      );
+
+    }
+  );
+
 }
