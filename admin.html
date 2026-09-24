@@ -338,6 +338,11 @@
 			color: var(--rojo);
 		}
 
+		.badge-parcial {
+			background-color: #FFF3E0;
+			color: #E65100;
+		}
+
 		.chk-rapido {
 			width: 18px;
 			height: 18px;
@@ -611,6 +616,34 @@
 		let idsSeleccionadosCombo = new Set();
 		let imagenesExtraActuales = []; // fotos de variedades ya guardadas del producto en edición
 
+		// Cuando se edita un producto agrupado (vista "Todos los locales"), guarda
+		// aquí en qué local existe cada copia del producto: { GHU: "idDoc"|null, VK1: ..., ... }
+		let grupoEdicionActual = null;
+
+		// ===== AGRUPACIÓN DE PRODUCTOS POR NOMBRE + CATEGORÍA =====
+		function claveProducto(p) {
+			return `${(p.nombre || '').trim().toLowerCase()}||${(p.categoria || '').trim().toLowerCase()}`;
+		}
+
+		function agruparProductos(lista) {
+			const grupos = new Map();
+			lista.forEach(p => {
+				const key = claveProducto(p);
+				if (!grupos.has(key)) grupos.set(key, []);
+				grupos.get(key).push(p);
+			});
+			return grupos;
+		}
+
+		// Elige qué copia mostrar como "representativa" de un grupo (imagen, descripción, etc.)
+		function representanteDeGrupo(miembros) {
+			for (const local of LOCALES) {
+				const encontrado = miembros.find(m => m.localId === local);
+				if (encontrado) return encontrado;
+			}
+			return miembros[0];
+		}
+
 		// ===== COMPRIME Y CUADRA LA IMAGEN ANTES DE SUBIRLA =====
 		function comprimirImagen(file, maxLado = 700, calidad = 0.8) {
 			return new Promise((resolve, reject) => {
@@ -730,6 +763,7 @@
 			}
 
 			contenedor.style.display = "block";
+			select.disabled = false;
 
 			if (localActual && localActual !== "TODOS") {
 				select.innerHTML = `<option value="${localActual}">${localActual}</option>`;
@@ -737,6 +771,7 @@
 			} else {
 				select.innerHTML = `
 					<option value="">-- Selecciona un local --</option>
+					<option value="TODOS">Todos los locales</option>
 					${LOCALES.map(l => `<option value="${l}">${l}</option>`).join('')}
 				`;
 				select.value = "";
@@ -746,10 +781,10 @@
 		function obtenerLocalDestino() {
 			const select = document.getElementById("destino-producto");
 			const valor = select ? select.value : null;
-			if (!normalizarLocal(valor)) {
-				throw new Error("Selecciona un local válido antes de guardar.");
+			if (valor === "TODOS" || normalizarLocal(valor)) {
+				return valor;
 			}
-			return valor;
+			throw new Error("Selecciona un local válido antes de guardar.");
 		}
 
 		// ============================================================
@@ -786,7 +821,7 @@
 					prepararSelectorLocal();
 
 					if (esAdministrador()) {
-						cargarProductosAdmin("GHU");
+						cargarProductosAdmin("TODOS");
 					} else {
 						cargarProductosAdmin(localAsignado);
 					}
@@ -957,14 +992,20 @@
 				filtrados.sort((a, b) => Number(b.precio || 0) - Number(a.precio || 0));
 			}
 
+			if (localActual === "TODOS") {
+				renderizarFilasAgrupadas(tbody, filtrados);
+			} else {
+				renderizarFilasSimples(tbody, filtrados);
+			}
+		}
+
+		// FILAS NORMALES (un local específico): una fila por documento, igual que antes
+		function renderizarFilasSimples(tbody, filtrados) {
 			filtrados.forEach(p => {
 				const tr = document.createElement("tr");
 				tr.innerHTML = `
 					<td><img src="${p.imagenUrl || 'img/logo.png'}" class="img-tabla" alt="${p.nombre}"></td>
-					<td>
-						${localActual === "TODOS" ? `<span class="badge-local">${p.localId}</span><br>` : ""}
-						<strong>${p.nombre}</strong>
-					</td>
+					<td><strong>${p.nombre}</strong></td>
 					<td>${p.categoria || '-'}</td>
 					<td>$${Number(p.precio).toLocaleString('es-CL')}</td>
 					<td>
@@ -996,7 +1037,95 @@
 			});
 		}
 
-		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA DIRECTO EN TABLA
+		// FILAS AGRUPADAS ("Todos los locales"): un producto = una fila, sin repetirse por local
+		function renderizarFilasAgrupadas(tbody, filtrados) {
+			const grupos = agruparProductos(filtrados);
+
+			grupos.forEach((miembros, key) => {
+				const rep = representanteDeGrupo(miembros);
+				const localesPresentes = miembros.map(m => m.localId);
+
+				const precios = miembros.map(m => Number(m.precio || 0));
+				const precioMin = Math.min(...precios);
+				const precioMax = Math.max(...precios);
+				const precioTexto = precioMin === precioMax
+					? `$${precioMin.toLocaleString('es-CL')}`
+					: `$${precioMin.toLocaleString('es-CL')}–$${precioMax.toLocaleString('es-CL')}`;
+
+				const todosDisponibles = miembros.every(m => m.disponible);
+				const ningunoDisponible = miembros.every(m => !m.disponible);
+				const claseEstado = todosDisponibles ? 'badge-disponible' : ningunoDisponible ? 'badge-oculto' : 'badge-parcial';
+				const textoEstado = todosDisponibles ? 'Disponible' : ningunoDisponible ? 'Oculto' : 'Parcial';
+
+				const todosPromocion = miembros.every(m => m.promocion);
+				const ningunoPromocion = miembros.every(m => !m.promocion);
+				const textoPromocion = todosPromocion ? '🔥 Sí' : ningunoPromocion ? 'No' : 'Parcial';
+
+				const tr = document.createElement("tr");
+				tr.innerHTML = `
+					<td><img src="${rep.imagenUrl || 'img/logo.png'}" class="img-tabla" alt="${rep.nombre}"></td>
+					<td>
+						${localesPresentes.map(l => `<span class="badge-local">${l}</span>`).join(' ')}<br>
+						<strong>${rep.nombre}</strong>
+					</td>
+					<td>${rep.categoria || '-'}</td>
+					<td>${precioTexto}</td>
+					<td>
+						<div class="badge-toggle-group">
+							<span class="badge-estado ${claseEstado}">${textoEstado}</span>
+							<input type="checkbox" class="chk-rapido chk-grupo-disponible" data-key="${encodeURIComponent(key)}" ${todosDisponibles ? 'checked' : ''}
+								title="Marcar/desmarcar disponible en TODOS los locales donde existe" />
+						</div>
+					</td>
+					<td>
+						<div class="badge-toggle-group">
+							<span>${textoPromocion}</span>
+							<input type="checkbox" class="chk-rapido chk-grupo-promocion" data-key="${encodeURIComponent(key)}" ${todosPromocion ? 'checked' : ''}
+								title="Activar/desactivar oferta en TODOS los locales donde existe" />
+						</div>
+					</td>
+					<td>
+						<div style="display:flex; gap:6px;">
+							<button class="btn-editar-tabla btn-editar-grupo" data-key="${encodeURIComponent(key)}">Editar</button>
+							<button class="btn-eliminar-tabla btn-eliminar-grupo" data-key="${encodeURIComponent(key)}">Eliminar</button>
+						</div>
+					</td>
+				`;
+				tbody.appendChild(tr);
+			});
+
+			// Listeners para los controles de las filas agrupadas (se re-crean en cada render)
+			tbody.querySelectorAll(".chk-grupo-disponible").forEach(chk => {
+				chk.addEventListener("change", (e) => {
+					const key = decodeURIComponent(e.target.dataset.key);
+					toggleDisponibleGrupo(key, e.target.checked);
+				});
+			});
+			tbody.querySelectorAll(".chk-grupo-promocion").forEach(chk => {
+				chk.addEventListener("change", (e) => {
+					const key = decodeURIComponent(e.target.dataset.key);
+					togglePromocionGrupo(key, e.target.checked);
+				});
+			});
+			tbody.querySelectorAll(".btn-editar-grupo").forEach(btn => {
+				btn.addEventListener("click", (e) => {
+					const key = decodeURIComponent(e.currentTarget.dataset.key);
+					cargarEdicionGrupo(key);
+				});
+			});
+			tbody.querySelectorAll(".btn-eliminar-grupo").forEach(btn => {
+				btn.addEventListener("click", (e) => {
+					const key = decodeURIComponent(e.currentTarget.dataset.key);
+					eliminarProductoGrupo(key);
+				});
+			});
+		}
+
+		function miembrosDeGrupo(key) {
+			return listaProductosCache.filter(p => claveProducto(p) === key);
+		}
+
+		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA DIRECTO EN TABLA (fila individual)
 		window.toggleDisponible = async (id, local, estado) => {
 			await updateDoc(docProducto(id, local), { disponible: estado });
 		};
@@ -1004,6 +1133,25 @@
 		window.togglePromocion = async (id, local, estado) => {
 			await updateDoc(docProducto(id, local), { promocion: estado });
 		};
+
+		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA PARA TODO UN GRUPO (misma fila = varios locales)
+		async function toggleDisponibleGrupo(key, estado) {
+			const miembros = miembrosDeGrupo(key);
+			try {
+				await Promise.all(miembros.map(m => updateDoc(docProducto(m.id, m.localId), { disponible: estado })));
+			} catch (error) {
+				alert("Error al actualizar disponibilidad en todos los locales: " + error.message);
+			}
+		}
+
+		async function togglePromocionGrupo(key, estado) {
+			const miembros = miembrosDeGrupo(key);
+			try {
+				await Promise.all(miembros.map(m => updateDoc(docProducto(m.id, m.localId), { promocion: estado })));
+			} catch (error) {
+				alert("Error al actualizar la oferta en todos los locales: " + error.message);
+			}
+		}
 
 		// FILTRADO POR APARTADO
 		window.filtrarTabla = (tipo, btn) => {
@@ -1035,6 +1183,11 @@
 				localDestinoCombo = obtenerLocalDestino();
 			} catch (err) {
 				alert(err.message);
+				return;
+			}
+
+			if (localDestinoCombo === "TODOS") {
+				alert('Para crear una promoción combinada elige un local específico (no "Todos los locales") en el selector "Local del producto".');
 				return;
 			}
 
@@ -1159,10 +1312,12 @@
 			}
 		});
 
-		// CARGAR EDICIÓN COMPLETA AL FORMULARIO
+		// CARGAR EDICIÓN DE UN SOLO PRODUCTO (fila individual, vista de un local específico)
 		window.cargarEdicion = (id, local) => {
 			const p = listaProductosCache.find(item => item.id === id && item.localId === local);
 			if (!p) return;
+
+			grupoEdicionActual = null;
 
 			document.getElementById("producto-id-edit").value = p.id;
 			document.getElementById("producto-local-edit").value = p.localId;
@@ -1194,10 +1349,60 @@
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		};
 
+		// CARGAR EDICIÓN DE UN PRODUCTO AGRUPADO (vista "Todos los locales")
+		// Permite elegir "Todos los locales" para actualizar (o crear, si falta) la
+		// misma copia del producto en cada local de una sola vez.
+		window.cargarEdicionGrupo = (key) => {
+			const miembros = miembrosDeGrupo(key);
+			if (miembros.length === 0) return;
+
+			const rep = representanteDeGrupo(miembros);
+
+			// Mapa local -> id existente (o null si ese local aún no tiene este producto)
+			grupoEdicionActual = {};
+			LOCALES.forEach(local => {
+				const enEseLocal = miembros.find(m => m.localId === local);
+				grupoEdicionActual[local] = enEseLocal ? enEseLocal.id : null;
+			});
+
+			document.getElementById("producto-id-edit").value = '';
+			document.getElementById("producto-local-edit").value = '';
+			document.getElementById("nuevo-nombre").value = rep.nombre;
+			document.getElementById("nuevo-categoria").value = rep.categoria || '';
+			document.getElementById("nuevo-precio").value = rep.precio;
+			document.getElementById("nuevo-descripcion").value = rep.descripcion || '';
+			document.getElementById("nuevo-disponible").checked = rep.disponible;
+			document.getElementById("nuevo-promocion").checked = rep.promocion;
+			document.getElementById("imagen-actual-url").value = rep.imagenUrl || '';
+
+			document.getElementById("nuevo-imagen").value = '';
+			document.getElementById("nuevo-imagenes-extra").value = '';
+
+			imagenesExtraActuales = Array.isArray(rep.imagenesExtra) ? [...rep.imagenesExtra] : [];
+			renderizarPreviewImagenesExtra();
+
+			const contenedorDestino = document.getElementById("contenedor-destino-producto");
+			const selectDestino = document.getElementById("destino-producto");
+			contenedorDestino.style.display = "block";
+			selectDestino.disabled = false;
+			selectDestino.innerHTML = `
+				<option value="TODOS">Todos los locales (actualiza donde existe y lo crea donde falte)</option>
+				${LOCALES.map(l => `<option value="${l}">${l}${grupoEdicionActual[l] ? '' : ' (aún no existe ahí)'}</option>`).join('')}
+			`;
+			selectDestino.value = "TODOS";
+
+			const listaLocales = miembros.map(m => m.localId).join(', ');
+			document.getElementById("form-titulo").innerText = `✏️ Editar Producto (existe en: ${listaLocales})`;
+			document.getElementById("btn-guardar").innerText = "Actualizar Producto";
+			document.getElementById("btn-cancelar").style.display = "inline-block";
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		};
+
 		// ===== SI OTRO PRODUCTO DEL MISMO LOCAL USA ESTA MISMA FOTO, LE ACTUALIZA LA URL =====
-		async function actualizarReferenciasFoto(urlVieja, urlNueva, idExcluir) {
+		async function actualizarReferenciasFoto(urlVieja, urlNueva, idsExcluir) {
+			const excluidos = new Set(Array.isArray(idsExcluir) ? idsExcluir : [idsExcluir]);
 			for (const p of listaProductosCache) {
-				if (p.id === idExcluir) continue;
+				if (excluidos.has(p.id)) continue;
 
 				const cambios = {};
 
@@ -1219,9 +1424,10 @@
 			}
 		}
 
-		function otrosProductosUsanFoto(url, idExcluir) {
+		function otrosProductosUsanFoto(url, idsExcluir) {
+			const excluidos = new Set(Array.isArray(idsExcluir) ? idsExcluir : [idsExcluir]);
 			return listaProductosCache.some(p =>
-				p.id !== idExcluir &&
+				!excluidos.has(p.id) &&
 				(p.imagenUrl === url || (Array.isArray(p.imagenesExtra) && p.imagenesExtra.includes(url)))
 			);
 		}
@@ -1239,11 +1445,13 @@
 
 		window.eliminarImagenExtra = async (i) => {
 			const urlABorrar = imagenesExtraActuales[i];
-			const idActual = document.getElementById("producto-id-edit").value;
+			const idsActuales = grupoEdicionActual
+				? Object.values(grupoEdicionActual).filter(Boolean)
+				: [document.getElementById("producto-id-edit").value].filter(Boolean);
 			imagenesExtraActuales.splice(i, 1);
 			renderizarPreviewImagenesExtra();
 
-			if (otrosProductosUsanFoto(urlABorrar, idActual)) return;
+			if (otrosProductosUsanFoto(urlABorrar, idsActuales)) return;
 
 			try {
 				await deleteObject(ref(storage, urlABorrar));
@@ -1264,7 +1472,8 @@
 
 			let localDestino;
 			try {
-				localDestino = id ? localEdit : obtenerLocalDestino();
+				// Edición de un solo producto (no agrupado): el destino ya viene fijo (localEdit)
+				localDestino = (id && !grupoEdicionActual) ? localEdit : obtenerLocalDestino();
 			} catch (err) {
 				alert(err.message);
 				return;
@@ -1296,19 +1505,41 @@
 					promocion: document.getElementById("nuevo-promocion").checked
 				};
 
-				if (id) {
+				const idsAntesDeGuardar = grupoEdicionActual
+					? Object.values(grupoEdicionActual).filter(Boolean)
+					: [id].filter(Boolean);
+
+				if (grupoEdicionActual) {
+					// Edición agrupada: actualiza donde ya existe y crea donde falte,
+					// en cada local elegido (uno o "TODOS").
+					const localesAAplicar = localDestino === "TODOS" ? LOCALES : [localDestino];
+
+					await Promise.all(localesAAplicar.map(local => {
+						const idExistente = grupoEdicionActual[local];
+						return idExistente
+							? updateDoc(docProducto(idExistente, local), productoData)
+							: addDoc(coleccionProductos(local), productoData);
+					}));
+				} else if (id) {
+					// Edición de un solo producto en su local original
 					await updateDoc(docProducto(id, localDestino), productoData);
+				} else if (localDestino === "TODOS") {
+					// Producto nuevo, creado en los 4 locales a la vez
+					await Promise.all(LOCALES.map(local => addDoc(coleccionProductos(local), productoData)));
 				} else {
+					// Producto nuevo, en un solo local
 					await addDoc(coleccionProductos(localDestino), productoData);
 				}
 
 				if (archivoInput.files.length > 0 && urlImagenAnterior && urlImagenAnterior !== urlImagenFinal) {
-					await actualizarReferenciasFoto(urlImagenAnterior, urlImagenFinal, id);
+					await actualizarReferenciasFoto(urlImagenAnterior, urlImagenFinal, idsAntesDeGuardar);
 
-					try {
-						await deleteObject(ref(storage, urlImagenAnterior));
-					} catch (e) {
-						console.warn("No se pudo borrar la foto anterior del Storage:", e);
+					if (!otrosProductosUsanFoto(urlImagenAnterior, idsAntesDeGuardar)) {
+						try {
+							await deleteObject(ref(storage, urlImagenAnterior));
+						} catch (e) {
+							console.warn("No se pudo borrar la foto anterior del Storage:", e);
+						}
 					}
 				}
 
@@ -1349,12 +1580,53 @@
 			}
 		};
 
+		// ELIMINAR UN PRODUCTO AGRUPADO: borra la copia en TODOS los locales donde existe
+		async function eliminarProductoGrupo(key) {
+			const miembros = miembrosDeGrupo(key);
+			if (miembros.length === 0) return;
+
+			const rep = representanteDeGrupo(miembros);
+			const listaLocales = miembros.map(m => m.localId).join(', ');
+
+			const confirmar = confirm(
+				`¿Eliminar "${rep.nombre}" en TODOS los locales donde existe (${listaLocales})? Esta acción no se puede deshacer.`
+			);
+			if (!confirmar) return;
+
+			const idsGrupo = miembros.map(m => m.id);
+
+			try {
+				await Promise.all(miembros.map(m => deleteDoc(docProducto(m.id, m.localId))));
+
+				const esCombo = miembros.some(m => m.esPromoCombinada);
+				if (esCombo) return;
+
+				const urlsABorrar = new Set();
+				miembros.forEach(m => {
+					if (m.imagenUrl) urlsABorrar.add(m.imagenUrl);
+					if (Array.isArray(m.imagenesExtra)) m.imagenesExtra.forEach(u => urlsABorrar.add(u));
+				});
+
+				for (const url of urlsABorrar) {
+					if (otrosProductosUsanFoto(url, idsGrupo)) continue;
+					try {
+						await deleteObject(ref(storage, url));
+					} catch (e) {
+						console.warn("No se pudo borrar una foto del Storage:", e);
+					}
+				}
+			} catch (error) {
+				alert("Error al eliminar en todos los locales: " + error.message);
+			}
+		}
+
 		window.limpiarFormulario = () => {
 			document.getElementById("form-crear-producto").reset();
 			document.getElementById("producto-id-edit").value = "";
 			document.getElementById("producto-local-edit").value = "";
 			document.getElementById("imagen-actual-url").value = "";
 			imagenesExtraActuales = [];
+			grupoEdicionActual = null;
 			renderizarPreviewImagenesExtra();
 
 			document.getElementById("destino-producto").disabled = false;
