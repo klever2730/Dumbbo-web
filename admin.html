@@ -1314,14 +1314,10 @@
 
 				limpiarFormulario();
 			} catch (error) {
-    console.error("ERROR COMPLETO AL GUARDAR PRODUCTO:", error);
-
-    alert(
-        "Error al guardar el producto.\n\n" +
-        "Código: " + (error.code || "sin código") + "\n\n" +
-        "Mensaje: " + (error.message || "sin mensaje")
-    );
-} finally {
+				alert("Error al guardar el producto: " + error.message);
+			} finally {
+				document.getElementById("mensaje-carga").style.display = "none";
+			}
 		});
 
 		window.eliminarProducto = async (id, local) => {
