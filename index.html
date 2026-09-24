@@ -1387,6 +1387,20 @@
 		let todosLosProductos = [];
 
 
+		/* ===== ESCAPA TEXTO PARA EVITAR HTML NO DESEADO ===== */
+
+		function escaparHtml(texto) {
+
+			return String(texto ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#039;");
+
+		}
+
+
 		/* =====================================================
 		   SELECTOR DE LOCAL
 		   ===================================================== */
@@ -1446,6 +1460,7 @@
 				btn.addEventListener(
 					"click",
 					() => {
+
 
 						const localSeleccionado =
 							btn.dataset.local;
@@ -1658,16 +1673,16 @@
 
 						<div
 							class="categoria-seccion"
-							id="cat-${cat.replace(/\s+/g, '-')}"
+							id="cat-${escaparHtml(cat.replace(/\s+/g, '-'))}"
 						>
 
 							<div class="categoria-header-row">
 
 								<h2 class="categoria-titulo">
-									${cat}
+									${escaparHtml(cat)}
 								</h2>
 
-								<span class="ver-mas-link" data-cat="${cat}">
+								<span class="ver-mas-link" data-cat="${escaparHtml(cat)}">
 									Ver más ›
 								</span>
 
@@ -1706,6 +1721,10 @@
 
 		function crearTarjetaVertical(p) {
 
+			const nombreSeguro = escaparHtml(p.nombre);
+			const descripcionSegura = escaparHtml(p.descripcion || '');
+			const imagenSegura = escaparHtml(p.imagenUrl || 'img/logo.png');
+
 			return `
 
 				<div
@@ -1725,8 +1744,8 @@
 					<div class="producto-img-container">
 
 						<img
-							src="${p.imagenUrl || 'img/logo.png'}"
-							alt="${p.nombre}"
+							src="${imagenSegura}"
+							alt="${nombreSeguro}"
 							class="producto-imagen-v"
 							loading="lazy"
 							decoding="async"
@@ -1736,12 +1755,12 @@
 
 
 					<div class="producto-nombre-v">
-						${p.nombre}
+						${nombreSeguro}
 					</div>
 
 
 					<div class="producto-descripcion-v">
-						${p.descripcion || ''}
+						${descripcionSegura}
 					</div>
 
 
@@ -1797,9 +1816,9 @@
 
 					<button
 						class="filtro-cliente-btn"
-						data-cat="${cat}"
+						data-cat="${escaparHtml(cat)}"
 					>
-						${cat}
+						${escaparHtml(cat)}
 					</button>
 
 				`;
@@ -1915,21 +1934,6 @@
 
 
 
-		/* ===== ESCAPA TEXTO PARA EVITAR HTML NO DESEADO ===== */
-
-		function escaparHtml(texto) {
-
-			return String(texto ?? "")
-				.replace(/&/g, "&amp;")
-				.replace(/</g, "&lt;")
-				.replace(/>/g, "&gt;")
-				.replace(/"/g, "&quot;")
-				.replace(/'/g, "&#039;");
-
-		}
-
-
-
 		/* ===== ABRIR POPUP ===== */
 
 		function abrirProductoPopup(producto) {
@@ -1997,7 +2001,7 @@
 					<div class="popup-imagen-spinner" id="popup-imagen-spinner"></div>
 
 					<img
-						src="${imagenesPopupActuales[0]}"
+						src="${escaparHtml(imagenesPopupActuales[0])}"
 						alt="${nombre}"
 						class="producto-popup-imagen"
 						id="popup-imagen-actual"
@@ -2352,7 +2356,7 @@
 
 					const btnCategoria =
 						document.querySelector(
-							`.filtro-cliente-btn[data-cat="${cat}"]`
+							`.filtro-cliente-btn[data-cat="${CSS.escape(cat)}"]`
 						);
 
 					if (btnCategoria) btnCategoria.classList.add("active");
