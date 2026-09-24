@@ -644,6 +644,20 @@
 			return miembros[0];
 		}
 
+		// ===== ESCAPA TEXTO PARA EVITAR HTML/JS NO DESEADO AL INSERTARLO CON innerHTML =====
+		// Los datos de producto (nombre, categoría, descripción) vienen de Firestore y, aunque
+		// las reglas de seguridad ya validan tipos/longitudes, esto es una segunda capa de
+		// protección: si alguna vez una cuenta admin/trabajador se ve comprometida, un nombre
+		// de producto con HTML/JS no debería poder ejecutarse en el navegador de nadie.
+		function escaparHtml(texto) {
+			return String(texto ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#039;");
+		}
+
 		// ===== COMPRIME Y CUADRA LA IMAGEN ANTES DE SUBIRLA =====
 		function comprimirImagen(file, maxLado = 700, calidad = 0.8) {
 			return new Promise((resolve, reject) => {
@@ -942,8 +956,8 @@
 			contenedor.innerHTML = filtrados.map(p => `
 				<label style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; border-bottom:1px solid #FCE8F1;">
 					<input type="checkbox" class="chk-combo-producto" value="${p.id}" ${idsSeleccionadosCombo.has(p.id) ? 'checked' : ''} />
-					<img src="${p.imagenUrl || 'img/logo.png'}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid #F1D3DF;" />
-					<span style="font-size:0.9rem;">${p.nombre} — $${Number(p.precio || 0).toLocaleString('es-CL')} <small style="color:#999;">(${p.localId})</small></span>
+					<img src="${escaparHtml(p.imagenUrl || 'img/logo.png')}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid #F1D3DF;" />
+					<span style="font-size:0.9rem;">${escaparHtml(p.nombre)} — $${Number(p.precio || 0).toLocaleString('es-CL')} <small style="color:#999;">(${p.localId})</small></span>
 				</label>
 			`).join('') || `<p style="text-align:center; color:#999; font-size:0.85rem; margin:8px 0;">Sin resultados.</p>`;
 
@@ -1004,9 +1018,9 @@
 			filtrados.forEach(p => {
 				const tr = document.createElement("tr");
 				tr.innerHTML = `
-					<td><img src="${p.imagenUrl || 'img/logo.png'}" class="img-tabla" alt="${p.nombre}"></td>
-					<td><strong>${p.nombre}</strong></td>
-					<td>${p.categoria || '-'}</td>
+					<td><img src="${escaparHtml(p.imagenUrl || 'img/logo.png')}" class="img-tabla" alt="${escaparHtml(p.nombre)}"></td>
+					<td><strong>${escaparHtml(p.nombre)}</strong></td>
+					<td>${escaparHtml(p.categoria || '-')}</td>
 					<td>$${Number(p.precio).toLocaleString('es-CL')}</td>
 					<td>
 						<div class="badge-toggle-group">
@@ -1063,12 +1077,12 @@
 
 				const tr = document.createElement("tr");
 				tr.innerHTML = `
-					<td><img src="${rep.imagenUrl || 'img/logo.png'}" class="img-tabla" alt="${rep.nombre}"></td>
+					<td><img src="${escaparHtml(rep.imagenUrl || 'img/logo.png')}" class="img-tabla" alt="${escaparHtml(rep.nombre)}"></td>
 					<td>
 						${localesPresentes.map(l => `<span class="badge-local">${l}</span>`).join(' ')}<br>
-						<strong>${rep.nombre}</strong>
+						<strong>${escaparHtml(rep.nombre)}</strong>
 					</td>
-					<td>${rep.categoria || '-'}</td>
+					<td>${escaparHtml(rep.categoria || '-')}</td>
 					<td>${precioTexto}</td>
 					<td>
 						<div class="badge-toggle-group">
@@ -1436,7 +1450,7 @@
 			const contenedor = document.getElementById("preview-imagenes-extra");
 			contenedor.innerHTML = imagenesExtraActuales.map((url, i) => `
 				<div style="position:relative; width:60px; height:60px;">
-					<img src="${url}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #F1D3DF;" />
+					<img src="${escaparHtml(url)}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #F1D3DF;" />
 					<button type="button" onclick="eliminarImagenExtra(${i})"
 						style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:var(--rojo); color:white; border:none; font-size:0.7rem; cursor:pointer; line-height:1;">×</button>
 				</div>
