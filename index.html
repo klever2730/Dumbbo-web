@@ -39,6 +39,92 @@
         touch-action: manipulation;
     }
 
+    /* =====================================================
+       SELECTOR DE LOCAL
+       ===================================================== */
+
+    .selector-local-overlay {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--rosa-claro);
+        background-image: url('img/fondo.png');
+        background-repeat: repeat-y;
+        background-position: center top;
+        background-size: 100% auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+        z-index: 100000;
+    }
+
+    .selector-local-overlay.oculto {
+        display: none;
+    }
+
+    .selector-local-contenedor {
+        width: 100%;
+        max-width: 430px;
+        background-color: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border-radius: 24px;
+        padding: 32px 24px;
+        box-sizing: border-box;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(122, 41, 77, 0.18);
+    }
+
+    .selector-local-titulo {
+        margin: 0 0 8px 0;
+        color: var(--rosa-oscuro);
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .selector-local-subtitulo {
+        margin: 0 0 28px 0;
+        color: #8A6B78;
+        font-size: 0.98rem;
+        font-weight: 500;
+    }
+
+    .selector-local-lista {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .selector-local-btn {
+        width: 100%;
+        min-height: 58px;
+        border: 2px solid var(--rosa-dumbbo);
+        border-radius: 16px;
+        background-color: var(--blanco);
+        color: var(--rosa-oscuro);
+        font-size: 1.05rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 3px 10px rgba(122, 41, 77, 0.06);
+        touch-action: manipulation;
+    }
+
+    .selector-local-btn:hover {
+        background-color: var(--rosa-oscuro);
+        color: var(--blanco);
+        border-color: var(--rosa-oscuro);
+        box-shadow: 0 6px 15px rgba(122, 41, 77, 0.16);
+    }
+
+    .selector-local-btn:active {
+        transform: scale(0.97);
+    }
+
+
     /* ===== FONDO GENERAL ===== */
     body {
         background-color: var(--rosa-claro);
@@ -1005,6 +1091,60 @@
 
 
 	<!-- =====================================================
+	     SELECTOR DE LOCAL
+	     Aparece solamente cuando la URL no contiene
+	     un local válido mediante ?local=
+	     ===================================================== -->
+
+	<div
+		class="selector-local-overlay"
+		id="selector-local-overlay"
+	>
+
+		<div class="selector-local-contenedor">
+
+			<h1 class="selector-local-titulo">
+				Dumbbo Café
+			</h1>
+
+			<p class="selector-local-subtitulo">
+				Selecciona tu local para ver el menú
+			</p>
+
+
+			<div class="selector-local-lista">
+
+				<button
+					class="selector-local-btn"
+					data-local="GHU"
+				>
+					GHU
+				</button>
+
+
+				<button
+					class="selector-local-btn"
+					data-local="VK1"
+				>
+					VK1
+				</button>
+
+
+				<button
+					class="selector-local-btn"
+					data-local="Duoc"
+				>
+					Duoc
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+
+	<!-- =====================================================
 	     BANNER SUPERIOR
 	     ===================================================== -->
 
@@ -1247,8 +1387,105 @@
 		let todosLosProductos = [];
 
 
-		// Orden en que se muestran las categorías en el menú (de arriba hacia abajo).
-		// Cualquier categoría nueva que no esté en esta lista se agrega automáticamente al final.
+		/* =====================================================
+		   SELECTOR DE LOCAL
+		   ===================================================== */
+
+		const LOCALES_PERMITIDOS = [
+			"GHU",
+			"VK1",
+			"Duoc"
+		];
+
+
+		const parametrosURL =
+			new URLSearchParams(
+				window.location.search
+			);
+
+
+		const localParametro =
+			parametrosURL.get("local");
+
+
+		const LOCAL_ACTUAL =
+			LOCALES_PERMITIDOS.includes(
+				localParametro
+			)
+			? localParametro
+			: null;
+
+
+		const selectorLocalOverlay =
+			document.getElementById(
+				"selector-local-overlay"
+			);
+
+
+		/* Si existe un local válido en la URL,
+		   se oculta el selector y se carga
+		   directamente ese local. */
+
+		if (LOCAL_ACTUAL) {
+
+			selectorLocalOverlay.classList.add(
+				"oculto"
+			);
+
+		}
+
+
+		/* Botones del selector */
+
+		document
+			.querySelectorAll(
+				".selector-local-btn"
+			)
+			.forEach(btn => {
+
+				btn.addEventListener(
+					"click",
+					() => {
+
+						const localSeleccionado =
+							btn.dataset.local;
+
+
+						if (
+							!LOCALES_PERMITIDOS.includes(
+								localSeleccionado
+							)
+						) {
+
+							return;
+
+						}
+
+
+						const nuevaURL =
+							new URL(
+								window.location.href
+							);
+
+
+						nuevaURL.searchParams.set(
+							"local",
+							localSeleccionado
+						);
+
+
+						window.location.href =
+							nuevaURL.toString();
+
+					}
+				);
+
+			});
+
+
+		/* Orden en que se muestran las categorías en el menú (de arriba hacia abajo).
+		// Cualquier categoría nueva que no esté en esta lista se agrega automáticamente al final. */
+
 		const ORDEN_CATEGORIAS = ["Promociones", "Cafetería", "Sandwich", "Pasteles", "Bebestibles", "Dulces", "Snacks"];
 
 		function ordenarCategorias(categorias) {
@@ -1264,39 +1501,55 @@
 
 
 
-		onSnapshot(
-			collection(db, "productos"),
-			(snapshot) => {
+		/* =====================================================
+		   CARGA DE PRODUCTOS SEGÚN EL LOCAL
+		   ===================================================== */
 
-				todosLosProductos = [];
+		if (LOCAL_ACTUAL) {
 
+			onSnapshot(
+				collection(
+					db,
+					"locales",
+					LOCAL_ACTUAL,
+					"productos"
+				),
+				(snapshot) => {
 
-				snapshot.forEach((docSnap) => {
-
-					const data = docSnap.data();
-
-
-					if (data.disponible) {
-
-						todosLosProductos.push({
-							id: docSnap.id,
-							...data
-						});
-
-					}
-
-				});
+					todosLosProductos = [];
 
 
-				crearFiltrosCliente(todosLosProductos);
+					snapshot.forEach((docSnap) => {
 
-				renderizarMenuCliente(
-					todosLosProductos,
-					"todos"
-				);
+						const data = docSnap.data();
 
-			}
-		);
+
+						if (data.disponible) {
+
+							todosLosProductos.push({
+								id: docSnap.id,
+								...data
+							});
+
+						}
+
+					});
+
+
+					crearFiltrosCliente(
+						todosLosProductos
+					);
+
+
+					renderizarMenuCliente(
+						todosLosProductos,
+						"todos"
+					);
+
+				}
+			);
+
+		}
 
 
 
@@ -1656,6 +1909,10 @@
 
 		let indicePopupActual = 0;
 
+		/* ===== CONTROL DE CARGAS DEL POPUP ===== */
+
+		let popupCargaId = 0;
+
 
 
 		/* ===== ESCAPA TEXTO PARA EVITAR HTML NO DESEADO ===== */
@@ -1717,6 +1974,9 @@
 
 
 			indicePopupActual = 0;
+
+			/* Invalida cualquier carga anterior que todavía pudiera estar pendiente */
+			popupCargaId++;
 
 
 			// Precarga todas las fotos del carrusel para que cambiar entre ellas sea instantáneo
@@ -1820,21 +2080,56 @@
 			`;
 
 
-			// Oculta el spinner apenas la foto actual termina de cargar (y en cada cambio del carrusel)
+			/* =====================================================
+			   CARGA SEGURA DE LA PRIMERA IMAGEN
+			   Evita que una carga antigua pueda dejar bloqueado
+			   el carrusel después de cerrar y volver a abrir.
+			   ===================================================== */
+
 			const imgActualPopup = document.getElementById("popup-imagen-actual");
 			const spinnerActualPopup = document.getElementById("popup-imagen-spinner");
 
+			const cargaPopupActual = popupCargaId;
+
 			function marcarImagenPopupCargada() {
-				imgActualPopup.classList.add("cargada");
-				if (spinnerActualPopup) spinnerActualPopup.classList.add("oculto");
+
+				if (cargaPopupActual !== popupCargaId) {
+					return;
+				}
+
+				if (
+					imgActualPopup &&
+					document.getElementById("popup-imagen-actual") === imgActualPopup
+				) {
+
+					imgActualPopup.classList.add("cargada");
+
+					if (spinnerActualPopup) {
+						spinnerActualPopup.classList.add("oculto");
+					}
+
+				}
+
 			}
 
+
+			imgActualPopup.addEventListener(
+				"load",
+				marcarImagenPopupCargada
+			);
+
+			imgActualPopup.addEventListener(
+				"error",
+				marcarImagenPopupCargada
+			);
+
+
 			if (imgActualPopup.complete) {
+
 				marcarImagenPopupCargada();
-			} else {
-				imgActualPopup.addEventListener("load", marcarImagenPopupCargada);
-				imgActualPopup.addEventListener("error", marcarImagenPopupCargada);
+
 			}
+
 
 
 			if (hayVariasFotos) {
@@ -1899,10 +2194,88 @@
 			const img = document.getElementById("popup-imagen-actual");
 			const spinner = document.getElementById("popup-imagen-spinner");
 
-			img.classList.remove("cargada");
-			if (spinner) spinner.classList.remove("oculto");
+			if (!img) return;
 
-			img.src = imagenesPopupActuales[indicePopupActual];
+
+			/* Cada cambio de imagen obtiene un ID de carga nuevo */
+			const cargaActual = ++popupCargaId;
+
+
+			img.classList.remove("cargada");
+
+			if (spinner) {
+				spinner.classList.remove("oculto");
+			}
+
+
+			const nuevaUrl =
+				imagenesPopupActuales[indicePopupActual];
+
+
+			/* Registramos los eventos ANTES de cambiar src */
+			img.onload = () => {
+
+				if (cargaActual !== popupCargaId) {
+					return;
+				}
+
+				if (
+					document.getElementById("popup-imagen-actual") !== img
+				) {
+					return;
+				}
+
+				img.classList.add("cargada");
+
+				if (spinner) {
+					spinner.classList.add("oculto");
+				}
+
+			};
+
+
+			img.onerror = () => {
+
+				if (cargaActual !== popupCargaId) {
+					return;
+				}
+
+				if (
+					document.getElementById("popup-imagen-actual") !== img
+				) {
+					return;
+				}
+
+				img.classList.add("cargada");
+
+				if (spinner) {
+					spinner.classList.add("oculto");
+				}
+
+			};
+
+
+			img.src = nuevaUrl;
+
+
+			/*
+				Si la imagen ya estaba en caché del navegador,
+				complete puede ser true inmediatamente.
+			*/
+
+			if (img.complete) {
+
+				if (cargaActual === popupCargaId) {
+
+					img.classList.add("cargada");
+
+					if (spinner) {
+						spinner.classList.add("oculto");
+					}
+
+				}
+
+			}
 
 
 			document
@@ -1923,6 +2296,10 @@
 		/* ===== CERRAR POPUP ===== */
 
 		function cerrarProductoPopup() {
+
+			/* Invalida cualquier carga que todavía esté pendiente */
+			popupCargaId++;
+
 
 			productoPopupOverlay.classList.remove(
 				"mostrar"
