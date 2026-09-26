@@ -955,20 +955,38 @@
 			}
 		}
 
+		// Agrupa listaProductosCache por nombre de producto, para que en el selector de
+		// promociones combinadas cada producto aparezca UNA sola vez aunque exista en
+		// varios locales (ej. "Latte" no se repite 4 veces al ver "Todos los locales").
+		// Cada grupo guarda, por local, el documento real de ese producto en ese local.
+		function agruparProductosParaCombo(lista) {
+			const mapa = new Map();
+			lista.forEach(p => {
+				if (p.esPromoCombinada) return; // una promo no puede armarse con otras promos
+				const clave = (p.nombre || '').trim().toLowerCase();
+				if (!clave) return;
+				if (!mapa.has(clave)) {
+					mapa.set(clave, { clave, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, porLocal: {} });
+				}
+				mapa.get(clave).porLocal[p.localId] = p;
+			});
+			return mapa;
+		}
+
 		// RENDERIZAR LISTA DE PRODUCTOS PARA ARMAR PROMOCIONES COMBINADAS
 		function renderizarSeleccionCombo() {
 			const contenedor = document.getElementById("lista-seleccion-combo");
 			if (!contenedor) return;
 
-			const filtrados = listaProductosCache.filter(p =>
-				terminoBusquedaCombo === '' || (p.nombre || '').toLowerCase().includes(terminoBusquedaCombo)
+			const grupos = Array.from(agruparProductosParaCombo(listaProductosCache).values()).filter(g =>
+				terminoBusquedaCombo === '' || g.nombre.toLowerCase().includes(terminoBusquedaCombo)
 			);
 
-			contenedor.innerHTML = filtrados.map(p => `
+			contenedor.innerHTML = grupos.map(g => `
 				<label style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; border-bottom:1px solid #FCE8F1;">
-					<input type="checkbox" class="chk-combo-producto" value="${p.id}" ${idsSeleccionadosCombo.has(p.id) ? 'checked' : ''} />
-					<img src="${escaparHtml(p.imagenUrl || 'img/logo.png')}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid #F1D3DF;" />
-					<span style="font-size:0.9rem;">${escaparHtml(p.nombre)} — $${Number(p.precio || 0).toLocaleString('es-CL')} <small style="color:#999;">(${p.localId})</small></span>
+					<input type="checkbox" class="chk-combo-producto" value="${escaparHtml(g.clave)}" ${idsSeleccionadosCombo.has(g.clave) ? 'checked' : ''} />
+					<img src="${escaparHtml(g.imagenUrl || 'img/logo.png')}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid #F1D3DF;" />
+					<span style="font-size:0.9rem;">${escaparHtml(g.nombre)} — $${Number(g.precio || 0).toLocaleString('es-CL')} <small style="color:#999;">(${Object.keys(g.porLocal).join(', ')})</small></span>
 				</label>
 			`).join('') || `<p style="text-align:center; color:#999; font-size:0.85rem; margin:8px 0;">Sin resultados.</p>`;
 
@@ -1188,18 +1206,13 @@
 
 		// ===== CREAR PROMOCIÓN COMBINADA (2+ productos existentes, mismo local) =====
 		document.getElementById("btn-crear-combo").addEventListener("click", async () => {
+			const grupos = agruparProductosParaCombo(listaProductosCache);
 			const seleccionados = Array.from(idsSeleccionadosCombo)
-				.map(id => listaProductosCache.find(p => p.id === id))
+				.map(clave => grupos.get(clave))
 				.filter(Boolean);
 
 			if (seleccionados.length < 2) {
 				alert("Selecciona al menos 2 productos para armar la promoción.");
-				return;
-			}
-
-			const localesDistintos = new Set(seleccionados.map(p => p.localId));
-			if (localesDistintos.size > 1) {
-				alert("Todos los productos del combo deben ser del mismo local.");
 				return;
 			}
 
@@ -1211,16 +1224,6 @@
 				return;
 			}
 
-			if (localDestinoCombo === "TODOS") {
-				alert('Para crear una promoción combinada elige un local específico (no "Todos los locales") en el selector "Local del producto".');
-				return;
-			}
-
-			if (localDestinoCombo !== [...localesDistintos][0]) {
-				alert(`Los productos elegidos son de ${[...localesDistintos][0]}, pero el "Local del producto" seleccionado es ${localDestinoCombo}. Ajusta el selector de local antes de crear la promoción.`);
-				return;
-			}
-
 			const nombre = document.getElementById("combo-nombre").value.trim();
 			const precio = Number(document.getElementById("combo-precio").value);
 
@@ -1229,26 +1232,55 @@
 				return;
 			}
 
+			// En qué local(es) se crea realmente la promoción, según dónde existan
+			// TODOS los productos seleccionados (un trabajador solo puede llegar aquí
+			// con su propio local, ya que el selector se lo fija automáticamente).
+			let localesDestino;
+			if (localDestinoCombo === "TODOS") {
+				localesDestino = LOCALES.filter(local => seleccionados.every(g => g.porLocal[local]));
+
+				if (localesDestino.length === 0) {
+					alert('Ningún local tiene disponibles todos los productos seleccionados. Elige un local específico en "Local del producto".');
+					return;
+				}
+
+				if (localesDestino.length < LOCALES.length) {
+					const faltantes = LOCALES.filter(l => !localesDestino.includes(l));
+					const continuar = confirm(`Los productos elegidos no existen en: ${faltantes.join(', ')}. La promoción se creará solo en: ${localesDestino.join(', ')}. ¿Continuar?`);
+					if (!continuar) return;
+				}
+			} else {
+				const faltaEn = seleccionados.filter(g => !g.porLocal[localDestinoCombo]);
+				if (faltaEn.length > 0) {
+					alert(`"${faltaEn.map(g => g.nombre).join(', ')}" no está disponible en ${localDestinoCombo}. Ajusta la selección o el local.`);
+					return;
+				}
+				localesDestino = [localDestinoCombo];
+			}
+
 			const mensaje = document.getElementById("combo-mensaje");
 			mensaje.style.display = "inline";
 
 			try {
-				const imagenesCombo = seleccionados.map(p => p.imagenUrl).filter(Boolean);
-				const descripcionAuto = `Incluye: ${seleccionados.map(p => p.nombre).join(' + ')}`;
+				await Promise.all(localesDestino.map(local => {
+					const miembrosLocal = seleccionados.map(g => g.porLocal[local]);
+					const imagenesCombo = miembrosLocal.map(p => p.imagenUrl).filter(Boolean);
+					const descripcionAuto = `Incluye: ${miembrosLocal.map(p => p.nombre).join(' + ')}`;
 
-				const nuevaPromocion = {
-					nombre: nombre,
-					categoria: "Promociones",
-					precio: precio,
-					imagenUrl: imagenesCombo[0] || 'img/logo.png',
-					imagenesExtra: imagenesCombo,
-					descripcion: document.getElementById("combo-descripcion").value.trim() || descripcionAuto,
-					disponible: true,
-					promocion: true,
-					esPromoCombinada: true
-				};
+					const nuevaPromocion = {
+						nombre: nombre,
+						categoria: "Promociones",
+						precio: precio,
+						imagenUrl: imagenesCombo[0] || 'img/logo.png',
+						imagenesExtra: imagenesCombo,
+						descripcion: document.getElementById("combo-descripcion").value.trim() || descripcionAuto,
+						disponible: true,
+						promocion: true,
+						esPromoCombinada: true
+					};
 
-				await addDoc(coleccionProductos(localDestinoCombo), nuevaPromocion);
+					return addDoc(coleccionProductos(local), nuevaPromocion);
+				}));
 
 				document.getElementById("combo-nombre").value = "";
 				document.getElementById("combo-precio").value = "";
@@ -1576,7 +1608,7 @@
 					nombre: document.getElementById("nuevo-nombre").value,
 					categoria: document.getElementById("nuevo-categoria").value,
 					precio: Number(document.getElementById("nuevo-precio").value),
-					imagenUrl: urlImagenFinal,
+					imagenUrl: urlImagenFinal || "img/logo.png",
 					imagenesExtra: imagenesExtraActuales,
 					descripcion: document.getElementById("nuevo-descripcion").value,
 					disponible: document.getElementById("nuevo-disponible").checked,
