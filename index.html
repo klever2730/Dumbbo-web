@@ -383,20 +383,25 @@
         font-weight: 700;
     }
 
-
-/* ===== CONTENEDOR HORIZONTAL SCROLLABLE ===== */
+		
+/* ===== CONTENEDOR HORIZONTAL SCROLLABLE (MÚLTIPLES FILAS) ===== */
     .productos-horizontal-scroll {
-        display: flex;
+        display: grid;
+        grid-template-rows: repeat(2, 1fr); /* El '2' indica la cantidad de filas */
+        grid-auto-flow: column; /* Hace que los productos fluyan hacia la derecha */
+        grid-auto-columns: max-content; /* Evita que las tarjetas se deformen */
         gap: 15px;
         overflow-x: auto;
         padding: 5px 2px 15px 2px;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin; /* Para Firefox */
-        scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro); /* Para Firefox */
+        
+        /* Barra de desplazamiento para Firefox */
+        scrollbar-width: thin;
+        scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro);
     }
 
-    /* Barra para Chrome, Edge y Safari */
+    /* Barra de desplazamiento para Chrome, Edge y Safari */
     .productos-horizontal-scroll::-webkit-scrollbar {
         height: 8px; /* Grosor de la barra */
     }
