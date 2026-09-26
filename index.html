@@ -1385,6 +1385,9 @@
 
 
 		let todosLosProductos = [];
+		// Guarda qué categoría tiene seleccionada el cliente ("todos" por defecto), para que
+		// una actualización en tiempo real (onSnapshot) no le resetee el filtro que ya eligió.
+		let filtroActualCliente = "todos";
 
 
 		/* ===== ESCAPA TEXTO PARA EVITAR HTML NO DESEADO ===== */
@@ -1522,6 +1525,11 @@
 
 		if (LOCAL_ACTUAL) {
 
+			// Agrupa varios cambios seguidos (ej. el admin editando varios productos
+			// en fila) en un solo re-render, en vez de reconstruir todo el menú una
+			// vez por cada cambio individual que llega de Firestore.
+			let temporizadorRenderMenu = null;
+
 			onSnapshot(
 				collection(
 					db,
@@ -1556,10 +1564,22 @@
 					);
 
 
-					renderizarMenuCliente(
-						todosLosProductos,
-						"todos"
-					);
+					clearTimeout(temporizadorRenderMenu);
+					temporizadorRenderMenu = setTimeout(() => {
+
+						const productosAMostrar =
+							filtroActualCliente === "todos"
+								? todosLosProductos
+								: filtroActualCliente === "__promociones__"
+									? todosLosProductos.filter(p => p.promocion)
+									: todosLosProductos.filter(p => p.categoria === filtroActualCliente);
+
+						renderizarMenuCliente(
+							productosAMostrar,
+							filtroActualCliente
+						);
+
+					}, 150);
 
 				}
 			);
@@ -1860,6 +1880,8 @@
 
 							const categoriaSel =
 								btn.dataset.cat;
+
+							filtroActualCliente = categoriaSel;
 
 
 							if (
@@ -2335,6 +2357,8 @@
 
 
 					const cat = linkVerMas.dataset.cat;
+
+					filtroActualCliente = cat;
 
 
 					const filtrados =
