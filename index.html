@@ -384,7 +384,7 @@
     }
 
 
-    /* ===== CONTENEDOR HORIZONTAL SCROLLABLE ===== */
+/* ===== CONTENEDOR HORIZONTAL SCROLLABLE ===== */
     .productos-horizontal-scroll {
         display: flex;
         gap: 15px;
@@ -392,12 +392,21 @@
         padding: 5px 2px 15px 2px;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        scrollbar-width: thin; /* Para Firefox */
+        scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro); /* Para Firefox */
     }
 
+    /* Barra para Chrome, Edge y Safari */
     .productos-horizontal-scroll::-webkit-scrollbar {
-        display: none;
+        height: 8px; /* Grosor de la barra */
+    }
+    .productos-horizontal-scroll::-webkit-scrollbar-thumb {
+        background-color: var(--rosa-dumbbo);
+        border-radius: 10px;
+    }
+    .productos-horizontal-scroll::-webkit-scrollbar-track {
+        background-color: var(--rosa-claro);
+        border-radius: 10px;
     }
 
 
