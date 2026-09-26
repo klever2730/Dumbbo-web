@@ -452,7 +452,7 @@
 					<option value="Promociones">Promociones</option>
 				</select>
 
-				<input type="number" id="nuevo-precio" placeholder="Precio ($)" required />
+				<input type="number" id="nuevo-precio" placeholder="Precio ($)" min="1" step="1" required />
 
 				<div class="input-file-container">
 					<label for="nuevo-imagen">Foto del producto:</label>
@@ -472,6 +472,8 @@
 				<label><input type="checkbox" id="nuevo-disponible" checked /> Disponible (Visible en la carta)</label>
 				<label><input type="checkbox" id="nuevo-promocion" /> Activar en Oferta 🔥</label>
 			</div>
+
+			<p id="form-error" style="display:none; color:var(--rojo); font-weight:bold; margin: 0 0 10px 0;"></p>
 
 			<div style="display: flex; gap: 10px; align-items: center;">
 				<button type="submit" id="btn-guardar" class="tm-btn tm-btn-default">Guardar Producto en Firebase</button>
@@ -694,11 +696,20 @@
 		}
 
 		// ===== SUBIDA DE IMAGEN A FIREBASE STORAGE =====
-		async function subirImagenStorage(file) {
+		// Cada foto se guarda dentro de una carpeta con el local de destino
+		// (productos/GHU/..., productos/VK1/..., etc.) para que las reglas de Storage
+		// puedan exigir que un trabajador solo suba/borre fotos de SU local. Cuando el
+		// destino es "TODOS" (solo admin), la foto queda en productos/TODOS/...
+		// cacheControl: le dice al navegador que puede reutilizar la imagen hasta 7 días
+		// sin volver a descargarla. Sin esto, cada visita al menú re-descarga todas las
+		// fotos, lo que a 300-500 visitas/día pesa en velocidad y en costo de egress.
+		async function subirImagenStorage(file, localId) {
 			const archivoComprimido = await comprimirImagen(file);
-			const nombreArchivo = `productos/${Date.now()}_${archivoComprimido.name}`;
+			const nombreArchivo = `productos/${localId}/${Date.now()}_${archivoComprimido.name}`;
 			const storageRef = ref(storage, nombreArchivo);
-			const snapshot = await uploadBytes(storageRef, archivoComprimido);
+			const snapshot = await uploadBytes(storageRef, archivoComprimido, {
+				cacheControl: "public, max-age=604800"
+			});
 			return await getDownloadURL(snapshot.ref);
 		}
 
@@ -1297,14 +1308,21 @@
 					}
 				});
 
-				const listado = await listAll(ref(storage, "productos"));
+				// Las fotos ahora viven en subcarpetas por local (productos/GHU/..., productos/VK1/...),
+				// así que hay que recorrer cada subcarpeta; listAll() solo lista un nivel a la vez.
+				const raiz = await listAll(ref(storage, "productos"));
+				const todosLosItems = [...raiz.items];
+				for (const carpetaLocal of raiz.prefixes) {
+					const contenido = await listAll(carpetaLocal);
+					todosLosItems.push(...contenido.items);
+				}
 
 				let revisadas = 0;
 				let borradas = 0;
 
-				for (const itemRef of listado.items) {
+				for (const itemRef of todosLosItems) {
 					revisadas++;
-					estado.innerText = `Revisando ${revisadas}/${listado.items.length}...`;
+					estado.innerText = `Revisando ${revisadas}/${todosLosItems.length}...`;
 
 					try {
 						const url = await getDownloadURL(itemRef);
@@ -1474,9 +1492,55 @@
 			}
 		};
 
+		// ===== VALIDACIÓN DEL FORMULARIO DE PRODUCTO =====
+		// Revisa los campos antes de intentar guardar en Firebase. Devuelve un
+		// mensaje de error (string) si algo no es válido, o null si todo está bien.
+		function validarFormularioProducto() {
+			const nombre = document.getElementById("nuevo-nombre").value.trim();
+			const categoria = document.getElementById("nuevo-categoria").value;
+			const precioTexto = document.getElementById("nuevo-precio").value;
+			const precio = Number(precioTexto);
+			const descripcion = document.getElementById("nuevo-descripcion").value;
+
+			if (nombre.length < 2) {
+				return "El nombre del producto debe tener al menos 2 caracteres.";
+			}
+			if (!categoria) {
+				return "Selecciona una categoría para el producto.";
+			}
+			if (precioTexto === "" || Number.isNaN(precio) || precio <= 0) {
+				return "El precio debe ser un número mayor a 0.";
+			}
+			if (!Number.isInteger(precio)) {
+				return "El precio no puede tener decimales (usa pesos enteros).";
+			}
+			if (descripcion.length > 300) {
+				return "La descripción es muy larga (máximo 300 caracteres).";
+			}
+			return null;
+		}
+
+		function mostrarErrorFormulario(mensaje) {
+			const el = document.getElementById("form-error");
+			if (!mensaje) {
+				el.style.display = "none";
+				el.textContent = "";
+				return;
+			}
+			el.textContent = mensaje;
+			el.style.display = "block";
+		}
+
 		// GUARDAR O ACTUALIZAR PRODUCTO
 		document.getElementById("form-crear-producto").addEventListener("submit", async (e) => {
 			e.preventDefault();
+
+			mostrarErrorFormulario(null);
+			const errorValidacion = validarFormularioProducto();
+			if (errorValidacion) {
+				mostrarErrorFormulario(errorValidacion);
+				return;
+			}
 
 			const id = document.getElementById("producto-id-edit").value;
 			const localEdit = document.getElementById("producto-local-edit").value;
@@ -1489,7 +1553,7 @@
 				// Edición de un solo producto (no agrupado): el destino ya viene fijo (localEdit)
 				localDestino = (id && !grupoEdicionActual) ? localEdit : obtenerLocalDestino();
 			} catch (err) {
-				alert(err.message);
+				mostrarErrorFormulario(err.message);
 				return;
 			}
 
@@ -1497,13 +1561,13 @@
 
 			try {
 				if (archivoInput.files.length > 0) {
-					urlImagenFinal = await subirImagenStorage(archivoInput.files[0]);
+					urlImagenFinal = await subirImagenStorage(archivoInput.files[0], localDestino);
 				}
 
 				const archivosExtra = document.getElementById("nuevo-imagenes-extra").files;
 				if (archivosExtra.length > 0) {
 					const urlsNuevas = await Promise.all(
-						Array.from(archivosExtra).map(archivo => subirImagenStorage(archivo))
+						Array.from(archivosExtra).map(archivo => subirImagenStorage(archivo, localDestino))
 					);
 					imagenesExtraActuales.push(...urlsNuevas);
 				}
@@ -1559,7 +1623,7 @@
 
 				limpiarFormulario();
 			} catch (error) {
-				alert("Error al guardar el producto: " + error.message);
+				mostrarErrorFormulario("Error al guardar el producto: " + error.message);
 			} finally {
 				document.getElementById("mensaje-carga").style.display = "none";
 			}
@@ -1649,6 +1713,7 @@
 			document.getElementById("form-titulo").innerText = "+ Agregar Nuevo Producto";
 			document.getElementById("btn-guardar").innerText = "Guardar Producto en Firebase";
 			document.getElementById("btn-cancelar").style.display = "none";
+			mostrarErrorFormulario(null);
 		};
 	</script>
 </body>
