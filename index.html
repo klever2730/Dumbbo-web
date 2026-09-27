@@ -422,6 +422,16 @@
         background-color: var(--rosa-claro);
         border-radius: 10px;
     }
+		
+	
+	/* ===== CONTENEDOR VISTA FILTRADA (SCROLL VERTICAL NATURAL) ===== */
+    .productos-grid-vertical {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+        gap: 15px;
+        padding: 5px 2px 15px 2px;
+        justify-items: center; 
+    }
 
 
     /* ===== TARJETA DE PRODUCTO ===== */
@@ -839,6 +849,13 @@
             height: 6px; 
             width: auto;
         }
+
+		
+		/* Ajuste de la vista filtrada en móviles */
+		.productos-grid-vertical {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        justify-items: center;
+		}
 
         /* ===== PRODUCTOS EN MÓVIL ===== */
         .producto-card-vertical {
@@ -1679,6 +1696,10 @@
 					const cantPromo = productosPromocion.length;
 					const colPromo = Math.max(Math.min(12, cantPromo), Math.ceil(cantPromo / 3));
 
+                    // NUEVO: Decide si usar scroll horizontal o vertical
+					const claseContenedorPromo = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
+					const estiloContenedorPromo = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${colPromo};"` : "";
+
 					html += `
 
 						<div
@@ -1698,8 +1719,8 @@
 
 							</div>
 
-							<!-- SE INYECTA LA VARIABLE AQUÍ -->
-							<div class="productos-horizontal-scroll" style="--columnas-movil: ${colPromo};">
+							<!-- SE INYECTA LA CLASE Y ESTILO CORRECTOS AQUÍ -->
+							<div class="${claseContenedorPromo}" ${estiloContenedorPromo}>
 					`;
 
 
@@ -1741,13 +1762,17 @@
 					productos.filter(
 						p => p.categoria === cat
 					);
-
-
+				
+				
 				if (productosCat.length > 0) {
 					
 					// NUEVO CÁLCULO MATEMÁTICO PARA MÓVIL
 					const cantCat = productosCat.length;
 					const colCat = Math.max(Math.min(12, cantCat), Math.ceil(cantCat / 3));
+
+                    // NUEVO: Decide si usar scroll horizontal o vertical
+					const claseContenedorCat = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
+					const estiloContenedorCat = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${colCat};"` : "";
 
 					html += `
 
@@ -1768,8 +1793,8 @@
 
 							</div>
 
-							<!-- SE INYECTA LA VARIABLE AQUÍ -->
-							<div class="productos-horizontal-scroll" style="--columnas-movil: ${colCat};">
+							<!-- SE INYECTA LA CLASE Y ESTILO CORRECTOS AQUÍ -->
+							<div class="${claseContenedorCat}" ${estiloContenedorCat}>
 					`;
 
 
