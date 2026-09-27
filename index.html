@@ -388,15 +388,15 @@
     }
 
 		
-/* ===== CONTENEDOR SCROLLABLE (MÁXIMO 4 FILAS) ===== */
+/* ===== CONTENEDOR SCROLLABLE (MÁXIMO 3 FILAS) ===== */
     .productos-horizontal-scroll {
         display: grid;
         /* Crea columnas automáticamente. Si caben 8, pone 8. */
         grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
         gap: 15px;
         
-        /* LÍMITE DE 4 FILAS: Cada tarjeta mide aprox 240px + gap. 1020px equivale a ~4 filas */
-        max-height: 1020px;
+        /* LÍMITE DE 3 FILAS */
+        max-height: 790px;
         
         /* El scroll ahora es vertical (hacia abajo) dentro de este contenedor */
         overflow-y: auto; 
