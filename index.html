@@ -388,14 +388,19 @@
     }
 
 		
-/* ===== CONTENEDOR HORIZONTAL SCROLLABLE (MÚLTIPLES FILAS) ===== */
+/* ===== CONTENEDOR SCROLLABLE (MÁXIMO 4 FILAS) ===== */
     .productos-horizontal-scroll {
         display: grid;
-        grid-template-rows: repeat(2, 1fr); /* El '2' indica la cantidad de filas */
-        grid-auto-flow: column; /* Hace que los productos fluyan hacia la derecha */
-        grid-auto-columns: max-content; /* Evita que las tarjetas se deformen */
+        /* Crea columnas automáticamente. Si caben 8, pone 8. */
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
         gap: 15px;
-        overflow-x: auto;
+        
+        /* LÍMITE DE 4 FILAS: Cada tarjeta mide aprox 240px + gap. 1020px equivale a ~4 filas */
+        max-height: 1020px;
+        
+        /* El scroll ahora es vertical (hacia abajo) dentro de este contenedor */
+        overflow-y: auto; 
+        overflow-x: hidden;
         padding: 5px 2px 15px 2px;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
@@ -407,7 +412,7 @@
 
     /* Barra de desplazamiento para Chrome, Edge y Safari */
     .productos-horizontal-scroll::-webkit-scrollbar {
-        height: 8px; /* Grosor de la barra */
+        width: 8px; /* CAMBIO: Ahora usamos 'width' en lugar de 'height' porque el scroll es vertical */
     }
     .productos-horizontal-scroll::-webkit-scrollbar-thumb {
         background-color: var(--rosa-dumbbo);
