@@ -810,14 +810,32 @@
             right: 20px;
             transform: none;
         }
+		
+		
+		/* ===== PRODUCTOS EN MÓVIL ===== */
 
+        /* Cambia el contenedor a Flexbox para apilar 2 filas y hacer scroll hacia la derecha */
+        .productos-horizontal-scroll {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            max-height: 520px; /* Límite para forzar un máximo de 2 filas */
+            overflow-x: auto;
+            overflow-y: hidden;
+            align-content: flex-start;
+        }
 
-        /* ===== PRODUCTOS EN MÓVIL ===== */
+        /* Fuerza la barra de desplazamiento a ser horizontal en celular */
+        .productos-horizontal-scroll::-webkit-scrollbar {
+            height: 6px; 
+            width: auto;
+        }
 
         .producto-card-vertical {
             min-width: 145px;
             width: 145px;
             padding: 10px;
+            margin: 0; /* Anula el centrado de la versión de computador */
         }
 
         .producto-img-container {
