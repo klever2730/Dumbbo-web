@@ -813,16 +813,26 @@
 		
 		
 		/* ===== PRODUCTOS EN MÓVIL ===== */
-
-        /* Cambia el contenedor a Flexbox para apilar 2 filas y hacer scroll hacia la derecha */
+		
+		
+		/* ===== CONTENEDOR EN MÓVIL (SCROLL HORIZONTAL EXACTO) ===== */
         .productos-horizontal-scroll {
-            display: flex;
-            flex-direction: column;
-            flex-wrap: wrap;
-            max-height: 780px; /* Límite de filas (1 fila = 260px, 2 = 520px, 3 = 780px) */
+            display: grid;
+            
+            /* AQUÍ ESTÁ LA MAGIA: 
+               Cambia el número "2" por la cantidad de filas que quieras (1, 2, 3, etc.) */
+            grid-template-rows: repeat(2, max-content);
+            
+            grid-auto-flow: column;
+            grid-auto-columns: max-content;
+            gap: 15px;
+            
+            /* Eliminamos el max-height porque el Grid lo controla ahora */
+            max-height: none; 
+            
             overflow-x: auto;
             overflow-y: hidden;
-            align-content: flex-start;
+            padding-bottom: 15px;
         }
 
         /* Fuerza la barra de desplazamiento a ser horizontal en celular */
@@ -831,13 +841,15 @@
             width: auto;
         }
 
+        /* ===== PRODUCTOS EN MÓVIL ===== */
         .producto-card-vertical {
             min-width: 145px;
             width: 145px;
             padding: 10px;
-            margin: 0; /* Anula el centrado de la versión de computador */
+            margin: 0;
+            height: 100%; /* Asegura que todas midan lo mismo */
         }
-
+        
         .producto-img-container {
             height: 105px;
         }
