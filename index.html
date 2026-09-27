@@ -423,14 +423,37 @@
         border-radius: 10px;
     }
 		
-	
-	/* ===== CONTENEDOR VISTA FILTRADA (SCROLL VERTICAL NATURAL) ===== */
+		
+	/* ===== CONTENEDOR VISTA FILTRADA (SCROLL VERTICAL INTERNO) ===== */
     .productos-grid-vertical {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
         gap: 15px;
-        padding: 5px 2px 15px 2px;
+        padding: 5px 5px 15px 2px;
         justify-items: center; 
+        
+        /* Limita la altura a un 60% de la pantalla y activa el scroll hacia abajo */
+        max-height: 60vh; 
+        overflow-y: auto;
+        overflow-x: hidden;
+        align-content: start;
+        
+        /* Barra de desplazamiento para Firefox */
+        scrollbar-width: thin;
+        scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro);
+    }
+
+    /* Diseño de la barra vertical para Chrome/Safari/Edge */
+    .productos-grid-vertical::-webkit-scrollbar {
+        width: 8px;
+    }
+    .productos-grid-vertical::-webkit-scrollbar-thumb {
+        background-color: var(--rosa-dumbbo);
+        border-radius: 10px;
+    }
+    .productos-grid-vertical::-webkit-scrollbar-track {
+        background-color: var(--rosa-claro);
+        border-radius: 10px;
     }
 
 
@@ -849,12 +872,15 @@
             height: 6px; 
             width: auto;
         }
-
 		
-		/* Ajuste de la vista filtrada en móviles */
+		/* Ajuste de la vista filtrada en móviles con scroll interno */
 		.productos-grid-vertical {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         justify-items: center;
+        
+        /* Ajusta la altura de la caja para que sea cómoda en la pantalla del celular */
+        max-height: 65vh; 
+        padding-right: 5px; /* Da espacio para que la barra no tape el producto */
 		}
 
         /* ===== PRODUCTOS EN MÓVIL ===== */
