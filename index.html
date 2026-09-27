@@ -815,24 +815,23 @@
 		/* ===== PRODUCTOS EN MÓVIL ===== */
 		
 		
-		/* ===== CONTENEDOR EN MÓVIL (SCROLL HORIZONTAL EXACTO) ===== */
+		
+		/* ===== CONTENEDOR EN MÓVIL (SCROLL HORIZONTAL MATEMÁTICO) ===== */
         .productos-horizontal-scroll {
             display: grid;
             
-            /* AQUÍ ESTÁ LA MAGIA: 
-               Cambia el número "2" por la cantidad de filas que quieras (1, 2, 3, etc.) */
-            grid-template-rows: repeat(3, max-content);
+            /* Toma el cálculo exacto desde Javascript. 
+               Fuerza el ancho del contenedor creando columnas de 145px hacia la derecha */
+            grid-template-columns: repeat(var(--columnas-movil, 12), 145px);
             
-            grid-auto-flow: column;
-            grid-auto-columns: max-content;
+            /* El grid por defecto fluye en "row", llenando de izquierda a derecha 
+               y bajando de fila mágicamente cuando llega al tope calculado. */
+            
             gap: 15px;
-            
-            /* Eliminamos el max-height porque el Grid lo controla ahora */
-            max-height: none; 
-            
             overflow-x: auto;
             overflow-y: hidden;
             padding-bottom: 15px;
+            max-height: none; /* Ya no limitamos alturas, JS toma el control absoluto */
         }
 
         /* Fuerza la barra de desplazamiento a ser horizontal en celular */
@@ -847,7 +846,7 @@
             width: 145px;
             padding: 10px;
             margin: 0;
-            height: 100%; /* Asegura que todas midan lo mismo */
+            height: 100%; /* Asegura que no se deformen */
         }
         
         .producto-img-container {
@@ -1671,9 +1670,14 @@
 					productos.filter(
 						p => p.promocion
 					);
-
-
+				
+				
+				
 				if (productosPromocion.length > 0) {
+					
+					// NUEVO CÁLCULO MATEMÁTICO PARA MÓVIL
+					const cantPromo = productosPromocion.length;
+					const colPromo = Math.max(Math.min(12, cantPromo), Math.ceil(cantPromo / 3));
 
 					html += `
 
@@ -1694,8 +1698,8 @@
 
 							</div>
 
-
-							<div class="productos-horizontal-scroll">
+							<!-- SE INYECTA LA VARIABLE AQUÍ -->
+							<div class="productos-horizontal-scroll" style="--columnas-movil: ${colPromo};">
 					`;
 
 
@@ -1728,9 +1732,9 @@
 						)
 					)
 				]);
-
-
-
+			
+			
+			
 			categorias.forEach(cat => {
 
 				const productosCat =
@@ -1740,6 +1744,10 @@
 
 
 				if (productosCat.length > 0) {
+					
+					// NUEVO CÁLCULO MATEMÁTICO PARA MÓVIL
+					const cantCat = productosCat.length;
+					const colCat = Math.max(Math.min(12, cantCat), Math.ceil(cantCat / 3));
 
 					html += `
 
@@ -1760,8 +1768,8 @@
 
 							</div>
 
-
-							<div class="productos-horizontal-scroll">
+							<!-- SE INYECTA LA VARIABLE AQUÍ -->
+							<div class="productos-horizontal-scroll" style="--columnas-movil: ${colCat};">
 					`;
 
 
