@@ -387,32 +387,32 @@
     .menu-loader-texto {
         font-size: 0.95rem;
         font-weight: 700;
-    }
+	}
 		
-		
-		/* ===== CONTENEDOR SCROLLABLE (MÁXIMO 3 FILAS EN PC) ===== */
+	
+	/* ===== CONTENEDOR HORIZONTAL SCROLLABLE (TODOS LOS DISPOSITIVOS) ===== */
     .productos-horizontal-scroll {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+        /* Toma el cálculo matemático del JS y usa casillas de 165px en PC */
+        grid-template-columns: repeat(var(--columnas-movil, 12), 165px);
+        grid-auto-flow: row; /* Obliga a formar las 3 filas en lugar de 1 infinita */
         gap: 15px;
         
-        /* Limita la altura para ver MÁXIMO 3 FILAS (aprox 790px) */
-        max-height: 790px; 
-        
-        /* Cambia el scroll a vertical hacia abajo */
-        overflow-y: auto; 
-        overflow-x: hidden;
+        /* El scroll es hacia la DERECHA */
+        overflow-x: auto;
+        overflow-y: hidden;
         padding: 5px 2px 15px 2px;
-        scroll-behavior: smooth;
+        
+        /* Se quita el scroll-behavior: smooth para que la rueda del ratón no tenga "lag" */
         -webkit-overflow-scrolling: touch;
         
+        /* Diseño de la barra horizontal en PC */
         scrollbar-width: thin;
         scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro);
     }
 
-    /* Barra de desplazamiento vertical para Chrome/Edge/Safari */
     .productos-horizontal-scroll::-webkit-scrollbar {
-        width: 8px;
+        height: 8px; /* Usamos height porque la barra ahora está abajo (horizontal) */
     }
     .productos-horizontal-scroll::-webkit-scrollbar-thumb {
         background-color: var(--rosa-dumbbo);
