@@ -339,8 +339,7 @@
 			align-items: center;
 			gap: 8px;
 		}
-		
-		
+
 		.badge-estado {
 			padding: 5px 12px;
 			border-radius: 12px;
@@ -357,11 +356,6 @@
 		.badge-oculto {
 			background-color: var(--rojo-bg);
 			color: var(--rojo);
-		}
-
-		.badge-agotado {
-			background-color: #ECEFF1;
-			color: #546E7A;
 		}
 
 		.badge-parcial {
@@ -493,10 +487,9 @@
 					<div id="preview-imagenes-extra" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;"></div>
 				</div>
 			</div>
-			
+
 			<div class="form-checkboxes">
 				<label><input type="checkbox" id="nuevo-disponible" checked /> Disponible (Visible en la carta)</label>
-				<label><input type="checkbox" id="nuevo-agotado" /> 🚫 Marcar como Agotado</label>
 				<label><input type="checkbox" id="nuevo-promocion" /> Activar en Oferta 🔥</label>
 			</div>
 
@@ -1042,12 +1035,10 @@
 			tbody.innerHTML = "";
 
 			const filtrados = listaProductosCache.filter(p => {
-				
 				const coincideEstado =
-					filtroActual === 'disponible' ? (p.disponible && !p.agotado) :
-					filtroActual === 'oculto' ? (!p.disponible) :
-					filtroActual === 'agotado' ? (p.agotado) :
-					filtroActual === 'oferta' ? (p.promocion) :
+					filtroActual === 'disponible' ? p.disponible :
+					filtroActual === 'oculto' ? !p.disponible :
+					filtroActual === 'oferta' ? p.promocion :
 					true;
 
 				const coincideBusqueda =
@@ -1085,21 +1076,18 @@
 					<td>$${Number(p.precio).toLocaleString('es-CL')}</td>
 					<td>
 						<div class="badge-toggle-group">
-							<span class="badge-estado ${p.agotado ? 'badge-agotado' : (p.disponible ? 'badge-disponible' : 'badge-oculto')}">
-								${p.agotado ? 'Agotado' : (p.disponible ? 'Disponible' : 'Oculto')}
+							<span class="badge-estado ${p.disponible ? 'badge-disponible' : 'badge-oculto'}">
+								${p.disponible ? 'Disponible' : 'Oculto'}
 							</span>
 							<input type="checkbox" class="chk-rapido" ${p.disponible ? 'checked' : ''} 
 								title="Marcar para mostrar / Desmarcar para ocultar"
 								onchange="toggleDisponible('${p.id}', '${p.localId}', this.checked)" />
-							<input type="checkbox" class="chk-rapido" ${p.agotado ? 'checked' : ''} 
-								title="Marcar / Desmarcar Agotado"
-								onchange="toggleAgotado('${p.id}', '${p.localId}', this.checked)" />
 						</div>
 					</td>
 					<td>
 						<div class="badge-toggle-group">
 							<span>${p.promocion ? '🔥 Sí' : 'No'}</span>
-							<input type="checkbox" class="chk-rapido" ${p.promocion ? 'checked' : ''}
+							<input type="checkbox" class="chk-rapido" ${p.promocion ? 'checked' : ''} 
 								title="Activar / Desactivar oferta"
 								onchange="togglePromocion('${p.id}', '${p.localId}', this.checked)" />
 						</div>
@@ -1114,8 +1102,7 @@
 				tbody.appendChild(tr);
 			});
 		}
-		
-		
+
 		// FILAS AGRUPADAS ("Todos los locales"): un producto = una fila, sin repetirse por local
 		function renderizarFilasAgrupadas(tbody, filtrados) {
 			const grupos = agruparProductos(filtrados);
@@ -1133,21 +1120,8 @@
 
 				const todosDisponibles = miembros.every(m => m.disponible);
 				const ningunoDisponible = miembros.every(m => !m.disponible);
-				const todosAgotados = miembros.every(m => m.agotado);
-
-				let claseEstado = 'badge-parcial';
-				let textoEstado = 'Parcial';
-
-				if (todosAgotados) {
-					claseEstado = 'badge-agotado';
-					textoEstado = 'Agotado';
-				} else if (todosDisponibles) {
-					claseEstado = 'badge-disponible';
-					textoEstado = 'Disponible';
-				} else if (ningunoDisponible) {
-					claseEstado = 'badge-oculto';
-					textoEstado = 'Oculto';
-				}
+				const claseEstado = todosDisponibles ? 'badge-disponible' : ningunoDisponible ? 'badge-oculto' : 'badge-parcial';
+				const textoEstado = todosDisponibles ? 'Disponible' : ningunoDisponible ? 'Oculto' : 'Parcial';
 
 				const todosPromocion = miembros.every(m => m.promocion);
 				const ningunoPromocion = miembros.every(m => !m.promocion);
@@ -1167,8 +1141,6 @@
 							<span class="badge-estado ${claseEstado}">${textoEstado}</span>
 							<input type="checkbox" class="chk-rapido chk-grupo-disponible" data-key="${encodeURIComponent(key)}" ${todosDisponibles ? 'checked' : ''}
 								title="Marcar/desmarcar disponible en TODOS los locales donde existe" />
-							<input type="checkbox" class="chk-rapido chk-grupo-agotado" data-key="${encodeURIComponent(key)}" ${todosAgotados ? 'checked' : ''}
-								title="Marcar/desmarcar Agotado en TODOS los locales donde existe" />
 						</div>
 					</td>
 					<td>
@@ -1193,12 +1165,6 @@
 				chk.addEventListener("change", (e) => {
 					const key = decodeURIComponent(e.target.dataset.key);
 					toggleDisponibleGrupo(key, e.target.checked);
-				});
-			});
-			tbody.querySelectorAll(".chk-grupo-agotado").forEach(chk => {
-				chk.addEventListener("change", (e) => {
-					const key = decodeURIComponent(e.target.dataset.key);
-					toggleAgotadoGrupo(key, e.target.checked);
 				});
 			});
 			tbody.querySelectorAll(".chk-grupo-promocion").forEach(chk => {
@@ -1229,13 +1195,9 @@
 		window.toggleDisponible = async (id, local, estado) => {
 			await updateDoc(docProducto(id, local), { disponible: estado });
 		};
-		
+
 		window.togglePromocion = async (id, local, estado) => {
 			await updateDoc(docProducto(id, local), { promocion: estado });
-		};
-
-		window.toggleAgotado = async (id, local, estado) => {
-			await updateDoc(docProducto(id, local), { agotado: estado });
 		};
 
 		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA PARA TODO UN GRUPO (misma fila = varios locales)
@@ -1254,15 +1216,6 @@
 				await Promise.all(miembros.map(m => updateDoc(docProducto(m.id, m.localId), { promocion: estado })));
 			} catch (error) {
 				alert("Error al actualizar la oferta en todos los locales: " + error.message);
-			}
-		}
-
-		async function toggleAgotadoGrupo(key, estado) {
-			const miembros = miembrosDeGrupo(key);
-			try {
-				await Promise.all(miembros.map(m => updateDoc(docProducto(m.id, m.localId), { agotado: estado })));
-			} catch (error) {
-				alert("Error al actualizar estado agotado en todos los locales: " + error.message);
 			}
 		}
 
@@ -1467,7 +1420,6 @@
 			document.getElementById("nuevo-precio").value = p.precio;
 			document.getElementById("nuevo-descripcion").value = p.descripcion || '';
 			document.getElementById("nuevo-disponible").checked = p.disponible;
-			document.getElementById("nuevo-agotado").checked = p.agotado || false;
 			document.getElementById("nuevo-promocion").checked = p.promocion;
 			document.getElementById("imagen-actual-url").value = p.imagenUrl || '';
 
@@ -1681,7 +1633,7 @@
 					);
 					imagenesExtraActuales.push(...urlsNuevas);
 				}
-				
+
 				const productoData = {
 					nombre: document.getElementById("nuevo-nombre").value,
 					categoria: document.getElementById("nuevo-categoria").value,
@@ -1690,7 +1642,6 @@
 					imagenesExtra: imagenesExtraActuales,
 					descripcion: document.getElementById("nuevo-descripcion").value,
 					disponible: document.getElementById("nuevo-disponible").checked,
-					agotado: document.getElementById("nuevo-agotado").checked,
 					promocion: document.getElementById("nuevo-promocion").checked
 				};
 
