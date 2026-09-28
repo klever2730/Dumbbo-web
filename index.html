@@ -2493,7 +2493,7 @@
 
 
 
-		/* ===== CERRAR POPUP ===== */
+/* ===== CERRAR POPUP ===== */
 
 		function cerrarProductoPopup() {
 
@@ -2511,6 +2511,18 @@
 
 		}
 
+
+		/* ===== ABRIR/CERRAR BARRA DE CATEGORÍAS ===== */
+		const btnCategoriasToggle = document.querySelector(".btn-categorias-menu");
+		const navCategoriasContenedor = document.getElementById("cliente-categoria-nav");
+
+		if (btnCategoriasToggle && navCategoriasContenedor) {
+			btnCategoriasToggle.addEventListener("click", () => {
+				// Almacena o quita el estado 'activo' y 'mostrar' como si fuera un interruptor
+				btnCategoriasToggle.classList.toggle("activo");
+				navCategoriasContenedor.classList.toggle("mostrar");
+			});
+		}
 
 
 		/* ===== TOCAR "VER MÁS" DE UNA CATEGORÍA ===== */
