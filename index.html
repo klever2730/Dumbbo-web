@@ -384,29 +384,48 @@
         font-size: 0.95rem;
         font-weight: 700;
     }
-
-
-    /* ===== CONTENEDOR HORIZONTAL SCROLLABLE ===== */
+		
+		
+		/* ===== CONTENEDOR SCROLLABLE (MÁXIMO 3 FILAS EN PC) ===== */
     .productos-horizontal-scroll {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
         gap: 15px;
-        overflow-x: auto;
+        
+        /* Limita la altura para ver MÁXIMO 3 FILAS (aprox 790px) */
+        max-height: 790px; 
+        
+        /* Cambia el scroll a vertical hacia abajo */
+        overflow-y: auto; 
+        overflow-x: hidden;
         padding: 5px 2px 15px 2px;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        
+        scrollbar-width: thin;
+        scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro);
     }
 
+    /* Barra de desplazamiento vertical para Chrome/Edge/Safari */
     .productos-horizontal-scroll::-webkit-scrollbar {
-        display: none;
+        width: 8px;
     }
-
-
-    /* ===== TARJETA DE PRODUCTO ===== */
+    .productos-horizontal-scroll::-webkit-scrollbar-thumb {
+        background-color: var(--rosa-dumbbo);
+        border-radius: 10px;
+    }
+    .productos-horizontal-scroll::-webkit-scrollbar-track {
+        background-color: var(--rosa-claro);
+        border-radius: 10px;
+    }
+		
+		
+		
+		/* ===== TARJETA DE PRODUCTO ===== */
     .producto-card-vertical {
-        min-width: 165px;
-        width: 165px;
+        width: 100%;       /* Se adapta al ancho de la columna */
+        max-width: 180px;  /* Evita que se haga gigante */
+        margin: 0 auto;    /* La centra */
         flex-shrink: 0;
         background-color: var(--blanco);
         border: 1px solid #F1D3DF;
