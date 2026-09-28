@@ -4,8 +4,6 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Admin - Dumbbo Café</title>
-	<link rel="icon" type="image/png" href="img/logo-rosa2.png" />
-	<link rel="apple-touch-icon" href="img/logo-rosa2.png" />
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 	<style>
 		:root {
@@ -23,7 +21,7 @@
 		body {
 			background-color: var(--rosa-claro);
 			color: var(--texto);
-			background-image: url('img/fondo.png');
+			background-image: url('img/logo1.png');
 			background-repeat: no-repeat;
 			background-position: center center;
 			background-attachment: fixed;
@@ -489,7 +487,7 @@
 		<div class="form-crear-producto" style="margin-bottom: 20px;">
 			<h3>🎉 Crear Promoción Combinada</h3>
 			<p style="font-size:0.85rem; color:#777; margin-top:-8px; margin-bottom: 14px;">
-				Elige 2 o más productos del <strong>mismo local</strong> y arma una promo con precio especial. Las fotos se toman automáticamente de los productos que elijas. El local de la promo es el que tengas seleccionado arriba en "Local del producto".
+				Elige 2 o más productos y arma una promo con precio especial. Cada producto aparece una sola vez aunque exista en varios locales. Las fotos se toman automáticamente de los productos que elijas. La promo se crea en el local que tengas seleccionado arriba en "Local del producto", o en todos los locales donde existan todos los productos elegidos si eliges "Todos los locales".
 			</p>
 
 			<input type="text" id="combo-busqueda" class="input-busqueda" placeholder="🔍 Buscar producto para agregar al combo..." style="margin-bottom:10px;" />
@@ -754,6 +752,9 @@
 		function prepararSelectorLocal() {
 			const select = document.getElementById("local-elegido");
 			if (!select) return;
+
+			const botonLimpieza = document.getElementById("btn-limpiar-huerfanas");
+			if (botonLimpieza) botonLimpieza.style.display = esAdministrador() ? "" : "none";
 
 			if (!esAdministrador()) {
 				select.innerHTML = `<option value="${localAsignado}">${localAsignado}</option>`;
@@ -1206,7 +1207,7 @@
 			renderizarTabla();
 		};
 
-		// ===== CREAR PROMOCIÓN COMBINADA (2+ productos existentes, mismo local) =====
+		// ===== CREAR PROMOCIÓN COMBINADA (2+ productos existentes, en un local o en todos) =====
 		document.getElementById("btn-crear-combo").addEventListener("click", async () => {
 			const grupos = agruparProductosParaCombo(listaProductosCache);
 			const seleccionados = Array.from(idsSeleccionadosCombo)
@@ -1316,15 +1317,22 @@
 		});
 
 		// ===== LIMPIAR FOTOS QUE YA NO USA NINGÚN PRODUCTO =====
-		// Nota: revisa solo contra los productos actualmente cargados (los del
-		// local en pantalla). Para una limpieza completa, selecciona primero
-		// "Todos los locales" arriba y luego pulsa este botón.
+		// Solo el admin, y solo con "Todos los locales" seleccionado: las fotos de
+		// productos creados en todos los locales (productos/TODOS/...) las comparten
+		// varios locales, así que revisar contra un solo local las borraría por error.
 		document.getElementById("btn-limpiar-huerfanas").addEventListener("click", async () => {
+			if (!esAdministrador()) {
+				alert("Solo el administrador puede limpiar las fotos de Storage.");
+				return;
+			}
+			if (localActual !== "TODOS") {
+				alert('Para limpiar fotos, selecciona primero "Todos los locales" en "Viendo local" (arriba). Con un solo local se podrían borrar fotos que usan los otros.');
+				return;
+			}
+
 			const confirmar = confirm(
 				"Esto va a revisar todas las fotos guardadas en Storage y borrar las que ningún " +
-				"producto (ni promoción) del local que estás viendo esté usando actualmente. " +
-				(localActual !== "TODOS" ? "\n\nEstás viendo solo un local — para una limpieza completa, selecciona primero \"Todos los locales\" arriba.\n\n" : "") +
-				"¿Continuar?"
+				"producto (ni promoción) de ningún local esté usando actualmente. ¿Continuar?"
 			);
 			if (!confirmar) return;
 
