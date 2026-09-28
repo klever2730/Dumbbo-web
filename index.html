@@ -507,6 +507,7 @@
         box-shadow: 0 6px 15px rgba(122, 41, 77, 0.12);
     }
 
+    /* ===== IMAGEN DE LA TARJETA (RESTAURADO) ===== */
     .producto-img-container {
         width: 100%;
         height: 120px;
@@ -522,6 +523,7 @@
         object-fit: cover;
     }
 
+    /* ===== ETIQUETA "OFERTA" (RESTAURADO) ===== */
     .badge-promocion-v {
         position: absolute;
         top: 18px;
@@ -533,6 +535,32 @@
         padding: 3px 7px;
         border-radius: 6px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+		
+		
+	/* ===== ESTILOS PARA PRODUCTOS AGOTADOS ===== */
+    .producto-card-vertical.agotado {
+        opacity: 0.65; /* Hace que toda la tarjeta se vea un poco transparente */
+    }
+
+    .badge-agotado-v {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        background-color: #607D8B; /* Gris azulado */
+        color: var(--blanco);
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 3px 7px;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 2; /* Para que quede por encima de la foto */
+    }
+
+    .producto-precio-v.precio-tachado {
+        color: #9E9E9E; /* Color gris para el precio */
+        text-decoration: line-through; /* Tacha el número */
+        font-weight: 600;
     }
 
     .producto-nombre-v {
@@ -1916,30 +1944,30 @@
 			contenedor.innerHTML = html;
 
 		}
-
-
-
+		
+		
 		function crearTarjetaVertical(p) {
 
 			const nombreSeguro = escaparHtml(p.nombre);
 			const descripcionSegura = escaparHtml(p.descripcion || '');
 			const imagenSegura = escaparHtml(p.imagenUrl || 'img/logo.png');
 
+            // Lógica de etiquetas: Si está agotado gana el cartel gris. Si no, revisa si es promo.
+            let etiquetaHtml = '';
+            if (p.agotado) {
+                etiquetaHtml = '<span class="badge-agotado-v">Agotado</span>';
+            } else if (p.promocion) {
+                etiquetaHtml = '<span class="badge-promocion-v">Oferta</span>';
+            }
+
 			return `
 
 				<div
-					class="producto-card-vertical"
+					class="producto-card-vertical ${p.agotado ? 'agotado' : ''}"
 					data-producto-id="${p.id}"
 				>
 
-					${
-						p.promocion
-						?
-						'<span class="badge-promocion-v">Oferta</span>'
-						:
-						''
-					}
-
+                    ${etiquetaHtml}
 
 					<div class="producto-img-container">
 
@@ -1962,11 +1990,11 @@
 					<div class="producto-descripcion-v">
 						${descripcionSegura}
 					</div>
-
-
+					
+					
 					<div class="producto-footer-v">
 
-						<div class="producto-precio-v">
+						<div class="producto-precio-v ${p.agotado ? 'precio-tachado' : ''}">
 							$${Number(p.precio).toLocaleString('es-CL')}
 						</div>
 
