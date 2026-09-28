@@ -363,6 +363,11 @@
 			color: #E65100;
 		}
 
+		.badge-agotado {
+			background-color: #ECEFF1;
+			color: #455A64;
+		}
+
 		.chk-rapido {
 			width: 18px;
 			height: 18px;
@@ -491,6 +496,7 @@
 			<div class="form-checkboxes">
 				<label><input type="checkbox" id="nuevo-disponible" checked /> Disponible (Visible en la carta)</label>
 				<label><input type="checkbox" id="nuevo-promocion" /> Activar en Oferta 🔥</label>
+				<label><input type="checkbox" id="nuevo-agotado" /> Agotado ❌</label>
 			</div>
 
 			<p id="form-error" style="display:none; color:var(--rojo); font-weight:bold; margin: 0 0 10px 0;"></p>
@@ -538,6 +544,7 @@
 			<button class="btn-apartado" onclick="filtrarTabla('disponible', this)">Disponibles</button>
 			<button class="btn-apartado" onclick="filtrarTabla('oculto', this)">Ocultos</button>
 			<button class="btn-apartado" onclick="filtrarTabla('oferta', this)">🔥 En Oferta</button>
+			<button class="btn-apartado" onclick="filtrarTabla('agotado', this)">❌ Agotados</button>
 		</div>
 
 		<div class="apartados-bar">
@@ -562,6 +569,7 @@
 						<th>Precio</th>
 						<th>Estado</th>
 						<th>Promoción</th>
+						<th>Agotado</th>
 						<th>Acciones</th>
 					</tr>
 				</thead>
@@ -1039,6 +1047,7 @@
 					filtroActual === 'disponible' ? p.disponible :
 					filtroActual === 'oculto' ? !p.disponible :
 					filtroActual === 'oferta' ? p.promocion :
+					filtroActual === 'agotado' ? p.agotado :
 					true;
 
 				const coincideBusqueda =
@@ -1093,6 +1102,16 @@
 						</div>
 					</td>
 					<td>
+						<div class="badge-toggle-group">
+							<span class="badge-estado ${p.agotado ? 'badge-agotado' : 'badge-disponible'}">
+								${p.agotado ? 'Agotado' : 'En stock'}
+							</span>
+							<input type="checkbox" class="chk-rapido" ${p.agotado ? 'checked' : ''}
+								title="Marcar / desmarcar como agotado"
+								onchange="toggleAgotado('${p.id}', '${p.localId}', this.checked)" />
+						</div>
+					</td>
+					<td>
 						<div style="display:flex; gap:6px;">
 							<button class="btn-editar-tabla" onclick="cargarEdicion('${p.id}', '${p.localId}')">Editar</button>
 							<button class="btn-eliminar-tabla" onclick="eliminarProducto('${p.id}', '${p.localId}')">Eliminar</button>
@@ -1127,6 +1146,11 @@
 				const ningunoPromocion = miembros.every(m => !m.promocion);
 				const textoPromocion = todosPromocion ? '🔥 Sí' : ningunoPromocion ? 'No' : 'Parcial';
 
+				const todosAgotados = miembros.every(m => m.agotado);
+				const ningunoAgotado = miembros.every(m => !m.agotado);
+				const claseAgotado = todosAgotados ? 'badge-agotado' : ningunoAgotado ? 'badge-disponible' : 'badge-parcial';
+				const textoAgotado = todosAgotados ? 'Agotado' : ningunoAgotado ? 'En stock' : 'Parcial';
+
 				const tr = document.createElement("tr");
 				tr.innerHTML = `
 					<td><img src="${escaparHtml(rep.imagenUrl || 'img/logo.png')}" class="img-tabla" alt="${escaparHtml(rep.nombre)}"></td>
@@ -1148,6 +1172,13 @@
 							<span>${textoPromocion}</span>
 							<input type="checkbox" class="chk-rapido chk-grupo-promocion" data-key="${encodeURIComponent(key)}" ${todosPromocion ? 'checked' : ''}
 								title="Activar/desactivar oferta en TODOS los locales donde existe" />
+						</div>
+					</td>
+					<td>
+						<div class="badge-toggle-group">
+							<span class="badge-estado ${claseAgotado}">${textoAgotado}</span>
+							<input type="checkbox" class="chk-rapido chk-grupo-agotado" data-key="${encodeURIComponent(key)}" ${todosAgotados ? 'checked' : ''}
+								title="Marcar/desmarcar agotado en TODOS los locales donde existe" />
 						</div>
 					</td>
 					<td>
@@ -1173,6 +1204,12 @@
 					togglePromocionGrupo(key, e.target.checked);
 				});
 			});
+			tbody.querySelectorAll(".chk-grupo-agotado").forEach(chk => {
+				chk.addEventListener("change", (e) => {
+					const key = decodeURIComponent(e.target.dataset.key);
+					toggleAgotadoGrupo(key, e.target.checked);
+				});
+			});
 			tbody.querySelectorAll(".btn-editar-grupo").forEach(btn => {
 				btn.addEventListener("click", (e) => {
 					const key = decodeURIComponent(e.currentTarget.dataset.key);
@@ -1191,7 +1228,7 @@
 			return listaProductosCache.filter(p => claveProducto(p) === key);
 		}
 
-		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA DIRECTO EN TABLA (fila individual)
+		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA / AGOTADO DIRECTO EN TABLA (fila individual)
 		window.toggleDisponible = async (id, local, estado) => {
 			await updateDoc(docProducto(id, local), { disponible: estado });
 		};
@@ -1200,7 +1237,11 @@
 			await updateDoc(docProducto(id, local), { promocion: estado });
 		};
 
-		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA PARA TODO UN GRUPO (misma fila = varios locales)
+		window.toggleAgotado = async (id, local, estado) => {
+			await updateDoc(docProducto(id, local), { agotado: estado });
+		};
+
+		// CAMBIOS RÁPIDOS DE DISPONIBLE / OFERTA / AGOTADO PARA TODO UN GRUPO (misma fila = varios locales)
 		async function toggleDisponibleGrupo(key, estado) {
 			const miembros = miembrosDeGrupo(key);
 			try {
@@ -1216,6 +1257,15 @@
 				await Promise.all(miembros.map(m => updateDoc(docProducto(m.id, m.localId), { promocion: estado })));
 			} catch (error) {
 				alert("Error al actualizar la oferta en todos los locales: " + error.message);
+			}
+		}
+
+		async function toggleAgotadoGrupo(key, estado) {
+			const miembros = miembrosDeGrupo(key);
+			try {
+				await Promise.all(miembros.map(m => updateDoc(docProducto(m.id, m.localId), { agotado: estado })));
+			} catch (error) {
+				alert("Error al actualizar 'agotado' en todos los locales: " + error.message);
 			}
 		}
 
@@ -1421,6 +1471,7 @@
 			document.getElementById("nuevo-descripcion").value = p.descripcion || '';
 			document.getElementById("nuevo-disponible").checked = p.disponible;
 			document.getElementById("nuevo-promocion").checked = p.promocion;
+			document.getElementById("nuevo-agotado").checked = !!p.agotado;
 			document.getElementById("imagen-actual-url").value = p.imagenUrl || '';
 
 			document.getElementById("nuevo-imagen").value = '';
@@ -1467,6 +1518,7 @@
 			document.getElementById("nuevo-descripcion").value = rep.descripcion || '';
 			document.getElementById("nuevo-disponible").checked = rep.disponible;
 			document.getElementById("nuevo-promocion").checked = rep.promocion;
+			document.getElementById("nuevo-agotado").checked = !!rep.agotado;
 			document.getElementById("imagen-actual-url").value = rep.imagenUrl || '';
 
 			document.getElementById("nuevo-imagen").value = '';
@@ -1642,7 +1694,8 @@
 					imagenesExtra: imagenesExtraActuales,
 					descripcion: document.getElementById("nuevo-descripcion").value,
 					disponible: document.getElementById("nuevo-disponible").checked,
-					promocion: document.getElementById("nuevo-promocion").checked
+					promocion: document.getElementById("nuevo-promocion").checked,
+					agotado: document.getElementById("nuevo-agotado").checked
 				};
 
 				const idsAntesDeGuardar = grupoEdicionActual
