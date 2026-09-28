@@ -1114,7 +1114,8 @@
 				tbody.appendChild(tr);
 			});
 		}
-
+		
+		
 		// FILAS AGRUPADAS ("Todos los locales"): un producto = una fila, sin repetirse por local
 		function renderizarFilasAgrupadas(tbody, filtrados) {
 			const grupos = agruparProductos(filtrados);
@@ -1132,8 +1133,21 @@
 
 				const todosDisponibles = miembros.every(m => m.disponible);
 				const ningunoDisponible = miembros.every(m => !m.disponible);
-				const claseEstado = todosDisponibles ? 'badge-disponible' : ningunoDisponible ? 'badge-oculto' : 'badge-parcial';
-				const textoEstado = todosDisponibles ? 'Disponible' : ningunoDisponible ? 'Oculto' : 'Parcial';
+				const todosAgotados = miembros.every(m => m.agotado);
+
+				let claseEstado = 'badge-parcial';
+				let textoEstado = 'Parcial';
+
+				if (todosAgotados) {
+					claseEstado = 'badge-agotado';
+					textoEstado = 'Agotado';
+				} else if (todosDisponibles) {
+					claseEstado = 'badge-disponible';
+					textoEstado = 'Disponible';
+				} else if (ningunoDisponible) {
+					claseEstado = 'badge-oculto';
+					textoEstado = 'Oculto';
+				}
 
 				const todosPromocion = miembros.every(m => m.promocion);
 				const ningunoPromocion = miembros.every(m => !m.promocion);
@@ -1153,6 +1167,8 @@
 							<span class="badge-estado ${claseEstado}">${textoEstado}</span>
 							<input type="checkbox" class="chk-rapido chk-grupo-disponible" data-key="${encodeURIComponent(key)}" ${todosDisponibles ? 'checked' : ''}
 								title="Marcar/desmarcar disponible en TODOS los locales donde existe" />
+							<input type="checkbox" class="chk-rapido chk-grupo-agotado" data-key="${encodeURIComponent(key)}" ${todosAgotados ? 'checked' : ''}
+								title="Marcar/desmarcar Agotado en TODOS los locales donde existe" />
 						</div>
 					</td>
 					<td>
@@ -1177,6 +1193,12 @@
 				chk.addEventListener("change", (e) => {
 					const key = decodeURIComponent(e.target.dataset.key);
 					toggleDisponibleGrupo(key, e.target.checked);
+				});
+			});
+			tbody.querySelectorAll(".chk-grupo-agotado").forEach(chk => {
+				chk.addEventListener("change", (e) => {
+					const key = decodeURIComponent(e.target.dataset.key);
+					toggleAgotadoGrupo(key, e.target.checked);
 				});
 			});
 			tbody.querySelectorAll(".chk-grupo-promocion").forEach(chk => {
