@@ -344,12 +344,13 @@
         font-weight: 700;
         margin: 0;
     }
-
-    .ver-mas-link {
+		
+	.ver-mas-link {
         font-size: 0.85rem;
         color: #888;
         text-decoration: none;
         font-weight: 500;
+        cursor: pointer; /* <-- Recuperamos la manito */
     }
 
 
@@ -788,7 +789,31 @@
             right: 20px;
             transform: none;
         }
+		
+		/* RECUPERAMOS EL CONTENEDOR EN MÓVIL (SCROLL HORIZONTAL MATEMÁTICO) */
+        .productos-horizontal-scroll {
+            display: grid;
+            grid-template-columns: repeat(var(--columnas-movil, 12), 145px);
+            grid-auto-flow: row; /* LA LÍNEA MÁGICA QUE EVITA LA FILA ÚNICA */
+            gap: 15px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 15px;
+            max-height: none;
+        }
 
+        .productos-horizontal-scroll::-webkit-scrollbar {
+            height: 6px; 
+            width: auto;
+        }
+
+        /* RECUPERAMOS LA CAJA DE SCROLL VERTICAL PARA CUANDO ESTÁN EN "VER MÁS" */
+        .productos-grid-vertical {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            justify-items: center;
+            max-height: 65vh; 
+            padding-right: 5px;
+        }
 
         /* ===== PRODUCTOS EN MÓVIL ===== */
 
@@ -1642,9 +1667,16 @@
 					productos.filter(
 						p => p.promocion
 					);
-
-
+				
+				
+				
 				if (productosPromocion.length > 0) {
+					
+					/* RECUPERAMOS EL CÁLCULO DE MÓVIL Y EL CAMBIO DE VISTA */
+					const cantPromo = productosPromocion.length;
+					const colPromo = Math.max(Math.min(12, cantPromo), Math.ceil(cantPromo / 3));
+					const claseContenedorPromo = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
+					const estiloContenedorPromo = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${colPromo};"` : "";
 
 					html += `
 
@@ -1665,8 +1697,7 @@
 
 							</div>
 
-
-							<div class="productos-horizontal-scroll">
+							<div class="${claseContenedorPromo}" ${estiloContenedorPromo}>
 					`;
 
 
@@ -1708,9 +1739,16 @@
 					productos.filter(
 						p => p.categoria === cat
 					);
-
-
+				
+				
+				
 				if (productosCat.length > 0) {
+					
+					/* RECUPERAMOS EL CÁLCULO DE MÓVIL Y EL CAMBIO DE VISTA */
+					const cantCat = productosCat.length;
+					const colCat = Math.max(Math.min(12, cantCat), Math.ceil(cantCat / 3));
+					const claseContenedorCat = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
+					const estiloContenedorCat = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${colCat};"` : "";
 
 					html += `
 
@@ -1731,8 +1769,7 @@
 
 							</div>
 
-
-							<div class="productos-horizontal-scroll">
+							<div class="${claseContenedorCat}" ${estiloContenedorCat}>
 					`;
 
 
