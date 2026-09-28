@@ -5,24 +5,20 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Menú - Dumbbo Café</title>
 
-	<!-- Icono para la pestaña del navegador y favoritos -->
-	<link rel="icon" type="image/png" href="img/logo-rosa2.png" />
-	<link rel="apple-touch-icon" href="img/logo-rosa2.png" />
-
 	<meta name="description" content="Café, dulces y algo más para cada antojo 🐘☕. Descubre el menú completo y las promociones de Dumbbo Café." />
-	
-	<!-- Open Graph (WhatsApp, Facebook, Discord, Instagram) -->
+
+	<!-- Open Graph (WhatsApp, Facebook, Instagram) -->
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="Dumbbo Café - Menú" />
 	<meta property="og:description" content="Café, dulces y algo más para cada antojo 🐘☕. Descubre el menú completo y las promociones." />
-	<meta property="og:image" content="https://klever2730.github.io/Dumbbo-web/img/logo-rosa2.png" />
-	<meta property="og:url" content="https://klever2730.github.io/Dumbbo-web/" />
+	<meta property="og:image" content="https://klever2730.github.io/img/banner.jpg" />
+	<meta property="og:url" content="https://klever2730.github.io/" />
 
 	<!-- Twitter Card -->
-	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Dumbbo Café - Menú" />
 	<meta name="twitter:description" content="Café, dulces y algo más para cada antojo 🐘☕" />
-	<meta name="twitter:image" content="https://klever2730.github.io/Dumbbo-web/img/logo-rosa2.png" />
+	<meta name="twitter:image" content="https://klever2730.github.io/img/banner.jpg" />
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 
 	<style>
@@ -348,13 +344,14 @@
         font-weight: 700;
         margin: 0;
     }
-		.ver-mas-link {
+
+    .ver-mas-link {
         font-size: 0.85rem;
         color: #888;
         text-decoration: none;
         font-weight: 500;
-        cursor: pointer; /* <-- Esto hace que salga la manito */
     }
+
 
     /* ===== PANTALLA DE CARGA INICIAL DEL MENÚ ===== */
     .menu-loader {
@@ -387,73 +384,21 @@
         font-weight: 700;
     }
 
-		
-/* ===== CONTENEDOR SCROLLABLE (MÁXIMO 3 FILAS) ===== */
+
+    /* ===== CONTENEDOR HORIZONTAL SCROLLABLE ===== */
     .productos-horizontal-scroll {
-        display: grid;
-        /* Crea columnas automáticamente. Si caben 8, pone 8. */
-        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+        display: flex;
         gap: 15px;
-        
-        /* LÍMITE DE 3 FILAS */
-        max-height: 790px;
-        
-        /* El scroll ahora es vertical (hacia abajo) dentro de este contenedor */
-        overflow-y: auto; 
-        overflow-x: hidden;
+        overflow-x: auto;
         padding: 5px 2px 15px 2px;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
-        
-        /* Barra de desplazamiento para Firefox */
-        scrollbar-width: thin;
-        scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro);
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
-    /* Barra de desplazamiento para Chrome, Edge y Safari */
     .productos-horizontal-scroll::-webkit-scrollbar {
-        width: 8px; /* CAMBIO: Ahora usamos 'width' en lugar de 'height' porque el scroll es vertical */
-    }
-    .productos-horizontal-scroll::-webkit-scrollbar-thumb {
-        background-color: var(--rosa-dumbbo);
-        border-radius: 10px;
-    }
-    .productos-horizontal-scroll::-webkit-scrollbar-track {
-        background-color: var(--rosa-claro);
-        border-radius: 10px;
-    }
-		
-		
-	/* ===== CONTENEDOR VISTA FILTRADA (SCROLL VERTICAL INTERNO) ===== */
-    .productos-grid-vertical {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-        gap: 15px;
-        padding: 5px 5px 15px 2px;
-        justify-items: center; 
-        
-        /* Limita la altura a un 60% de la pantalla y activa el scroll hacia abajo */
-        max-height: 60vh; 
-        overflow-y: auto;
-        overflow-x: hidden;
-        align-content: start;
-        
-        /* Barra de desplazamiento para Firefox */
-        scrollbar-width: thin;
-        scrollbar-color: var(--rosa-dumbbo) var(--rosa-claro);
-    }
-
-    /* Diseño de la barra vertical para Chrome/Safari/Edge */
-    .productos-grid-vertical::-webkit-scrollbar {
-        width: 8px;
-    }
-    .productos-grid-vertical::-webkit-scrollbar-thumb {
-        background-color: var(--rosa-dumbbo);
-        border-radius: 10px;
-    }
-    .productos-grid-vertical::-webkit-scrollbar-track {
-        background-color: var(--rosa-claro);
-        border-radius: 10px;
+        display: none;
     }
 
 
@@ -843,55 +788,16 @@
             right: 20px;
             transform: none;
         }
-		
-		
-		/* ===== PRODUCTOS EN MÓVIL ===== */
-		
-		
-		
-		/* ===== CONTENEDOR EN MÓVIL (SCROLL HORIZONTAL MATEMÁTICO) ===== */
-        .productos-horizontal-scroll {
-            display: grid;
-            
-            /* Toma el cálculo exacto desde Javascript. 
-               Fuerza el ancho del contenedor creando columnas de 145px hacia la derecha */
-            grid-template-columns: repeat(var(--columnas-movil, 12), 145px);
-            
-            /* El grid por defecto fluye en "row", llenando de izquierda a derecha 
-               y bajando de fila mágicamente cuando llega al tope calculado. */
-            
-            gap: 15px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding-bottom: 15px;
-            max-height: none; /* Ya no limitamos alturas, JS toma el control absoluto */
-        }
 
-        /* Fuerza la barra de desplazamiento a ser horizontal en celular */
-        .productos-horizontal-scroll::-webkit-scrollbar {
-            height: 6px; 
-            width: auto;
-        }
-		
-		/* Ajuste de la vista filtrada en móviles con scroll interno */
-		.productos-grid-vertical {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        justify-items: center;
-        
-        /* Ajusta la altura de la caja para que sea cómoda en la pantalla del celular */
-        max-height: 65vh; 
-        padding-right: 5px; /* Da espacio para que la barra no tape el producto */
-		}
 
         /* ===== PRODUCTOS EN MÓVIL ===== */
+
         .producto-card-vertical {
             min-width: 145px;
             width: 145px;
             padding: 10px;
-            margin: 0;
-            height: 100%; /* Asegura que no se deformen */
         }
-        
+
         .producto-img-container {
             height: 105px;
         }
@@ -1661,12 +1567,27 @@
 					clearTimeout(temporizadorRenderMenu);
 					temporizadorRenderMenu = setTimeout(() => {
 
-						const productosAMostrar =
+						const filtrarPorSeleccion = () =>
 							filtroActualCliente === "todos"
 								? todosLosProductos
 								: filtroActualCliente === "__promociones__"
 									? todosLosProductos.filter(p => p.promocion)
 									: todosLosProductos.filter(p => p.categoria === filtroActualCliente);
+
+						let productosAMostrar = filtrarPorSeleccion();
+
+						// Si la categoría que estaba viendo el cliente se quedó sin productos
+						// (ej. se ocultaron todos), vuelve a "Todos" en vez de mostrar el menú vacío.
+						if (productosAMostrar.length === 0 && filtroActualCliente !== "todos") {
+
+							filtroActualCliente = "todos";
+							productosAMostrar = todosLosProductos;
+
+							document
+								.querySelectorAll(".filtro-cliente-btn")
+								.forEach(b => b.classList.toggle("active", b.dataset.cat === "todos"));
+
+						}
 
 						renderizarMenuCliente(
 							productosAMostrar,
@@ -1674,6 +1595,14 @@
 						);
 
 					}, 150);
+
+				},
+				(error) => {
+
+					console.error("Error cargando el menú:", error);
+
+					document.getElementById("menu-contenedor").innerHTML =
+						"<p style='text-align:center;'>No se pudo cargar el menú. Revisa tu conexión e inténtalo de nuevo.</p>";
 
 				}
 			);
@@ -1713,18 +1642,9 @@
 					productos.filter(
 						p => p.promocion
 					);
-				
-				
-				
-				if (productosPromocion.length > 0) {
-					
-					// NUEVO CÁLCULO MATEMÁTICO PARA MÓVIL
-					const cantPromo = productosPromocion.length;
-					const colPromo = Math.max(Math.min(12, cantPromo), Math.ceil(cantPromo / 3));
 
-                    // NUEVO: Decide si usar scroll horizontal o vertical
-					const claseContenedorPromo = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
-					const estiloContenedorPromo = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${colPromo};"` : "";
+
+				if (productosPromocion.length > 0) {
 
 					html += `
 
@@ -1745,8 +1665,8 @@
 
 							</div>
 
-							<!-- SE INYECTA LA CLASE Y ESTILO CORRECTOS AQUÍ -->
-							<div class="${claseContenedorPromo}" ${estiloContenedorPromo}>
+
+							<div class="productos-horizontal-scroll">
 					`;
 
 
@@ -1779,26 +1699,18 @@
 						)
 					)
 				]);
-			
-			
-			
+
+
+
 			categorias.forEach(cat => {
 
 				const productosCat =
 					productos.filter(
 						p => p.categoria === cat
 					);
-				
-				
-				if (productosCat.length > 0) {
-					
-					// NUEVO CÁLCULO MATEMÁTICO PARA MÓVIL
-					const cantCat = productosCat.length;
-					const colCat = Math.max(Math.min(12, cantCat), Math.ceil(cantCat / 3));
 
-                    // NUEVO: Decide si usar scroll horizontal o vertical
-					const claseContenedorCat = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
-					const estiloContenedorCat = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${colCat};"` : "";
+
+				if (productosCat.length > 0) {
 
 					html += `
 
@@ -1819,8 +1731,8 @@
 
 							</div>
 
-							<!-- SE INYECTA LA CLASE Y ESTILO CORRECTOS AQUÍ -->
-							<div class="${claseContenedorCat}" ${estiloContenedorCat}>
+
+							<div class="productos-horizontal-scroll">
 					`;
 
 
@@ -1932,7 +1844,7 @@
 			let html = `
 
 				<button
-					class="filtro-cliente-btn active"
+					class="filtro-cliente-btn ${filtroActualCliente === "todos" ? "active" : ""}"
 					data-cat="todos"
 				>
 					Todos
@@ -1946,7 +1858,7 @@
 				html += `
 
 					<button
-						class="filtro-cliente-btn"
+						class="filtro-cliente-btn ${cat === filtroActualCliente ? "active" : ""}"
 						data-cat="${escaparHtml(cat)}"
 					>
 						${escaparHtml(cat)}
