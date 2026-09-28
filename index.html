@@ -264,9 +264,9 @@
         border: 8px solid transparent;
         border-top-color: var(--rosa-dumbbo);
     }
-
-
-    /* ===== BOTÓN Y BARRA DE CATEGORÍAS ===== */
+		
+			
+	/* ===== BOTÓN Y BARRA DE CATEGORÍAS ===== */
     .categoria-bar-wrapper {
         display: flex;
         align-items: center;
@@ -276,9 +276,9 @@
     }
 
     .btn-categorias-menu {
-        background-color: var(--rosa-oscuro);
-        color: var(--blanco);
-        border: none;
+        background-color: var(--rosa-claro); /* Empieza claro (apagado) */
+        color: var(--rosa-oscuro);
+        border: 1px solid var(--rosa-dumbbo);
         border-radius: 25px;
         padding: 10px 18px;
         font-size: 0.9rem;
@@ -288,16 +288,36 @@
         gap: 8px;
         cursor: pointer;
         flex-shrink: 0;
+        box-shadow: 0 3px 10px rgba(122, 41, 77, 0.08);
+        transition: all 0.2s ease;
+    }
+
+    /* Cuando el botón está activo (desplegado) */
+    .btn-categorias-menu.activo {
+        background-color: var(--rosa-oscuro);
+        color: var(--blanco);
+        border-color: var(--rosa-oscuro);
         box-shadow: 0 3px 10px rgba(122, 41, 77, 0.2);
     }
 
     #cliente-categoria-nav {
-        display: flex;
+        display: none; /* OCULTO POR DEFECTO */
         gap: 8px;
         overflow-x: auto;
         padding-bottom: 5px;
         scrollbar-width: thin;
         scrollbar-color: var(--rosa-dumbbo) transparent;
+        animation: deslizar 0.25s ease-out; /* Animación para que aparezca suave */
+    }
+
+    /* Se muestra cuando se le agrega esta clase por JavaScript */
+    #cliente-categoria-nav.mostrar {
+        display: flex;
+    }
+
+    @keyframes deslizar {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
     }
 
     #cliente-categoria-nav::-webkit-scrollbar {
