@@ -1257,6 +1257,15 @@
 			}
 		}
 
+		async function toggleAgotadoGrupo(key, estado) {
+			const miembros = miembrosDeGrupo(key);
+			try {
+				await Promise.all(miembros.map(m => updateDoc(docProducto(m.id, m.localId), { agotado: estado })));
+			} catch (error) {
+				alert("Error al actualizar estado agotado en todos los locales: " + error.message);
+			}
+		}
+
 		// FILTRADO POR APARTADO
 		window.filtrarTabla = (tipo, btn) => {
 			filtroActual = tipo;
