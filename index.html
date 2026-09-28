@@ -129,13 +129,19 @@
     }
 
 
-    /* ===== FONDO GENERAL ===== */
+/* ===== FONDO GENERAL ===== */
     body {
         background-color: var(--rosa-claro);
         color: var(--texto);
         margin: 0;
         padding: 0;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+        /* Bloquea la selección de texto para que se sienta como una App nativa */
+        -webkit-user-select: none; /* Safari y Chrome */
+        -moz-user-select: none;    /* Firefox */
+        -ms-user-select: none;     /* Edge y navegadores antiguos */
+        user-select: none;         /* Estándar moderno */
 
         /* Fondo Dumbbo */
         background-image: url('img/fondo.png');
