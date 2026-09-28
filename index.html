@@ -1468,12 +1468,41 @@
 		const app = initializeApp(firebaseConfig);
 
 		const db = getFirestore(app);
-
-
+		
+		// PRECARGA EN CACHÉ
+		
 		let todosLosProductos = [];
 		// Guarda qué categoría tiene seleccionada el cliente ("todos" por defecto), para que
 		// una actualización en tiempo real (onSnapshot) no le resetee el filtro que ya eligió.
 		let filtroActualCliente = "todos";
+
+		/* ===== CACHÉ DE IMÁGENES EN MEMORIA ===== */
+		// Guarda un registro de las fotos ya precargadas para no gastar internet de más
+		const cacheDeImagenes = new Set();
+
+		function precargarFotosEnSegundoPlano(productos) {
+			// El navegador descargará estas fotos invisiblemente y las dejará en RAM
+			productos.forEach(p => {
+				
+				// 1. Precargar foto principal de la tarjeta
+				if (p.imagenUrl && !cacheDeImagenes.has(p.imagenUrl)) {
+					const imgPrincipal = new Image();
+					imgPrincipal.src = p.imagenUrl;
+					cacheDeImagenes.add(p.imagenUrl);
+				}
+				
+				// 2. Precargar fotos extra (las que se ven dentro del popup)
+				if (Array.isArray(p.imagenesExtra)) {
+					p.imagenesExtra.forEach(url => {
+						if (url && !cacheDeImagenes.has(url)) {
+							const imgExt = new Image();
+							imgExt.src = url;
+							cacheDeImagenes.add(url);
+						}
+					});
+				}
+			});
+		}
 
 
 		/* ===== ESCAPA TEXTO PARA EVITAR HTML NO DESEADO ===== */
@@ -1643,11 +1672,15 @@
 						}
 
 					});
-
-
+					
+					
+					
 					crearFiltrosCliente(
 						todosLosProductos
 					);
+					
+					/* AQUÍ ACTIVAMOS LA PRECARGA INVISIBLE */
+					precargarFotosEnSegundoPlano(todosLosProductos);
 
 
 					clearTimeout(temporizadorRenderMenu);
