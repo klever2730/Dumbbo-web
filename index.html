@@ -2656,6 +2656,32 @@
 
 		}
 
+
+
+		/* =====================================================
+		   SCROLL HORIZONTAL CON RUEDA DEL RATÓN (PC) - MEJORADO
+		   ===================================================== */
+		document.addEventListener("wheel", (evento) => {
+			const contenedor = evento.target.closest(".productos-horizontal-scroll");
+			
+			if (contenedor && evento.deltaY !== 0) {
+				
+				// Calcula los límites para que el usuario no se quede atascado
+				const maxScroll = contenedor.scrollWidth - contenedor.clientWidth;
+				const estaAlInicio = contenedor.scrollLeft <= 0 && evento.deltaY < 0;
+				
+				// Usamos un margen de 2px de error por las pantallas de alta resolución
+				const estaAlFinal = Math.abs(contenedor.scrollLeft - maxScroll) <= 2 && evento.deltaY > 0;
+				
+				// Si no está en los topes extremos, convertimos el scroll vertical en horizontal
+				if (!estaAlInicio && !estaAlFinal) {
+					evento.preventDefault();
+					// Multiplicamos por 1.5 para que el movimiento sea más rápido y agradable
+					contenedor.scrollLeft += evento.deltaY * 1.5; 
+				}
+			}
+		}, { passive: false });
+
 	</script>
 
 </body>
