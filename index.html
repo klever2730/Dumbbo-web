@@ -1224,6 +1224,29 @@
         }
 
     }
+		/* ===== ORDENAR PRODUCTOS (VISTA POR CATEGORÍA) ===== */
+.orden-cliente-bar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 15px;
+}
+.orden-cliente-bar label {
+	font-size: 0.85rem;
+	font-weight: 700;
+	color: var(--rosa-oscuro);
+}
+.orden-cliente-select {
+	background-color: var(--rosa-claro);
+	color: var(--rosa-oscuro);
+	border: 1px solid var(--rosa-dumbbo);
+	border-radius: 20px;
+	padding: 8px 14px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+	
 	</style>
 </head>
 
@@ -1529,6 +1552,24 @@
 		// Guarda qué categoría tiene seleccionada el cliente ("todos" por defecto), para que
 		// una actualización en tiempo real (onSnapshot) no le resetee el filtro que ya eligió.
 		let filtroActualCliente = "todos";
+		let ordenActualCliente = "ninguno";
+
+function ordenarProductosCliente(lista) {
+	const copia = [...lista];
+	const nombre = (p) => String(p.nombre || "");
+
+	if (ordenActualCliente === "precio-asc") {
+		copia.sort((a, b) => Number(a.precio || 0) - Number(b.precio || 0));
+	} else if (ordenActualCliente === "precio-desc") {
+		copia.sort((a, b) => Number(b.precio || 0) - Number(a.precio || 0));
+	} else if (ordenActualCliente === "nombre-asc") {
+		copia.sort((a, b) => nombre(a).localeCompare(nombre(b), "es", { sensitivity: "base" }));
+	} else if (ordenActualCliente === "nombre-desc") {
+		copia.sort((a, b) => nombre(b).localeCompare(nombre(a), "es", { sensitivity: "base" }));
+	}
+	return copia;
+}
+
 
 		/* ===== CACHÉ DE IMÁGENES EN MEMORIA ===== */
 		// Guarda un registro de las fotos ya precargadas para no gastar internet de más
@@ -1733,7 +1774,6 @@ todosLosProductos.sort((a, b) => {
 	const bVar = /variedades/i.test(b.nombre || '') ? 0 : 1;
 	return aVar - bVar;
 });
-
 					
 					crearFiltrosCliente(
 						todosLosProductos
@@ -1788,8 +1828,6 @@ todosLosProductos.sort((a, b) => {
 
 		}
 
-
-
 		function renderizarMenuCliente(
 			productos,
 			filtroSeleccionado
@@ -1810,10 +1848,26 @@ todosLosProductos.sort((a, b) => {
 
 			}
 
+			if (filtroSeleccionado !== "todos") {
+	productos = ordenarProductosCliente(productos);
+}
 
-			let html = "";
+let html = "";
 
-
+if (filtroSeleccionado !== "todos") {
+	html += `
+		<div class="orden-cliente-bar">
+			<label for="select-orden-cliente">Ordenar:</label>
+			<select id="select-orden-cliente" class="orden-cliente-select">
+				<option value="ninguno" ${ordenActualCliente === "ninguno" ? "selected" : ""}>Por defecto</option>
+				<option value="precio-asc" ${ordenActualCliente === "precio-asc" ? "selected" : ""}>Precio: menor a mayor</option>
+				<option value="precio-desc" ${ordenActualCliente === "precio-desc" ? "selected" : ""}>Precio: mayor a menor</option>
+				<option value="nombre-asc" ${ordenActualCliente === "nombre-asc" ? "selected" : ""}>Nombre: A a Z</option>
+				<option value="nombre-desc" ${ordenActualCliente === "nombre-desc" ? "selected" : ""}>Nombre: Z a A</option>
+			</select>
+		</div>
+	`;
+}
 
 			if (filtroSeleccionado === "todos") {
 
@@ -2617,8 +2671,22 @@ todosLosProductos.sort((a, b) => {
 				}
 			);
 
+/* ===== CAMBIAR EL ORDEN DENTRO DE UNA CATEGORÍA ===== */
+document
+	.getElementById("menu-contenedor")
+	.addEventListener("change", (evento) => {
+		if (evento.target.id !== "select-orden-cliente") return;
 
+		ordenActualCliente = evento.target.value;
 
+		const filtrados =
+			filtroActualCliente === "__promociones__"
+				? todosLosProductos.filter(p => p.promocion)
+				: todosLosProductos.filter(p => p.categoria === filtroActualCliente);
+
+		renderizarMenuCliente(filtrados, filtroActualCliente);
+	});
+		
 		/* ===== TOCAR UNA TARJETA ===== */
 
 		document
