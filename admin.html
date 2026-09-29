@@ -1725,8 +1725,9 @@
 				}
 
 				if (archivoInput.files.length > 0 && urlImagenAnterior && urlImagenAnterior !== urlImagenFinal) {
-					await actualizarReferenciasFoto(urlImagenAnterior, urlImagenFinal, idsAntesDeGuardar);
-
+					// Ya no se propaga la foto nueva a otros productos que usaban la misma URL
+					// (copias en otros locales o promociones combinadas): cada producto es independiente.
+					// La foto vieja solo se borra de Storage si nadie más la usa.
 					if (!otrosProductosUsanFoto(urlImagenAnterior, idsAntesDeGuardar)) {
 						try {
 							await deleteObject(ref(storage, urlImagenAnterior));
