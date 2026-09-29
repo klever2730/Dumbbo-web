@@ -1727,7 +1727,13 @@
 
 					});
 					
-					
+					// Los productos con "variedades" en el nombre van primero
+todosLosProductos.sort((a, b) => {
+	const aVar = /variedades/i.test(a.nombre || '') ? 0 : 1;
+	const bVar = /variedades/i.test(b.nombre || '') ? 0 : 1;
+	return aVar - bVar;
+});
+
 					
 					crearFiltrosCliente(
 						todosLosProductos
