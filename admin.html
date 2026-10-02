@@ -898,8 +898,44 @@
 				rolUsuario = null;
 				localAsignado = null;
 				localActual = null;
+
+				// Al cerrar sesión no debe quedar nada en pantalla: ni errores, ni datos, ni credenciales
+				limpiarPantallaAlCerrarSesion();
 			}
 		});
+
+		function limpiarPantallaAlCerrarSesion() {
+			try {
+				document.getElementById("login-error").innerText = "";
+				document.getElementById("admin-email").value = "";
+				document.getElementById("admin-password").value = "";
+
+				// formulario de producto (incluye su mensaje de error)
+				window.limpiarFormulario();
+
+				// lista de productos y estado de la limpieza de fotos
+				document.getElementById("tabla-productos-body").innerHTML = "";
+				const estadoLimpieza = document.getElementById("limpieza-estado");
+				if (estadoLimpieza) estadoLimpieza.innerText = "";
+
+				// buscadores, filtros y selección de combo
+				const busqueda = document.getElementById("input-busqueda");
+				if (busqueda) busqueda.value = "";
+				terminoBusqueda = "";
+				terminoBusquedaCombo = "";
+				idsSeleccionadosCombo.clear();
+				filtroActual = "todos";
+				categoriaFiltroActual = "todas";
+				ordenActual = "ninguno";
+				const selCat = document.getElementById("select-categoria-filtro");
+				if (selCat) selCat.value = "todas";
+				const selOrden = document.getElementById("select-orden-precio");
+				if (selOrden) selOrden.value = "ninguno";
+				document.querySelectorAll(".btn-apartado").forEach((b, i) => b.classList.toggle("active", i === 0));
+			} catch (e) {
+				console.warn("No se pudo limpiar toda la pantalla al cerrar sesión:", e);
+			}
+		}
 
 		document.getElementById("btn-login").addEventListener("click", async () => {
 			const email = document.getElementById("admin-email").value;
@@ -943,7 +979,12 @@
 					snapshot => {
 						const productos = [];
 						snapshot.forEach(docSnap => {
-							productos.push({ id: docSnap.id, localId: localId, ...docSnap.data() });
+							// Seguridad: el ID se inserta en atributos onclick; solo se aceptan IDs "limpios"
+							if (!/^[A-Za-z0-9_-]{1,64}$/.test(docSnap.id)) {
+								console.warn("Producto ignorado por ID no válido en", localId);
+								return;
+							}
+							productos.push({ ...docSnap.data(), id: docSnap.id, localId: localId });
 						});
 						productosPorLocal.set(localId, productos);
 						reconstruirCache();
