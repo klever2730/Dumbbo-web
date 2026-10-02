@@ -24,6 +24,15 @@
 	<meta name="twitter:description" content="Café, dulces y algo más para cada antojo 🐘☕" />
 	<meta name="twitter:image" content="https://klever2730.github.io/Dumbbo-web/img/logo-rosa2.png" />
 	
+	<!-- Si la URL no trae un local válido (?local=GHU|VK1|Duoc), va a la página del selector.
+	     replace() evita que el selector quede en el historial del botón "atrás". -->
+	<script>
+		(function () {
+			var l = new URLSearchParams(location.search).get("local");
+			if (["GHU", "VK1", "Duoc"].indexOf(l) === -1) { location.replace("locales.html"); }
+		})();
+	</script>
+
 	<link href="css/templatemo-style.css" rel="stylesheet" />
 	<style>
 
@@ -41,91 +50,6 @@
     /* ===== BLOQUEA EL ZOOM (pellizco y doble-tap) EN TODA LA PÁGINA ===== */
     html {
         touch-action: manipulation;
-    }
-
-    /* =====================================================
-       SELECTOR DE LOCAL
-       ===================================================== */
-
-    .selector-local-overlay {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        background-color: var(--rosa-claro);
-        background-image: url('img/fondo.png');
-        background-repeat: repeat-y;
-        background-position: center top;
-        background-size: 100% auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        box-sizing: border-box;
-        z-index: 100000;
-    }
-
-    .selector-local-overlay.oculto {
-        display: none;
-    }
-
-    .selector-local-contenedor {
-        width: 100%;
-        max-width: 430px;
-        background-color: rgba(255, 255, 255, 0.97);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        border-radius: 24px;
-        padding: 32px 24px;
-        box-sizing: border-box;
-        text-align: center;
-        box-shadow: 0 12px 40px rgba(122, 41, 77, 0.18);
-    }
-
-    .selector-local-titulo {
-        margin: 0 0 8px 0;
-        color: var(--rosa-oscuro);
-        font-size: 2rem;
-        font-weight: 800;
-    }
-
-    .selector-local-subtitulo {
-        margin: 0 0 28px 0;
-        color: #8A6B78;
-        font-size: 0.98rem;
-        font-weight: 500;
-    }
-
-    .selector-local-lista {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-    .selector-local-btn {
-        width: 100%;
-        min-height: 58px;
-        border: 2px solid var(--rosa-dumbbo);
-        border-radius: 16px;
-        background-color: var(--blanco);
-        color: var(--rosa-oscuro);
-        font-size: 1.05rem;
-        font-weight: 800;
-        cursor: pointer;
-        transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-        box-shadow: 0 3px 10px rgba(122, 41, 77, 0.06);
-        touch-action: manipulation;
-    }
-
-    .selector-local-btn:hover {
-        background-color: var(--rosa-oscuro);
-        color: var(--blanco);
-        border-color: var(--rosa-oscuro);
-        box-shadow: 0 6px 15px rgba(122, 41, 77, 0.16);
-    }
-
-    .selector-local-btn:active {
-        transform: scale(0.97);
     }
 
 
@@ -212,6 +136,18 @@
     }
 
 
+    .menu-local-actual {
+        margin: 6px 0 0 0;
+        font-size: 0.82rem;
+        color: #8A6B78;
+    }
+
+    .menu-local-actual a {
+        color: var(--rosa-oscuro);
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
     /* ===== DUMBBITO AL LADO DEL TÍTULO ===== */
 
     .dumbbito-wrapper {
@@ -272,67 +208,22 @@
     }
 		
 			
-	/* ===== BOTÓN Y BARRA DE CATEGORÍAS ===== */
+	/* ===== BARRA DE CATEGORÍAS FIJA ===== */
     .categoria-bar-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 25px;
-        flex-wrap: wrap;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background-color: rgba(255, 255, 255, 0.97);
+        padding: 10px 0;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--rosa-claro);
     }
 
-    .btn-categorias-menu {
-        background-color: var(--rosa-claro); /* Empieza claro (apagado) */
-        color: var(--rosa-oscuro);
-        border: 1px solid var(--rosa-dumbbo);
-        border-radius: 25px;
-        padding: 10px 18px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        flex-shrink: 0;
-        box-shadow: 0 3px 10px rgba(122, 41, 77, 0.08);
-        transition: all 0.2s ease;
-    }
-
-    /* Cuando el botón está activo (desplegado) */
-    .btn-categorias-menu.activo {
-        background-color: var(--rosa-oscuro);
-        color: var(--blanco);
-        border-color: var(--rosa-oscuro);
-        box-shadow: 0 3px 10px rgba(122, 41, 77, 0.2);
-    }
-
+    /* Todas las categorías siempre visibles: si no caben en una línea, bajan a la siguiente */
     #cliente-categoria-nav {
-        display: none; /* OCULTO POR DEFECTO */
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 5px;
-        scrollbar-width: thin;
-        scrollbar-color: var(--rosa-dumbbo) transparent;
-        animation: deslizar 0.25s ease-out; /* Animación para que aparezca suave */
-    }
-
-    /* Se muestra cuando se le agrega esta clase por JavaScript */
-    #cliente-categoria-nav.mostrar {
         display: flex;
-    }
-
-    @keyframes deslizar {
-        from { opacity: 0; transform: translateX(-10px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    #cliente-categoria-nav::-webkit-scrollbar {
-        height: 4px;
-    }
-
-    #cliente-categoria-nav::-webkit-scrollbar-thumb {
-        background-color: var(--rosa-dumbbo);
-        border-radius: 4px;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .filtro-cliente-btn {
@@ -348,11 +239,25 @@
         transition: all 0.2s ease;
     }
 
-    .filtro-cliente-btn:hover,
     .filtro-cliente-btn.active {
         background-color: var(--rosa-oscuro);
         color: var(--blanco);
         border-color: var(--rosa-oscuro);
+    }
+
+    /* Hover solo con mouse (en el celular se quedaba "pegado" oscuro) */
+    @media (hover: hover) {
+        .filtro-cliente-btn:hover {
+            background-color: var(--rosa-oscuro);
+            color: var(--blanco);
+            border-color: var(--rosa-oscuro);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .categoria-bar-wrapper { padding: 8px 0; margin-bottom: 16px; }
+        #cliente-categoria-nav { gap: 6px; }
+        .filtro-cliente-btn { padding: 6px 11px; font-size: 0.78rem; }
     }
 
 
@@ -1254,60 +1159,6 @@
 
 
 	<!-- =====================================================
-	     SELECTOR DE LOCAL
-	     Aparece solamente cuando la URL no contiene
-	     un local válido mediante ?local=
-	     ===================================================== -->
-
-	<div
-		class="selector-local-overlay"
-		id="selector-local-overlay"
-	>
-
-		<div class="selector-local-contenedor">
-
-			<h1 class="selector-local-titulo">
-				Dumbbo Café
-			</h1>
-
-			<p class="selector-local-subtitulo">
-				Selecciona tu local para ver el menú
-			</p>
-
-
-			<div class="selector-local-lista">
-
-				<button
-					class="selector-local-btn"
-					data-local="GHU"
-				>
-					GHU
-				</button>
-
-
-				<button
-					class="selector-local-btn"
-					data-local="VK1"
-				>
-					VK1
-				</button>
-
-
-				<button
-					class="selector-local-btn"
-					data-local="Duoc"
-				>
-					Duoc
-				</button>
-
-			</div>
-
-		</div>
-
-	</div>
-
-
-	<!-- =====================================================
 	     BANNER SUPERIOR
 	     ===================================================== -->
 
@@ -1339,6 +1190,11 @@
 				<p class="menu-subtitulo">
 					Café, dulces y algo más para cada antojo 🐘☕
 				</p>
+
+				<p class="menu-local-actual">
+					📍 Local <strong id="nombre-local-actual"></strong> ·
+					<a href="locales.html">Cambiar</a>
+				</p>
 			</div>
 
 			<!-- =================================================
@@ -1369,11 +1225,6 @@
 
 
 		<div class="categoria-bar-wrapper">
-
-			<button class="btn-categorias-menu">
-				<span>≡</span>
-				Categorías
-			</button>
 
 			<div id="cliente-categoria-nav"></div>
 
@@ -1553,6 +1404,7 @@
 		// una actualización en tiempo real (onSnapshot) no le resetee el filtro que ya eligió.
 		let filtroActualCliente = "todos";
 		let ordenActualCliente = "ninguno";
+		let categoriaEnVista = null;
 
 function ordenarProductosCliente(lista) {
 	const copia = [...lista];
@@ -1615,100 +1467,23 @@ function ordenarProductosCliente(lista) {
 
 
 		/* =====================================================
-		   SELECTOR DE LOCAL
+		   LOCAL ACTUAL
+		   El selector de local vive ahora en locales.html.
+		   Si la URL no trae un local válido, se redirige allí.
 		   ===================================================== */
 
-		const LOCALES_PERMITIDOS = [
-			"GHU",
-			"VK1",
-			"Duoc"
-		];
+		const LOCALES_PERMITIDOS = ["GHU", "VK1", "Duoc"];
 
+		const localParametro = new URLSearchParams(window.location.search).get("local");
 
-		const parametrosURL =
-			new URLSearchParams(
-				window.location.search
-			);
+		const LOCAL_ACTUAL = LOCALES_PERMITIDOS.includes(localParametro) ? localParametro : null;
 
-
-		const localParametro =
-			parametrosURL.get("local");
-
-
-		const LOCAL_ACTUAL =
-			LOCALES_PERMITIDOS.includes(
-				localParametro
-			)
-			? localParametro
-			: null;
-
-
-		const selectorLocalOverlay =
-			document.getElementById(
-				"selector-local-overlay"
-			);
-
-
-		/* Si existe un local válido en la URL,
-		   se oculta el selector y se carga
-		   directamente ese local. */
-
-		if (LOCAL_ACTUAL) {
-
-			selectorLocalOverlay.classList.add(
-				"oculto"
-			);
-
+		if (!LOCAL_ACTUAL) {
+			window.location.replace("locales.html");
+		} else {
+			const etiquetaLocal = document.getElementById("nombre-local-actual");
+			if (etiquetaLocal) etiquetaLocal.textContent = LOCAL_ACTUAL;
 		}
-
-
-		/* Botones del selector */
-
-		document
-			.querySelectorAll(
-				".selector-local-btn"
-			)
-			.forEach(btn => {
-
-				btn.addEventListener(
-					"click",
-					() => {
-
-
-						const localSeleccionado =
-							btn.dataset.local;
-
-
-						if (
-							!LOCALES_PERMITIDOS.includes(
-								localSeleccionado
-							)
-						) {
-
-							return;
-
-						}
-
-
-						const nuevaURL =
-							new URL(
-								window.location.href
-							);
-
-
-						nuevaURL.searchParams.set(
-							"local",
-							localSeleccionado
-						);
-
-
-						window.location.href =
-							nuevaURL.toString();
-
-					}
-				);
-
-			});
 
 
 		/* Orden en que se muestran las categorías en el menú (de arriba hacia abajo).
@@ -1757,11 +1532,14 @@ function ordenarProductosCliente(lista) {
 						const data = docSnap.data();
 
 
+						// Seguridad: ignora documentos con IDs raros (solo letras, números, _ y -)
+						if (!/^[A-Za-z0-9_-]{1,64}$/.test(docSnap.id)) return;
+
 						if (data.disponible) {
 
 							todosLosProductos.push({
-								id: docSnap.id,
-								...data
+								...data,
+								id: docSnap.id
 							});
 
 						}
@@ -1891,6 +1669,7 @@ if (filtroSeleccionado !== "todos") {
 						<div
 							class="categoria-seccion"
 							id="cat-promociones"
+							data-cat="__promociones__"
 						>
 
 							<div class="categoria-header-row">
@@ -1963,6 +1742,7 @@ if (filtroSeleccionado !== "todos") {
 						<div
 							class="categoria-seccion"
 							id="cat-${escaparHtml(cat.replace(/\s+/g, '-'))}"
+							data-cat="${escaparHtml(cat)}"
 						>
 
 							<div class="categoria-header-row">
@@ -2002,6 +1782,7 @@ if (filtroSeleccionado !== "todos") {
 
 
 			contenedor.innerHTML = html;
+			actualizarCategoriaEnVista();
 
 		}
 		
@@ -2024,7 +1805,7 @@ if (filtroSeleccionado !== "todos") {
 
 				<div
 					class="producto-card-vertical ${p.agotado ? 'agotado' : ''}"
-					data-producto-id="${p.id}"
+					data-producto-id="${escaparHtml(p.id)}"
 				>
 
                     ${etiquetaHtml}
@@ -2115,6 +1896,7 @@ if (filtroSeleccionado !== "todos") {
 
 
 			nav.innerHTML = html;
+			actualizarCategoriaEnVista();
 
 
 
@@ -2125,64 +1907,7 @@ if (filtroSeleccionado !== "todos") {
 				.forEach(btn => {
 
 
-					btn.addEventListener(
-						"click",
-						() => {
-
-
-							document
-								.querySelectorAll(
-									".filtro-cliente-btn"
-								)
-								.forEach(b =>
-									b.classList.remove(
-										"active"
-									)
-								);
-
-
-							btn.classList.add(
-								"active"
-							);
-
-
-							const categoriaSel =
-								btn.dataset.cat;
-
-							filtroActualCliente = categoriaSel;
-
-
-							if (
-								categoriaSel ===
-								"todos"
-							) {
-
-								renderizarMenuCliente(
-									todosLosProductos,
-									"todos"
-								);
-
-							}
-
-							else {
-
-								const filtrados =
-									todosLosProductos.filter(
-										p =>
-											p.categoria ===
-											categoriaSel
-									);
-
-
-								renderizarMenuCliente(
-									filtrados,
-									categoriaSel
-								);
-
-							}
-
-						}
-					);
+					btn.addEventListener("click", () => aplicarFiltroCliente(btn.dataset.cat));
 
 				});
 
@@ -2458,6 +2183,10 @@ if (filtroSeleccionado !== "todos") {
 				"mostrar"
 			);
 
+			if (!(history.state && history.state.dumbbo === "popup")) {
+				history.pushState({ dumbbo: "popup" }, "");
+			}
+
 
 			document.body.style.overflow =
 				"hidden";
@@ -2589,7 +2318,7 @@ if (filtroSeleccionado !== "todos") {
 
 /* ===== CERRAR POPUP ===== */
 
-		function cerrarProductoPopup() {
+		function cerrarProductoPopupVisual() {
 
 			/* Invalida cualquier carga que todavía esté pendiente */
 			popupCargaId++;
@@ -2606,17 +2335,114 @@ if (filtroSeleccionado !== "todos") {
 		}
 
 
-		/* ===== ABRIR/CERRAR BARRA DE CATEGORÍAS ===== */
-		const btnCategoriasToggle = document.querySelector(".btn-categorias-menu");
-		const navCategoriasContenedor = document.getElementById("cliente-categoria-nav");
-
-		if (btnCategoriasToggle && navCategoriasContenedor) {
-			btnCategoriasToggle.addEventListener("click", () => {
-				// Almacena o quita el estado 'activo' y 'mostrar' como si fuera un interruptor
-				btnCategoriasToggle.classList.toggle("activo");
-				navCategoriasContenedor.classList.toggle("mostrar");
-			});
+		/* Cierre desde la interfaz (X, fondo, Escape): si el popup abrió una entrada de
+		   historial, se retrocede una; el evento popstate hace el cierre visual. */
+		function cerrarProductoPopup() {
+			if (history.state && history.state.dumbbo === "popup") {
+				history.back();
+			} else {
+				cerrarProductoPopupVisual();
+			}
 		}
+
+
+		/* =====================================================
+		   FILTRO DE CATEGORÍA + HISTORIAL DEL BOTÓN "ATRÁS"
+		   - Entrar a una categoría o abrir un producto agrega una entrada al historial.
+		   - "Atrás" cierra el producto, o vuelve de la categoría a "Todos".
+		   - Solo desde el menú principal "atrás" sale de la página.
+		   ===================================================== */
+
+		function irAlInicioDelMenu() {
+			const cont = document.getElementById("menu-contenedor");
+			const barra = document.querySelector(".categoria-bar-wrapper");
+			if (!cont) return;
+			const y = cont.getBoundingClientRect().top + window.scrollY - (barra ? barra.offsetHeight : 0) - 12;
+			if (window.scrollY > y) window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+		}
+
+		function aplicarFiltroCliente(cat, opciones = {}) {
+			const estabaEnTodos = filtroActualCliente === "todos";
+
+			filtroActualCliente = cat;
+
+			let lista;
+			if (cat === "todos") lista = todosLosProductos;
+			else if (cat === "__promociones__") lista = todosLosProductos.filter(p => p.promocion);
+			else lista = todosLosProductos.filter(p => p.categoria === cat);
+
+			renderizarMenuCliente(lista, cat);
+
+			document.querySelectorAll(".filtro-cliente-btn")
+				.forEach(b => b.classList.toggle("active", b.dataset.cat === cat));
+
+			if (!opciones.desdeHistorial) {
+				const estado = history.state && history.state.dumbbo;
+				if (cat !== "todos" && estabaEnTodos) {
+					history.pushState({ dumbbo: "filtro" }, "");
+				} else if (cat === "todos" && estado === "filtro") {
+					history.back();
+				}
+				irAlInicioDelMenu();
+			}
+		}
+
+		window.addEventListener("popstate", () => {
+			const estado = history.state && history.state.dumbbo;
+
+			if (estado !== "popup" && productoPopupOverlay.classList.contains("mostrar")) {
+				cerrarProductoPopupVisual();
+			}
+
+			if (!estado && filtroActualCliente !== "todos") {
+				aplicarFiltroCliente("todos", { desdeHistorial: true });
+			}
+		});
+
+
+		/* =====================================================
+		   CATEGORÍA EN VISTA (se oscurece en la barra al bajar)
+		   ===================================================== */
+
+		function actualizarCategoriaEnVista() {
+			if (filtroActualCliente !== "todos") {
+				categoriaEnVista = null;
+				return;
+			}
+
+			const barra = document.querySelector(".categoria-bar-wrapper");
+			const limite = (barra ? barra.getBoundingClientRect().bottom : 0) + 24;
+			const secciones = document.querySelectorAll("#menu-contenedor .categoria-seccion[data-cat]");
+
+			let actual = null;
+
+			secciones.forEach(sec => {
+				if (sec.getBoundingClientRect().top <= limite) actual = sec.dataset.cat;
+			});
+
+			// Al llegar al final de la página, la última sección (aunque sea corta) queda marcada
+			const alFinal = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+			if (alFinal && secciones.length > 0) actual = secciones[secciones.length - 1].dataset.cat;
+
+			categoriaEnVista = actual;
+
+			// Promos no tiene botón propio: ahí se queda "Todos" marcado
+			const objetivo = (actual && actual !== "__promociones__") ? actual : "todos";
+
+			document.querySelectorAll(".filtro-cliente-btn")
+				.forEach(b => b.classList.toggle("active", b.dataset.cat === objetivo));
+		}
+
+		let scrollPendiente = false;
+
+		window.addEventListener("scroll", () => {
+			if (scrollPendiente) return;
+			scrollPendiente = true;
+			requestAnimationFrame(() => {
+				scrollPendiente = false;
+				actualizarCategoriaEnVista();
+			});
+		}, { passive: true });
 
 
 		/* ===== TOCAR "VER MÁS" DE UNA CATEGORÍA ===== */
@@ -2636,37 +2462,7 @@ if (filtroSeleccionado !== "todos") {
 					if (!linkVerMas) return;
 
 
-					const cat = linkVerMas.dataset.cat;
-
-					filtroActualCliente = cat;
-
-
-					const filtrados =
-						cat === "__promociones__"
-						? todosLosProductos.filter(p => p.promocion)
-						: todosLosProductos.filter(p => p.categoria === cat);
-
-
-					renderizarMenuCliente(
-						filtrados,
-						cat
-					);
-
-
-					// Sincroniza el botón de categoría activo en la barra de filtros
-					document
-						.querySelectorAll(".filtro-cliente-btn")
-						.forEach(b => b.classList.remove("active"));
-
-					const btnCategoria =
-						document.querySelector(
-							`.filtro-cliente-btn[data-cat="${CSS.escape(cat)}"]`
-						);
-
-					if (btnCategoria) btnCategoria.classList.add("active");
-
-
-					window.scrollTo({ top: 0, behavior: 'smooth' });
+					aplicarFiltroCliente(linkVerMas.dataset.cat);
 
 				}
 			);
