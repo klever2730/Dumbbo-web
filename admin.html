@@ -477,6 +477,10 @@
 					<option value="Promociones">Promociones</option>
 				</select>
 
+				<select id="nuevo-subcategoria">
+					<option value="">-- Subcategoría (opcional) --</option>
+				</select>
+
 				<input type="number" id="nuevo-precio" placeholder="Precio ($)" min="1" step="1" required />
 
 				<div class="input-file-container">
@@ -1497,6 +1501,50 @@
 			}
 		});
 
+		// ===== SUBCATEGORÍAS (misma lista que usa el menú de index.html) =====
+		const SUBCATEGORIAS = {
+			"Bebestibles": ["Gaseosas", "Aguas", "Energéticas e isotónicas", "Jugos y limonadas", "Lácteos y yogures"],
+			"Snacks": ["Papas y snacks salados", "Galletas", "Barras y proteicos", "Snacks instantáneos"],
+			"Dulces": ["Chocolates", "Caramelos y gomitas", "Chicles", "Alfajores"],
+			"Sandwich": ["Sándwiches y rollitos", "Hamburguesas", "Pizzas y empanadas"],
+			"Pasteles": ["Panadería", "Queques, muffins y donas", "Postres", "Pies y tartaletas"],
+			"Cafetería": ["Café", "Té e infusiones"]
+		};
+
+		// Rellena el selector de subcategoría según la categoría elegida
+		function actualizarSelectorSubcategoria(valorActual) {
+			const cat = document.getElementById("nuevo-categoria").value;
+			const sel = document.getElementById("nuevo-subcategoria");
+			const lista = SUBCATEGORIAS[cat] || [];
+
+			sel.innerHTML = "";
+			const vacia = document.createElement("option");
+			vacia.value = "";
+			vacia.textContent = lista.length ? "-- Subcategoría (opcional) --" : "-- Sin subcategorías --";
+			sel.appendChild(vacia);
+
+			lista.forEach(nombre => {
+				const op = document.createElement("option");
+				op.value = nombre;
+				op.textContent = nombre;
+				sel.appendChild(op);
+			});
+
+			// Si el producto ya tenía una subcategoría que no está en la lista, se conserva
+			if (valorActual && !lista.includes(valorActual)) {
+				const op = document.createElement("option");
+				op.value = valorActual;
+				op.textContent = valorActual;
+				sel.appendChild(op);
+			}
+
+			sel.value = valorActual || "";
+			sel.disabled = lista.length === 0 && !valorActual;
+		}
+
+		document.getElementById("nuevo-categoria").addEventListener("change", () => actualizarSelectorSubcategoria(""));
+		actualizarSelectorSubcategoria("");
+
 		// CARGAR EDICIÓN DE UN SOLO PRODUCTO (fila individual, vista de un local específico)
 		window.cargarEdicion = (id, local) => {
 			const p = listaProductosCache.find(item => item.id === id && item.localId === local);
@@ -1508,6 +1556,7 @@
 			document.getElementById("producto-local-edit").value = p.localId;
 			document.getElementById("nuevo-nombre").value = p.nombre;
 			document.getElementById("nuevo-categoria").value = p.categoria || '';
+			actualizarSelectorSubcategoria(p.subcategoria || '');
 			document.getElementById("nuevo-precio").value = p.precio;
 			document.getElementById("nuevo-descripcion").value = p.descripcion || '';
 			document.getElementById("nuevo-disponible").checked = p.disponible;
@@ -1555,6 +1604,7 @@
 			document.getElementById("producto-local-edit").value = '';
 			document.getElementById("nuevo-nombre").value = rep.nombre;
 			document.getElementById("nuevo-categoria").value = rep.categoria || '';
+			actualizarSelectorSubcategoria(rep.subcategoria || '');
 			document.getElementById("nuevo-precio").value = rep.precio;
 			document.getElementById("nuevo-descripcion").value = rep.descripcion || '';
 			document.getElementById("nuevo-disponible").checked = rep.disponible;
@@ -1730,6 +1780,7 @@
 				const productoData = {
 					nombre: document.getElementById("nuevo-nombre").value,
 					categoria: document.getElementById("nuevo-categoria").value,
+					subcategoria: document.getElementById("nuevo-subcategoria").value,
 					precio: Number(document.getElementById("nuevo-precio").value),
 					imagenUrl: urlImagenFinal || "img/logo.png",
 					imagenesExtra: imagenesExtraActuales,
@@ -1857,6 +1908,7 @@
 
 		window.limpiarFormulario = () => {
 			document.getElementById("form-crear-producto").reset();
+			actualizarSelectorSubcategoria("");
 			document.getElementById("producto-id-edit").value = "";
 			document.getElementById("producto-local-edit").value = "";
 			document.getElementById("imagen-actual-url").value = "";
