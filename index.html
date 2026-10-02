@@ -254,6 +254,54 @@
         }
     }
 
+    /* ===== SUBCATEGORÍAS ===== */
+    #cliente-subcategoria-nav {
+        display: none;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed var(--rosa-dumbbo);
+    }
+
+    #cliente-subcategoria-nav.mostrar { display: flex; }
+
+    .subfiltro-btn {
+        background-color: var(--blanco);
+        color: var(--rosa-oscuro);
+        border: 1px solid var(--rosa-dumbbo);
+        border-radius: 16px;
+        padding: 5px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-weight: 600;
+        font-size: 0.78rem;
+        transition: all 0.2s ease;
+    }
+
+    .subfiltro-btn.active {
+        background-color: var(--rosa-dumbbo);
+        color: var(--rosa-oscuro);
+        border-color: var(--rosa-oscuro);
+        font-weight: 800;
+    }
+
+    .subcategoria-bloque { margin-top: 14px; }
+
+    .subcategoria-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .subcategoria-titulo {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #9A4A6C;
+    }
+
     @media (max-width: 480px) {
         .categoria-bar-wrapper { padding: 8px 0; margin-bottom: 16px; }
         #cliente-categoria-nav { gap: 6px; }
@@ -1228,6 +1276,8 @@
 
 			<div id="cliente-categoria-nav"></div>
 
+			<div id="cliente-subcategoria-nav"></div>
+
 		</div>
 
 
@@ -1405,6 +1455,7 @@
 		let filtroActualCliente = "todos";
 		let ordenActualCliente = "ninguno";
 		let categoriaEnVista = null;
+		let subfiltroActualCliente = "todas";
 
 function ordenarProductosCliente(lista) {
 	const copia = [...lista];
@@ -1491,6 +1542,44 @@ function ordenarProductosCliente(lista) {
 
 		const ORDEN_CATEGORIAS = ["Promociones", "Cafetería", "Sandwich", "Pasteles", "Bebestibles", "Dulces", "Snacks"];
 
+		/* Orden de las subcategorías dentro de cada categoría.
+		   Las que no estén en esta lista se agregan solas al final (orden alfabético). */
+		const ORDEN_SUBCATEGORIAS = {
+			"Bebestibles": ["Gaseosas", "Aguas", "Energéticas e isotónicas", "Jugos y limonadas", "Lácteos y yogures"],
+			"Snacks": ["Papas y snacks salados", "Galletas", "Barras y proteicos", "Snacks instantáneos"],
+			"Dulces": ["Chocolates", "Caramelos y gomitas", "Chicles", "Alfajores"],
+			"Sandwich": ["Sándwiches y rollitos", "Hamburguesas", "Pizzas y empanadas"],
+			"Pasteles": ["Panadería", "Queques, muffins y donas", "Postres", "Pies y tartaletas"],
+			"Cafetería": ["Café", "Té e infusiones"]
+		};
+
+		const SUB_OTROS = "__otros__";
+
+		function subcategoriaDe(p) {
+			return (typeof p.subcategoria === "string" ? p.subcategoria : "").trim();
+		}
+
+		/* Devuelve [{ sub, productos }] en el orden correcto. sub = "" son los productos sin subcategoría. */
+		function agruparPorSubcategoria(cat, productos) {
+			const mapa = new Map();
+			productos.forEach(p => {
+				const k = subcategoriaDe(p);
+				if (!mapa.has(k)) mapa.set(k, []);
+				mapa.get(k).push(p);
+			});
+
+			const orden = ORDEN_SUBCATEGORIAS[cat] || [];
+			const claves = [...mapa.keys()].filter(k => k !== "").sort((a, b) => {
+				const ia = orden.indexOf(a), ib = orden.indexOf(b);
+				const pa = ia === -1 ? orden.length : ia, pb = ib === -1 ? orden.length : ib;
+				if (pa !== pb) return pa - pb;
+				return a.localeCompare(b);
+			});
+			if (mapa.has("")) claves.push("");
+
+			return claves.map(k => ({ sub: k, productos: mapa.get(k) }));
+		}
+
 		function ordenarCategorias(categorias) {
 			return [...categorias].sort((a, b) => {
 				const idxA = ORDEN_CATEGORIAS.indexOf(a);
@@ -1564,20 +1653,14 @@ todosLosProductos.sort((a, b) => {
 					clearTimeout(temporizadorRenderMenu);
 					temporizadorRenderMenu = setTimeout(() => {
 
-						const filtrarPorSeleccion = () =>
-							filtroActualCliente === "todos"
-								? todosLosProductos
-								: filtroActualCliente === "__promociones__"
-									? todosLosProductos.filter(p => p.promocion)
-									: todosLosProductos.filter(p => p.categoria === filtroActualCliente);
-
-						let productosAMostrar = filtrarPorSeleccion();
+						let productosAMostrar = productosParaVista();
 
 						// Si la categoría que estaba viendo el cliente se quedó sin productos
 						// (ej. se ocultaron todos), vuelve a "Todos" en vez de mostrar el menú vacío.
 						if (productosAMostrar.length === 0 && filtroActualCliente !== "todos") {
 
 							filtroActualCliente = "todos";
+							subfiltroActualCliente = "todas";
 							productosAMostrar = todosLosProductos;
 
 							document
@@ -1606,6 +1689,56 @@ todosLosProductos.sort((a, b) => {
 
 		}
 
+		/* Lista de productos según la categoría y la subcategoría elegidas */
+		function productosParaVista() {
+			if (filtroActualCliente === "todos") return todosLosProductos;
+			if (filtroActualCliente === "__promociones__") return todosLosProductos.filter(p => p.promocion);
+
+			let lista = todosLosProductos.filter(p => p.categoria === filtroActualCliente);
+
+			if (subfiltroActualCliente === SUB_OTROS) {
+				lista = lista.filter(p => subcategoriaDe(p) === "");
+			} else if (subfiltroActualCliente !== "todas") {
+				lista = lista.filter(p => subcategoriaDe(p) === subfiltroActualCliente);
+			}
+			return lista;
+		}
+
+		/* Barra de subcategorías (solo cuando se está viendo una categoría con subcategorías) */
+		function actualizarBarraSubcategorias() {
+			const nav = document.getElementById("cliente-subcategoria-nav");
+			if (!nav) return;
+
+			const esCategoria = filtroActualCliente !== "todos" && filtroActualCliente !== "__promociones__";
+			const grupos = esCategoria
+				? agruparPorSubcategoria(filtroActualCliente, todosLosProductos.filter(p => p.categoria === filtroActualCliente))
+				: [];
+
+			// Sin subcategorías (o una sola y nada más): no hace falta mostrar la barra
+			if (!esCategoria || grupos.length < 2 || (grupos.length === 1 && grupos[0].sub === "")) {
+				nav.classList.remove("mostrar");
+				nav.innerHTML = "";
+				subfiltroActualCliente = "todas";
+				return;
+			}
+
+			// Si la subcategoría elegida ya no existe (ej. se ocultaron sus productos), vuelve a "Todas"
+			const validas = new Set(grupos.map(g => g.sub === "" ? SUB_OTROS : g.sub));
+			if (subfiltroActualCliente !== "todas" && !validas.has(subfiltroActualCliente)) {
+				subfiltroActualCliente = "todas";
+			}
+
+			let html = `<button class="subfiltro-btn ${subfiltroActualCliente === "todas" ? "active" : ""}" data-sub="todas">Todas</button>`;
+			grupos.forEach(g => {
+				const valor = g.sub === "" ? SUB_OTROS : g.sub;
+				const etiqueta = g.sub === "" ? "Otros" : g.sub;
+				html += `<button class="subfiltro-btn ${subfiltroActualCliente === valor ? "active" : ""}" data-sub="${escaparHtml(valor)}">${escaparHtml(etiqueta)}</button>`;
+			});
+
+			nav.innerHTML = html;
+			nav.classList.add("mostrar");
+		}
+
 		function renderizarMenuCliente(
 			productos,
 			filtroSeleccionado
@@ -1616,6 +1749,7 @@ todosLosProductos.sort((a, b) => {
 					"menu-contenedor"
 				);
 
+			actualizarBarraSubcategorias();
 
 			if (productos.length === 0) {
 
@@ -1737,6 +1871,14 @@ if (filtroSeleccionado !== "todos") {
 					const claseContenedorCat = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
 					const estiloContenedorCat = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${colCat};"` : "";
 
+					const gruposCat = (filtroSeleccionado === "todos")
+						? agruparPorSubcategoria(cat, productosCat)
+						: [{ sub: "", productos: productosCat }];
+
+					// Hay subcategorías solo si algún producto de esta categoría tiene una
+					const conSubcategorias = filtroSeleccionado === "todos" &&
+						gruposCat.some(g => g.sub !== "");
+
 					html += `
 
 						<div
@@ -1756,21 +1898,41 @@ if (filtroSeleccionado !== "todos") {
 								</span>
 
 							</div>
-
-							<div class="${claseContenedorCat}" ${estiloContenedorCat}>
 					`;
 
+					gruposCat.forEach(grupo => {
 
-					productosCat.forEach(p => {
+						const cant = grupo.productos.length;
+						const col = Math.max(Math.min(12, cant), Math.ceil(cant / 3));
+						const clase = filtroSeleccionado === "todos" ? "productos-horizontal-scroll" : "productos-grid-vertical";
+						const estilo = filtroSeleccionado === "todos" ? `style="--columnas-movil: ${col};"` : "";
 
-						html += crearTarjetaVertical(p);
+						if (conSubcategorias) {
+							const valorSub = grupo.sub === "" ? SUB_OTROS : grupo.sub;
+							const etiquetaSub = grupo.sub === "" ? "Otros" : grupo.sub;
+
+							html += `
+								<div class="subcategoria-bloque" data-sub="${escaparHtml(valorSub)}">
+									<div class="subcategoria-header-row">
+										<h3 class="subcategoria-titulo">${escaparHtml(etiquetaSub)}</h3>
+										<span class="ver-mas-link" data-cat="${escaparHtml(cat)}" data-sub="${escaparHtml(valorSub)}">Ver más ›</span>
+									</div>
+							`;
+						}
+
+						html += `<div class="${clase}" ${estilo}>`;
+
+						grupo.productos.forEach(p => {
+							html += crearTarjetaVertical(p);
+						});
+
+						html += `</div>`;
+
+						if (conSubcategorias) html += `</div>`;
 
 					});
 
-
 					html += `
-
-							</div>
 
 						</div>
 
@@ -2365,13 +2527,9 @@ if (filtroSeleccionado !== "todos") {
 			const estabaEnTodos = filtroActualCliente === "todos";
 
 			filtroActualCliente = cat;
+			subfiltroActualCliente = (cat !== "todos" && opciones.sub) ? opciones.sub : "todas";
 
-			let lista;
-			if (cat === "todos") lista = todosLosProductos;
-			else if (cat === "__promociones__") lista = todosLosProductos.filter(p => p.promocion);
-			else lista = todosLosProductos.filter(p => p.categoria === cat);
-
-			renderizarMenuCliente(lista, cat);
+			renderizarMenuCliente(productosParaVista(), cat);
 
 			document.querySelectorAll(".filtro-cliente-btn")
 				.forEach(b => b.classList.toggle("active", b.dataset.cat === cat));
@@ -2386,6 +2544,15 @@ if (filtroSeleccionado !== "todos") {
 				irAlInicioDelMenu();
 			}
 		}
+
+		document.getElementById("cliente-subcategoria-nav").addEventListener("click", (evento) => {
+			const btn = evento.target.closest(".subfiltro-btn");
+			if (!btn) return;
+
+			subfiltroActualCliente = btn.dataset.sub;
+			renderizarMenuCliente(productosParaVista(), filtroActualCliente);
+			irAlInicioDelMenu();
+		});
 
 		window.addEventListener("popstate", () => {
 			const estado = history.state && history.state.dumbbo;
@@ -2462,7 +2629,7 @@ if (filtroSeleccionado !== "todos") {
 					if (!linkVerMas) return;
 
 
-					aplicarFiltroCliente(linkVerMas.dataset.cat);
+					aplicarFiltroCliente(linkVerMas.dataset.cat, { sub: linkVerMas.dataset.sub || "todas" });
 
 				}
 			);
@@ -2475,12 +2642,7 @@ document
 
 		ordenActualCliente = evento.target.value;
 
-		const filtrados =
-			filtroActualCliente === "__promociones__"
-				? todosLosProductos.filter(p => p.promocion)
-				: todosLosProductos.filter(p => p.categoria === filtroActualCliente);
-
-		renderizarMenuCliente(filtrados, filtroActualCliente);
+		renderizarMenuCliente(productosParaVista(), filtroActualCliente);
 	});
 		
 		/* ===== TOCAR UNA TARJETA ===== */
