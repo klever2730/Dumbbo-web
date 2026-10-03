@@ -1525,6 +1525,13 @@ function ordenarProductosCliente(lista) {
 
 		const LOCALES_PERMITIDOS = ["GHU", "VK1", "Duoc"];
 
+		// Nombre que ve el cliente (los códigos de arriba siguen siendo los de la URL y de Firestore)
+		const NOMBRES_LOCALES = {
+			"GHU": "Ucentral-Ghu",
+			"VK1": "Ucentral-Vk1",
+			"Duoc": "Duoc-Plaza Oeste"
+		};
+
 		const localParametro = new URLSearchParams(window.location.search).get("local");
 
 		const LOCAL_ACTUAL = LOCALES_PERMITIDOS.includes(localParametro) ? localParametro : null;
@@ -1533,7 +1540,7 @@ function ordenarProductosCliente(lista) {
 			window.location.replace("locales.html");
 		} else {
 			const etiquetaLocal = document.getElementById("nombre-local-actual");
-			if (etiquetaLocal) etiquetaLocal.textContent = LOCAL_ACTUAL;
+			if (etiquetaLocal) etiquetaLocal.textContent = NOMBRES_LOCALES[LOCAL_ACTUAL] || LOCAL_ACTUAL;
 		}
 
 
