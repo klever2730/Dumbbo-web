@@ -541,6 +541,11 @@
 		</button>
 		<div id="limpieza-estado" style="font-size:0.85rem; color:var(--rosa-oscuro); margin-bottom:12px;"></div>
 
+		<button type="button" id="btn-importar-subcategorias" class="tm-btn tm-btn-default" style="margin-bottom:12px; display:none;">
+			🧩 Asignar subcategorías automáticamente
+		</button>
+		<div id="import-sub-panel" style="display:none; background:#fff; border:1px solid #DFA5BB; border-radius:12px; padding:14px; margin-bottom:15px; font-size:0.9rem;"></div>
+
 		<input type="text" id="input-busqueda" class="input-busqueda" placeholder="🔍 Buscar producto por nombre..." />
 
 		<div class="apartados-bar">
@@ -788,6 +793,9 @@
 			const botonLimpieza = document.getElementById("btn-limpiar-huerfanas");
 			if (botonLimpieza) botonLimpieza.style.display = esAdministrador() ? "" : "none";
 
+			const botonImportSub = document.getElementById("btn-importar-subcategorias");
+			if (botonImportSub) botonImportSub.style.display = esAdministrador() ? "" : "none";
+
 			if (!esAdministrador()) {
 				select.innerHTML = `<option value="${localAsignado}">${localAsignado}</option>`;
 				select.value = localAsignado;
@@ -921,6 +929,9 @@
 				document.getElementById("tabla-productos-body").innerHTML = "";
 				const estadoLimpieza = document.getElementById("limpieza-estado");
 				if (estadoLimpieza) estadoLimpieza.innerText = "";
+				const panelImport = document.getElementById("import-sub-panel");
+				if (panelImport) { panelImport.style.display = "none"; panelImport.innerHTML = ""; }
+				planImportacion = null;
 
 				// buscadores, filtros y selección de combo
 				const busqueda = document.getElementById("input-busqueda");
@@ -1544,6 +1555,266 @@
 
 		document.getElementById("nuevo-categoria").addEventListener("change", () => actualizarSelectorSubcategoria(""));
 		actualizarSelectorSubcategoria("");
+
+		// ============================================================
+		// ASIGNACIÓN AUTOMÁTICA DE SUBCATEGORÍAS (herramienta de una sola vez)
+		// Compara los productos cargados con js/mapa-subcategorias.js, muestra una vista
+		// previa y, solo si el administrador confirma, guarda la subcategoría.
+		// Nunca pisa una subcategoría que ya esté puesta ni cambia categorías sin permiso.
+		// ============================================================
+		let planImportacion = null;
+		let importacionEnCurso = false;
+
+		const PALABRAS_IGNORADAS_IMPORT = new Set([
+			"de", "del", "la", "el", "los", "las", "con", "sin", "y", "o", "en", "un", "una",
+			"g", "gr", "ml", "cc", "kg", "l", "variedades", "variedad", "sabores", "sabor", "surtido", "surtidos"
+		]);
+
+		function normalizarTextoImport(texto) {
+			return String(texto ?? "")
+				.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, " ")
+				.replace(/\s+/g, " ")
+				.trim();
+		}
+
+		function tokensImport(texto) {
+			return normalizarTextoImport(texto).split(" ").filter(t => t && !PALABRAS_IGNORADAS_IMPORT.has(t));
+		}
+
+		function subcategoriaValida(cat, sub) {
+			return Array.isArray(SUBCATEGORIAS[cat]) && SUBCATEGORIAS[cat].includes(sub);
+		}
+
+		function calcularPlanImportacion(mapaBruto) {
+			const exacto = new Map();
+			const entradas = [];
+
+			mapaBruto.forEach(([clave, cat, sub]) => {
+				if (!subcategoriaValida(cat, sub)) return;
+				exacto.set(clave, { cat, sub });
+				entradas.push({ clave, cat, sub, tokens: new Set(clave.split(" ")), compacto: clave.replace(/ /g, "") });
+			});
+
+			const plan = {
+				asignar: [],        // { p, cat, sub, tipo: "exacto"|"aproximado", parecido }
+				categoriaDistinta: [], // { p, cat, sub }
+				yaCorrectas: 0,
+				yaConOtra: [],      // { p, cat, sub }
+				sinCoincidencia: [],
+				ignoradas: 0
+			};
+
+			listaProductosCache.forEach(p => {
+				// Las promociones/combos no llevan subcategoría
+				if (p.categoria === "Promociones" || p.esPromoCombinada) { plan.ignoradas++; return; }
+
+				let coincidencia = exacto.get(normalizarTextoImport(p.nombre));
+				let tipo = "exacto";
+				let parecido = "";
+
+				if (!coincidencia) {
+					const tp = tokensImport(p.nombre);
+					if (tp.length > 0) {
+						// 1) todas las palabras del producto están en el nombre de la planilla
+						let candidatos = entradas.filter(e => tp.every(t => e.tokens.has(t)));
+
+						// 2) solo si no hubo ningún candidato: tolera espacios distintos ("Coca Cola" vs "COCACOLA")
+						if (candidatos.length === 0) {
+							candidatos = entradas.filter(e => tp.every(t => t.length >= 4 ? e.compacto.includes(t) : e.tokens.has(t)));
+						}
+
+						const distintos = (lista) => new Set(lista.map(e => e.cat + "||" + e.sub));
+
+						// Si hay empate, se intenta quedarse con los de la misma categoría que ya tiene el producto
+						if (distintos(candidatos).size > 1) {
+							candidatos = candidatos.filter(e => e.cat === p.categoria);
+						}
+
+						if (candidatos.length > 0 && distintos(candidatos).size === 1) {
+							coincidencia = { cat: candidatos[0].cat, sub: candidatos[0].sub };
+							tipo = "aproximado";
+							parecido = candidatos[0].clave;
+						}
+					}
+				}
+
+				if (!coincidencia) { plan.sinCoincidencia.push(p); return; }
+
+				const subActual = (typeof p.subcategoria === "string" ? p.subcategoria : "").trim();
+
+				if (p.categoria !== coincidencia.cat) {
+					plan.categoriaDistinta.push({ p, ...coincidencia });
+				} else if (subActual === coincidencia.sub) {
+					plan.yaCorrectas++;
+				} else if (subActual !== "") {
+					plan.yaConOtra.push({ p, ...coincidencia });
+				} else {
+					plan.asignar.push({ p, ...coincidencia, tipo, parecido });
+				}
+			});
+
+			return plan;
+		}
+
+		function listaNombresUnicos(productos) {
+			const mapa = new Map();
+			productos.forEach(p => {
+				const k = (p.nombre || "").trim();
+				if (!mapa.has(k)) mapa.set(k, []);
+				mapa.get(k).push(p.localId);
+			});
+			return [...mapa.entries()];
+		}
+
+		function renderizarPlanImportacion() {
+			const panel = document.getElementById("import-sub-panel");
+			const plan = planImportacion;
+			if (!panel || !plan) return;
+
+			const exactos = plan.asignar.filter(x => x.tipo === "exacto").length;
+			const aprox = plan.asignar.length - exactos;
+			const locales = [...new Set(listaProductosCache.map(p => p.localId))].join(", ") || "-";
+
+			let h = `<strong>Vista previa</strong> · ${listaProductosCache.length} productos cargados (${escaparHtml(locales)})<br><br>`;
+			h += `✅ <strong>${plan.asignar.length}</strong> recibirán subcategoría (${exactos} exactos, ${aprox} aproximados)<br>`;
+			h += `👌 ${plan.yaCorrectas} ya la tenían correcta<br>`;
+			h += `🔒 ${plan.yaConOtra.length} ya tienen otra subcategoría (no se tocan)<br>`;
+			h += `⚠️ ${plan.categoriaDistinta.length} con categoría distinta a la planilla<br>`;
+			h += `❓ ${plan.sinCoincidencia.length} sin coincidencia (se asignan a mano)<br>`;
+			if (plan.ignoradas) h += `🎁 ${plan.ignoradas} promociones (no llevan subcategoría)<br>`;
+
+			if (aprox > 0) {
+				h += `<details style="margin-top:10px;"><summary><strong>🔎 Aproximados (revísalos)</strong></summary><ul style="margin:6px 0 0 18px;">`;
+				plan.asignar.filter(x => x.tipo === "aproximado").forEach(x => {
+					h += `<li>${escaparHtml(x.p.nombre)} <small>(${escaparHtml(x.p.localId)})</small> → ${escaparHtml(x.cat)} › ${escaparHtml(x.sub)} <small>parecido a «${escaparHtml(x.parecido)}»</small></li>`;
+				});
+				h += `</ul></details>`;
+			}
+
+			if (plan.categoriaDistinta.length > 0) {
+				h += `<details style="margin-top:10px;"><summary><strong>⚠️ Categoría distinta</strong></summary><ul style="margin:6px 0 0 18px;">`;
+				plan.categoriaDistinta.forEach(x => {
+					h += `<li>${escaparHtml(x.p.nombre)} <small>(${escaparHtml(x.p.localId)})</small>: hoy «${escaparHtml(x.p.categoria)}» → planilla «${escaparHtml(x.cat)} › ${escaparHtml(x.sub)}»</li>`;
+				});
+				h += `</ul>
+					<label style="display:block; margin-top:8px;"><input type="checkbox" id="import-sub-cambiar-categoria" /> También cambiar la categoría de estos ${plan.categoriaDistinta.length} y asignarles su subcategoría</label>
+				</details>`;
+			}
+
+			if (plan.yaConOtra.length > 0) {
+				h += `<details style="margin-top:10px;"><summary><strong>🔒 Ya tienen otra subcategoría</strong></summary><ul style="margin:6px 0 0 18px;">`;
+				plan.yaConOtra.forEach(x => {
+					h += `<li>${escaparHtml(x.p.nombre)} <small>(${escaparHtml(x.p.localId)})</small>: tiene «${escaparHtml(x.p.subcategoria)}», la planilla dice «${escaparHtml(x.sub)}»</li>`;
+				});
+				h += `</ul></details>`;
+			}
+
+			if (plan.sinCoincidencia.length > 0) {
+				h += `<details style="margin-top:10px;"><summary><strong>❓ Sin coincidencia</strong></summary><ul style="margin:6px 0 0 18px;">`;
+				listaNombresUnicos(plan.sinCoincidencia).forEach(([nombre, locs]) => {
+					h += `<li>${escaparHtml(nombre)} <small>(${escaparHtml([...new Set(locs)].join(", "))})</small></li>`;
+				});
+				h += `</ul></details>`;
+			}
+
+			h += `<div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+				<button type="button" id="btn-import-sub-aplicar" class="tm-btn tm-btn-default" ${plan.asignar.length === 0 && plan.categoriaDistinta.length === 0 ? "disabled" : ""}>Aplicar cambios</button>
+				<button type="button" id="btn-import-sub-cancelar" class="tm-btn" style="background:#ccc;">Cancelar</button>
+			</div>
+			<div id="import-sub-resultado" style="margin-top:10px;"></div>`;
+
+			panel.innerHTML = h;
+			panel.style.display = "block";
+
+			document.getElementById("btn-import-sub-cancelar").addEventListener("click", () => {
+				if (importacionEnCurso) return;
+				panel.style.display = "none";
+				panel.innerHTML = "";
+				planImportacion = null;
+			});
+			document.getElementById("btn-import-sub-aplicar").addEventListener("click", aplicarPlanImportacion);
+		}
+
+		async function aplicarPlanImportacion() {
+			if (!esAdministrador() || !planImportacion || importacionEnCurso) return;
+
+			const cambiarCategoria = !!(document.getElementById("import-sub-cambiar-categoria") || {}).checked;
+
+			const operaciones = planImportacion.asignar.map(x => ({
+				id: x.p.id, localId: x.p.localId, nombre: x.p.nombre, datos: { subcategoria: x.sub }
+			}));
+
+			if (cambiarCategoria) {
+				planImportacion.categoriaDistinta.forEach(x => operaciones.push({
+					id: x.p.id, localId: x.p.localId, nombre: x.p.nombre, datos: { categoria: x.cat, subcategoria: x.sub }
+				}));
+			}
+
+			if (operaciones.length === 0) return;
+
+			if (!confirm(`Se actualizarán ${operaciones.length} productos. ¿Continuar?`)) return;
+
+			importacionEnCurso = true;
+			const boton = document.getElementById("btn-import-sub-aplicar");
+			const resultado = document.getElementById("import-sub-resultado");
+			if (boton) boton.disabled = true;
+
+			let hechos = 0;
+			const errores = [];
+			const TAM_LOTE = 8;
+
+			for (let i = 0; i < operaciones.length; i += TAM_LOTE) {
+				const lote = operaciones.slice(i, i + TAM_LOTE);
+				const resultados = await Promise.allSettled(
+					lote.map(op => updateDoc(docProducto(op.id, op.localId), op.datos))
+				);
+				resultados.forEach((r, j) => {
+					if (r.status === "fulfilled") hechos++;
+					else errores.push(`${lote[j].nombre} (${lote[j].localId}): ${r.reason && r.reason.message ? r.reason.message : r.reason}`);
+				});
+				if (resultado) resultado.textContent = `Guardando… ${Math.min(i + TAM_LOTE, operaciones.length)} de ${operaciones.length}`;
+			}
+
+			importacionEnCurso = false;
+
+			if (resultado) {
+				resultado.innerHTML = `<strong>Listo:</strong> ${hechos} actualizados` + (errores.length ? `, ${errores.length} con error.` : ".");
+				if (errores.length) {
+					const ul = document.createElement("ul");
+					ul.style.margin = "6px 0 0 18px";
+					errores.slice(0, 15).forEach(t => { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+					resultado.appendChild(ul);
+				}
+			}
+
+			// La tabla se actualiza sola (onSnapshot). Se vuelve a calcular para mostrar lo que falta.
+			planImportacion = null;
+		}
+
+		document.getElementById("btn-importar-subcategorias").addEventListener("click", async () => {
+			if (!esAdministrador() || importacionEnCurso) return;
+
+			const panel = document.getElementById("import-sub-panel");
+			if (listaProductosCache.length === 0) {
+				alert("Todavía no hay productos cargados.");
+				return;
+			}
+
+			let modulo;
+			try {
+				modulo = await import("./js/mapa-subcategorias.js");
+			} catch (e) {
+				console.error(e);
+				panel.style.display = "block";
+				panel.textContent = "No se encontró js/mapa-subcategorias.js. Súbelo al repositorio (carpeta js) y vuelve a intentar.";
+				return;
+			}
+
+			planImportacion = calcularPlanImportacion(modulo.MAPA_SUBCATEGORIAS || []);
+			renderizarPlanImportacion();
+		});
 
 		// CARGAR EDICIÓN DE UN SOLO PRODUCTO (fila individual, vista de un local específico)
 		window.cargarEdicion = (id, local) => {
